@@ -1,11 +1,5 @@
 
-interface TodoFilterProps {
-    currentFilter: 'all' | 'active' | 'completed';
-    onFilterChange: (filter: 'all' | 'active' | 'completed') => void;
-}
-
-
-function TodoFilter({ currentFilter, onFilterChange }: TodoFilterProps) {
+function TodoFilter({ currentFilter, onFilterChange }) {
     return (
         <div className="todo-filter">
             <button className={`filter-btn${currentFilter === 'all' ? ' active' : ''}`} onClick={() => onFilterChange('all')} disabled={currentFilter === 'all'}>전체</button>

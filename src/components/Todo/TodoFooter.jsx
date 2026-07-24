@@ -1,11 +1,5 @@
 
-
-interface TodoFooterProps {
-    count: number
-    totCount: number
-} 
-
-function TodoFooter({ count, totCount }: TodoFooterProps) {
+function TodoFooter({ count, totCount }) {
     return (
         <div className="todo-footer">
             <p className="todo-total">전체 {totCount}개</p>

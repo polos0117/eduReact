@@ -1,14 +1,6 @@
-import type { Todo } from '../../types/Todo';
 import { useState } from 'react';
 
-interface TodoItemProps {
-    todo: Todo;
-    onToggleTodo: (id: number) => void;
-    onRemoveTodo: (id: number) => void;
-    onEditTodo: (id: number, newText: string) => void;
-}
-
-function TodoItem({ todo, onToggleTodo, onRemoveTodo, onEditTodo }: TodoItemProps) {
+function TodoItem({ todo, onToggleTodo, onRemoveTodo, onEditTodo }) {
     const [isEditing, setIsEditing] = useState(false);
     const [editText, setEditText] = useState(todo.text);
     function handleEdit() {

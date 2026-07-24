@@ -1,13 +1,7 @@
 import { useState } from "react";
 
-interface TodoFormProps {
-    onAddTodo: (text: string) => void;
-
-} 
-
-
-function TodoForm({ onAddTodo }: TodoFormProps) {
-const [text, setText] = useState<string>('');
+function TodoForm({ onAddTodo }) {
+const [text, setText] = useState('');
  return (
     <form onSubmit={(e) => {
         e.preventDefault();

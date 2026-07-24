@@ -2,44 +2,38 @@ import { useState } from "react";
 import { useReducer } from "react";
 import {useEffect} from "react";
 import { todoReducer } from "../../reducers/todoReducer";
-import type { Todo } from "../../types/Todo";
 import TodoList from "./TodoList";
 import TodoForm from "./TodoForm";
 import TodoFooter from "./TodoFooter";
 import TodoFilter from "./TodoFilter";
 
-
-
-
-
-
 function TodoApp() {
-    
+
     const [todos, setTodos] = useReducer(todoReducer, [], (initial) => {
         const storedTodos = localStorage.getItem('todos');
         return storedTodos ? JSON.parse(storedTodos) : initial;
     });
-    const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+    const [filter, setFilter] = useState('all');
 
         useEffect(() => {
         try {
-            localStorage.setItem('todos', JSON.stringify(todos));   
+            localStorage.setItem('todos', JSON.stringify(todos));
         } catch (error) {
             console.error("Error saving to localStorage", error);
         }
     },[todos]);
 
 
-    function toggleTodo(id: number) {
+    function toggleTodo(id) {
         setTodos({ type: 'TOGGLE', id });
     }
-    function removeTodo(id: number) {
+    function removeTodo(id) {
         setTodos({ type: 'REMOVE', id });
     }
 
     function getFilteredTodos() {
         switch (filter) {
-            case 'active': 
+            case 'active':
                 return todos.filter(todo => !todo.completed);
             case 'completed':
                 return todos.filter(todo => todo.completed);
@@ -47,7 +41,7 @@ function TodoApp() {
                 return todos;
         }
     }
-    function editTodo(id: number, newText: string) {
+    function editTodo(id, newText) {
         setTodos({ type: 'EDIT', id, newText });
     }
 
@@ -55,7 +49,7 @@ function TodoApp() {
         <div className="todo-app">
             <h1>할 일 목록</h1>
             <TodoForm onAddTodo={(text) => {
-                const newTodo: Todo = {
+                const newTodo = {
                     id: Date.now(),
                     text: text,
                     completed: false
@@ -73,10 +67,4 @@ function TodoApp() {
     );
 }
 
-
-
-
-
-
 export default TodoApp;
-
