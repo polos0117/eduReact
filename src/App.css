@@ -269,3 +269,25 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
+
+.clear-completed {
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.clear-completed:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+.clear-completed:disabled {
+  opacity: 0.35;
+  cursor: default;
+}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 function TodoItem({ todo, onToggleTodo, onRemoveTodo, onEditTodo }) {
+    console.log(`TodoItem rendered: ${todo.text}`);
     const [isEditing, setIsEditing] = useState(false);
     const [editText, setEditText] = useState(todo.text);
     function handleEdit() {
@@ -12,7 +13,18 @@ function TodoItem({ todo, onToggleTodo, onRemoveTodo, onEditTodo }) {
         onEditTodo(todo.id, trimmed);
         setIsEditing(false);
     }
-
+    function startEditing() {
+        setEditText(todo.text);
+        setIsEditing(true);
+    }
+    function handleKeyDown(e) {
+        if (e.key === 'Enter') {
+            handleEdit();
+        }
+        else if (e.key === 'Escape') {
+            setIsEditing(false);
+        }
+    }   
     return (
             <li className={`todo-item${todo.completed ? ' completed' : ''}`}>
                 {isEditing ? (
@@ -25,11 +37,7 @@ function TodoItem({ todo, onToggleTodo, onRemoveTodo, onEditTodo }) {
                         onBlur={() => {
                             handleEdit();
                         }}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                handleEdit();
-                            }
-                        }}
+                        onKeyDown={handleKeyDown}
                     />
                 ) : (
                     <>
@@ -41,7 +49,7 @@ function TodoItem({ todo, onToggleTodo, onRemoveTodo, onEditTodo }) {
                         />
                         <span className="todo-item-text">{todo.text}</span>
                         <div className="todo-item-actions">
-                            <button className="todo-item-btn" onClick={() => setIsEditing(true)}>수정</button>
+                            <button className="todo-item-btn" onClick={startEditing}>수정</button>
                             <button className="todo-item-btn danger" onClick={() => onRemoveTodo(todo.id)}>삭제</button>
                         </div>
                     </>
