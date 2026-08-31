@@ -5,6 +5,7 @@ import TodoList from "./TodoList";
 import TodoForm from "./TodoForm";
 import TodoFooter from "./TodoFooter";
 import TodoFilter from "./TodoFilter";
+import TodoSuggestions from "./TodoSuggestions";
 
 function TodoApp() {
     const [todos, dispatch] = usePersistedReducer(todoReducer, 'todos', []);
@@ -53,6 +54,7 @@ function TodoApp() {
             onRemoveTodo={removeTodo}
             onEditTodo={editTodo}/>
             <TodoFooter totCount={todos.length} count={todos.filter(todo => !todo.completed).length} onClearCompleted={clearCompletedTodos} />
+            <TodoSuggestions></TodoSuggestions>
         </div>
     );
 }

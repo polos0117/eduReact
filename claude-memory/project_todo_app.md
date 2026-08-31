@@ -1,0 +1,33 @@
+---
+name: project-todo-app
+description: Todo List learning project structure and progress in c:\eduReact
+metadata: 
+  node_type: memory
+  type: project
+  originSessionId: 557e4b75-5770-4e11-909f-945938cbe48a
+  modified: 2026-08-31T00:32:40.656Z
+---
+
+Building a Todo List app in `c:\eduReact` (Vite + React 19 + JS) as a React learning exercise. [[user-react-beginner]]
+
+**Structure (verified 2026-08-06):**
+- `src/hooks/usePersistedReducer.js` — generic `usePersistedReducer(reducer, key, initialValue)` returning `[state, dispatch]`; wraps `useReducer` with a localStorage lazy initializer plus a saving `useEffect` keyed on `[state, key]`. Deliberately knows nothing about todos.
+- `src/reducers/todoReducer.js` — `ADD` / `TOGGLE` / `REMOVE` / `CLEAR_COMPLETED` / `EDIT`, all actions flat-shaped (`action.todo`, `action.id`, `action.newText`) — no `payload` wrapper.
+- `src/components/Todo/TodoApp.jsx` — calls the hook in one line, holds `filter` + `search` state, computes `visibleTodos` as a plain value (no `useMemo`), five named handlers.
+- `TodoForm` / `TodoList` / `TodoItem` (inline edit, Enter saves, ESC cancels) / `TodoFilter` (search + all/active/completed) / `TodoFooter` (counts, clear-completed).
+
+**Backlog from 2026-08-06 is fully done:** search wiring, TodoItem edit-state sync bug, ESC-to-cancel, `useMemo` (learned then deliberately removed — with only `todos`/`filter`/`search` in the component, it never skipped a computation), reducer action unification + `setTodos`→`dispatch` rename, `usePersistedReducer` extraction.
+
+**Done since (as of 2026-08-28):** `useRef` refocus (60c371a). Vitest set up + 4 passing tests in `src/reducers/todoReducer.test.js`, all written by the user: 2 ADD (dc5f06e) + 2 TOGGLE incl. an `expect(result).not.toBe(state)` immutability check (8413c6d). Lessons taught via experiments: planted-bug tests ("tests only protect the inputs you feed them"), Vitest expected/received diffs, matchers (`toEqual` vs `toBe` === React's state-change check).
+
+**Hybrid learning mode adopted 2026-08-28:** user was frustrated that React/JS expression syntax "won't stick", so we now do short pure-JS syntax drills in `drills/` (numbered files, run with `node`, TODO-style problems I author, user types answers) before resuming project work. Drill 01 (destructuring) done — it exposed a real gap: user didn't solidly have arrays-vs-objects ("칸에 이름이 있느냐 없느냐" framing landed well) and the rule "brackets on the LEFT of = unpack, on the RIGHT create". End each drill by finding the same pattern in their own code (TodoApp.jsx worked great for this). Future drills should have NO visible example answers (user called out that drill 01's problems 1/2 answered each other). User disabled Copilot ghost text for drills. Remaining of the 5-pattern list for drills: spread, functions-as-values, ternary, chaining — user asked for an arrays-vs-objects basics drill (02) before spread.
+
+**2026-08-28 afternoon session:** reducer test suite COMPLETE — 7 tests, all user-written, incl. `toBe` for the default case (user chose it unprompted, with decoy action fields) (d416599). Drills 02–05 done/nearly done: 02 array-vs-object (incl. single-source-of-truth design debate — user pushed back well, chose "no-field-as-truth" B안 with `find`), 03 spread (references/이름표 metaphor landed; const protects the binding not the contents), 04 functions-as-values (fn vs fn(), callbacks, props — commit 989bad6). Drill 05 (ternary+chaining) problems 1,4,5 correct; **left as homework:** 문제2 needs the expression-vs-statement half of the answer, 문제3 used `completed: true` instead of `!todo.completed` (set vs flip — blind-spot callback), 문제6 (filter order question) unanswered. Drill 05 file NOT yet committed.
+
+**2026-08-31: 5-pattern drill series COMPLETE** (drill 05 committed, 2980144). Homework review: user fixed set-vs-flip, invented "wrap statement in a function to make it a value" on their own for the expression-vs-statement question, got filter-order commutativity right.
+
+**Next:** async step — plan: drill 06 (pure-JS async: setTimeout/Promise/await in node) BEFORE touching the app, then add fetch with loading/error state to the project. Also pending: install `eslint-plugin-react-hooks`. Metaphors that work for this user: 서랍장(이름 있는/번호뿐인), 이름표(참조), 요리법 vs 요리(fn vs fn()), 식=값이 되는 것 vs 문장.
+
+**Why:** tasks are ranked by concept-learned-per-effort, not feature value, since the goal is learning React.
+
+**How to apply:** keep giving one small step at a time and reviewing after each "했어". [[feedback-teach-principles-not-just-bugs]] [[user-react-beginner]]
