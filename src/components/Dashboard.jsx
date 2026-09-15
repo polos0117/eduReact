@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { PRIORITIES, PRIORITY_LABEL } from '../reducers/todoReducer';
 import { completedPerDay, countByPriority, dueBuckets, formatDay, dayKey } from '../lib/stats';
+import { useNow } from '../hooks/useNow';
 
 const DAYS = 14;
 const WEEK_MS = 7 * 24 * 3600 * 1000;
@@ -55,8 +55,7 @@ function CompletedChart({ rows, todayKey }) {
 }
 
 function Dashboard({ todos }) {
-    // ponytail: 탭에 들어올 때 한 번 잡는다. 자정을 넘겨 켜 두면 하루 어긋남 — 분 단위 갱신이 필요해지면 interval
-    const [now] = useState(() => Date.now());
+    const now = useNow();
     const todayKey = dayKey(now);
     const total = todos.length;
     const done = todos.filter(todo => todo.completed).length;
@@ -90,7 +89,7 @@ function Dashboard({ todos }) {
                 </div>
                 <div className="stat">
                     <span className="stat-value">{weekDone}</span>
-                    <span className="stat-label">이번 주 완료</span>
+                    <span className="stat-label">최근 7일 완료</span>
                 </div>
             </div>
 

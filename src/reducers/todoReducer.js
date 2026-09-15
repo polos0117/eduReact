@@ -7,11 +7,6 @@ export function priorityOf(todo) {
     return todo.priority ?? 'normal';
 }
 
-// 초기 버전은 id가 Date.now()였으므로 createdAt이 없으면 id를 생성 시각으로 쓴다
-export function createdAtOf(todo) {
-    return todo.createdAt ?? todo.id;
-}
-
 // 높음 → 보통 → 낮음 순, 같은 우선순위끼리는 원래 순서 유지 (sort는 안정 정렬)
 export function sortByPriority(todos) {
     return [...todos].sort((a, b) => PRIORITIES.indexOf(priorityOf(a)) - PRIORITIES.indexOf(priorityOf(b)));
@@ -41,7 +36,8 @@ export function normalizeTodo(raw, now = Date.now()) {
         text: raw.text.trim(),
         completed: raw.completed === true,
         priority: PRIORITIES.includes(raw.priority) ? raw.priority : 'normal',
-        createdAt: Number.isFinite(raw.createdAt) ? raw.createdAt : now,
+        // 초기 버전은 id가 Date.now()였으므로 createdAt이 없으면 id가 곧 생성 시각
+        createdAt: Number.isFinite(raw.createdAt) ? raw.createdAt : Number.isFinite(raw.id) ? raw.id : now,
     };
     if (typeof raw.dueDate === 'string' && DAY_KEY.test(raw.dueDate)) todo.dueDate = raw.dueDate;
     if (todo.completed && Number.isFinite(raw.completedAt)) todo.completedAt = raw.completedAt;

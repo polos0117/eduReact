@@ -495,28 +495,6 @@ button.priority-btn:hover {
   box-shadow: 0 0 0 1px var(--line);
 }
 
-/* 편집 폼: 글자 · 날짜 · 저장 */
-.todo-edit-form {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
-  padding: 6px 0;
-}
-
-.todo-item-edit-input {
-  flex: 1;
-  min-width: 0;
-  height: 36px;
-  padding: 0 10px;
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-  background: var(--sheet);
-  outline: none;
-  font-size: 16px;
-}
-
 .todo-empty {
   color: var(--ink-3);
   font-size: 14px;

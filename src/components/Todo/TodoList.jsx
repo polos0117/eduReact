@@ -1,6 +1,6 @@
 import TodoItem from "./TodoItem";
 
-function TodoList({ todos, total, todayKey, onToggleTodo, onRemoveTodo, onEditTodo, onSetPriority, onOpenTodo }) {
+function TodoList({ todos, total, todayKey, onToggleTodo, onRemoveTodo, onSetPriority, onOpenTodo }) {
     if (total === 0) {
         return <p className="todo-empty">아직 할 일이 없어요. 위 칸에 첫 항목을 추가해 보세요.</p>;
     }
@@ -11,7 +11,7 @@ function TodoList({ todos, total, todayKey, onToggleTodo, onRemoveTodo, onEditTo
         <ul className="todo-list">
             {todos.map((todo) => (
                 <TodoItem key={todo.id} todo={todo} todayKey={todayKey} onToggleTodo={onToggleTodo}
-                    onRemoveTodo={onRemoveTodo} onEditTodo={onEditTodo} onSetPriority={onSetPriority} onOpenTodo={onOpenTodo} />
+                    onRemoveTodo={onRemoveTodo} onSetPriority={onSetPriority} onOpenTodo={onOpenTodo} />
             ))}
         </ul>
     );

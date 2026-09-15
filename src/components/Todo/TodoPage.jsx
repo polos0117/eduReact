@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { sortByPriority } from "../../reducers/todoReducer";
 import { dayKey } from "../../lib/stats";
+import { useNow } from "../../hooks/useNow";
 import TodoList from "./TodoList";
 import TodoForm from "./TodoForm";
 import TodoFooter from "./TodoFooter";
@@ -10,7 +11,7 @@ import TodoFilter from "./TodoFilter";
 function TodoPage({ todos, dispatch, onRemoveTodo, onOpenTodo }) {
     const [filter, setFilter] = useState('all');
     const [search, setSearch] = useState('');
-    const [todayKey] = useState(() => dayKey(Date.now())); // 마감 지남 판정 기준
+    const todayKey = dayKey(useNow()); // 마감 지남 판정 기준
 
     function addTodo(text, priority, dueDate) {
         const now = Date.now();
@@ -25,20 +26,22 @@ function TodoPage({ todos, dispatch, onRemoveTodo, onOpenTodo }) {
     function clearCompletedTodos() {
         dispatch({ type: 'CLEAR_COMPLETED' });
     }
-    function editTodo(id, newText, dueDate) {
-        dispatch({ type: 'EDIT', id, newText });
-        dispatch({ type: 'SET_DUE', id, dueDate });
-    }
     function setPriority(id, priority) {
         dispatch({ type: 'SET_PRIORITY', id, priority });
     }
 
+    // 검색은 제목과 노트 본문(붙여 넣은 코드 포함) 모두에서
     const searchText = search.trim().toLowerCase();
+    function matches(todo) {
+        if (searchText === '') return true;
+        return todo.text.toLowerCase().includes(searchText)
+            || (todo.notes ?? []).some(note => note.text.toLowerCase().includes(searchText));
+    }
     const visibleTodos = sortByPriority(todos.filter(todo => {
         if (filter === 'active') return !todo.completed;
         if (filter === 'completed') return todo.completed;
         return true;
-    }).filter(todo => todo.text.toLowerCase().includes(searchText)));
+    }).filter(matches));
 
     const doneCount = todos.filter(todo => todo.completed).length;
     const leftCount = todos.length - doneCount;
@@ -49,8 +52,7 @@ function TodoPage({ todos, dispatch, onRemoveTodo, onOpenTodo }) {
             <TodoFilter currentFilter={filter} onFilterChange={setFilter} search={search} setSearch={setSearch}
                 allDone={todos.length > 0 && leftCount === 0} onToggleAll={toggleAll} hasTodos={todos.length > 0} />
             <TodoList todos={visibleTodos} total={todos.length} todayKey={todayKey}
-                onToggleTodo={toggleTodo} onRemoveTodo={onRemoveTodo} onEditTodo={editTodo} onSetPriority={setPriority}
-                onOpenTodo={onOpenTodo} />
+                onToggleTodo={toggleTodo} onRemoveTodo={onRemoveTodo} onSetPriority={setPriority} onOpenTodo={onOpenTodo} />
             <TodoFooter total={todos.length} done={doneCount} onClearCompleted={clearCompletedTodos} />
         </>
     );

@@ -125,3 +125,8 @@ import {todoReducer, sortByPriority, normalizeTodo} from './todoReducer';
         expect(result.notes).toEqual([{ id: 5, category: 'memo', text: '  indented\n  code  ', createdAt: 101 }]);
         expect(normalizeTodo({ id: 1, text: 'a', notes: [] }).notes).toBeUndefined();
     });
+
+    test('normalizeTodo는 createdAt이 없으면 id(초기 버전의 Date.now())를 생성 시각으로 쓴다', () => {
+        expect(normalizeTodo({ id: 1700000000000, text: 'a' }, 5).createdAt).toBe(1700000000000);
+        expect(normalizeTodo({ text: 'a' }, 5).createdAt).toBe(5);
+    });

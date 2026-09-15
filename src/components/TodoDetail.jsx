@@ -1,17 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
 import { PRIORITIES, PRIORITY_LABEL, priorityOf, NOTE_CATEGORIES, NOTE_LABEL } from '../reducers/todoReducer';
 
-// 클립보드 복사 버튼. 눌린 뒤 1.5초간 "복사됨"
+// 클립보드 복사 버튼. 결과를 1.5초간 보여준다. (clipboard API는 https/localhost에서만 동작)
 function CopyButton({ text }) {
-    const [copied, setCopied] = useState(false);
+    const [result, setResult] = useState(null); // null | 'ok' | 'fail'
     useEffect(() => {
-        if (!copied) return;
-        const timer = setTimeout(() => setCopied(false), 1500);
+        if (!result) return;
+        const timer = setTimeout(() => setResult(null), 1500);
         return () => clearTimeout(timer);
-    }, [copied]);
+    }, [result]);
+    function copy() {
+        if (!navigator.clipboard) { setResult('fail'); return; }
+        navigator.clipboard.writeText(text).then(() => setResult('ok'), () => setResult('fail'));
+    }
     return (
-        <button type="button" className="todo-item-btn" onClick={() => navigator.clipboard.writeText(text).then(() => setCopied(true))}>
-            {copied ? '복사됨' : '복사'}
+        <button type="button" className="todo-item-btn" onClick={copy}>
+            {result === 'ok' ? '복사됨' : result === 'fail' ? '복사 실패' : '복사'}
         </button>
     );
 }
@@ -57,7 +61,11 @@ function TodoDetail({ todo, dispatch, onClose }) {
     const [title, setTitle] = useState(todo.text);
     const [draft, setDraft] = useState({ category: 'backend', text: '' });
 
-    useEffect(() => { ref.current.showModal(); }, []);
+    useEffect(() => {
+        const dialog = ref.current;
+        dialog.showModal();
+        return () => dialog.close();
+    }, []);
 
     function saveTitle() {
         const trimmed = title.trim();

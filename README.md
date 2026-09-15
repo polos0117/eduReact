@@ -9,17 +9,17 @@
 ## 기능
 
 **할 일**
-- 추가 · 완료 · 수정(더블클릭 또는 수정 버튼, Enter 저장 / Esc 취소) · 삭제
+- 추가 · 완료 · 삭제. 제목·우선순위·마감일 편집은 상세 화면에서
 - 삭제 직후 6초 안에 되돌리기
 - 우선순위 높음 · 보통 · 낮음 — 추가할 때 고르거나 항목의 표시를 눌러 순환, 높은 것부터 정렬
 - 마감일 — 지나면 빨갛게
-- 전체 / 진행중 / 완료 보기, 검색, 전체 완료 토글, 완료 진행률
+- 전체 / 진행중 / 완료 보기, 검색(제목과 노트 본문), 전체 완료 토글, 완료 진행률
 - **상세 화면** — 제목을 누르면 열림. 제목·우선순위·마감일 편집, 그리고 **백엔드 / 프론트엔드 / 메모**로 나뉜 노트 목록. 코드·경로·링크를 붙여 넣으면 줄바꿈과 들여쓰기가 그대로 보존되고(고정폭), 노트마다 복사·수정·삭제. Ctrl+Enter로 추가, Esc로 닫기
 
 ![상세 화면](docs/detail.png)
 
 **대시보드**
-- 남은 할 일 · 완료율 · 높음 우선순위 · 이번 주 완료
+- 남은 할 일 · 완료율 · 높음 우선순위 · 최근 7일 완료
 - 최근 14일 날짜별 완료 막대 차트
 - 남은 할 일의 우선순위 분포
 - 마감 현황 (지남 · 오늘 · 이번 주 · 그 이후 · 없음)
@@ -29,7 +29,7 @@
 - 오늘로 이동, 이전/다음 달
 
 **저장과 이동**
-- 할 일과 테마는 브라우저 `localStorage`에 자동 저장
+- 할 일과 테마는 브라우저 `localStorage`에 자동 저장. 읽을 때 검증하고, 다른 탭에서 바꾼 내용도 바로 반영
 - JSON 내보내기 / 가져오기 — 백업하거나 다른 기기로 옮길 때. 가져오기는 이미 있는 항목은 두고 새 것만 합침
 - 라이트 / 다크 / 시스템 테마
 - 스킨 두 가지 — 클래식(흰 시트, 헤어라인)과 네오(우주 배경, 유리 패널, 네온, 3D). 헤더의 ◈ 버튼으로 전환. 네오는 어두운 톤 전용
@@ -50,6 +50,12 @@ npm run test:run
 npm run lint    # oxlint
 ```
 
+## 배포
+
+`main`에 푸시하면 [deploy.yml](.github/workflows/deploy.yml)이 테스트 → 빌드 → GitHub Pages 배포를 합니다.
+공개 주소: https://polos0117.github.io/eduReact/ (첫 실행 때 Pages를 자동으로 켭니다. 안 되면 저장소 Settings → Pages → Source를 "GitHub Actions"로.)
+빌드 시 `BASE_PATH=/eduReact/`를 주므로 로컬 개발 주소는 그대로 `/`입니다.
+
 ## 구조
 
 ```
@@ -60,7 +66,8 @@ src/
   App.css                   시트·목록·대시보드·캘린더 스타일 (클래식)
   skin-neo.css              [data-skin="neo"]일 때 토큰과 재질만 덮어쓰는 네오 스킨
   hooks/
-    usePersistedReducer.js  useReducer + localStorage
+    usePersistedReducer.js  useReducer + localStorage (읽을 때 sanitize, 다른 탭 변경은 storage 이벤트로 반영)
+    useNow.js               1분마다 갱신되는 현재 시각 — 자정 넘겨도 "오늘"이 맞게
     useTheme.js             useRootAttr — <html data-*> 속성을 localStorage와 묶어 순환 (useTheme, useSkin)
   reducers/
     todoReducer.js          ADD · TOGGLE · TOGGLE_ALL · REMOVE · RESTORE · CLEAR_COMPLETED · EDIT · SET_PRIORITY · SET_DUE

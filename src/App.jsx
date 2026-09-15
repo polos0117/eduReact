@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { todoReducer, normalizeTodo } from './reducers/todoReducer';
 import { usePersistedReducer } from './hooks/usePersistedReducer';
 import { useTheme, useSkin } from './hooks/useTheme';
+import { useNow } from './hooks/useNow';
 import { dayKey } from './lib/stats';
 import TodoPage from './components/Todo/TodoPage';
 import Dashboard from './components/Dashboard';
@@ -14,7 +15,14 @@ const TABS = [['todos', '할 일'], ['dashboard', '대시보드'], ['calendar', 
 const THEME_LABEL = { system: '시스템', light: '라이트', dark: '다크' };
 const THEME_ICON = { system: '◐', light: '☀', dark: '☾' };
 const SKIN_LABEL = { classic: '클래식', neo: '네오' };
-const today = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' }).format(new Date());
+const DATE_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' });
+
+// localStorage에서 읽은 값은 믿지 않는다 — 가져오기와 같은 검증을 거친다
+function sanitizeTodos(raw) {
+    if (!Array.isArray(raw)) return [];
+    const now = Date.now();
+    return raw.map((todo, i) => normalizeTodo(todo, now + i)).filter(Boolean);
+}
 
 // 탭은 URL 해시로. 새로고침·뒤로가기가 그냥 된다 (라우터 불필요)
 function readTab() {
@@ -32,7 +40,8 @@ function useHashTab() {
 }
 
 function App() {
-    const [todos, dispatch] = usePersistedReducer(todoReducer, 'todos', []);
+    const [todos, dispatch] = usePersistedReducer(todoReducer, 'todos', [], sanitizeTodos);
+    const today = DATE_FORMAT.format(useNow());
     const [theme, cycleTheme] = useTheme();
     const [skin, cycleSkin] = useSkin();
     const tab = useHashTab();

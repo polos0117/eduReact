@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { PRIORITY_LABEL, priorityOf, sortByPriority } from '../reducers/todoReducer';
 import { dayKey, monthCells } from '../lib/stats';
+import { useNow } from '../hooks/useNow';
 import TodoForm from './Todo/TodoForm';
 
 const DOW = ['일', '월', '화', '수', '목', '금', '토'];
 const MAX_CHIPS = 2;
 
 function Calendar({ todos, dispatch, onOpenTodo }) {
-    const [todayKey] = useState(() => dayKey(Date.now()));
+    const todayKey = dayKey(useNow());
     const [selected, setSelected] = useState(todayKey);
     const [view, setView] = useState(() => {
         const d = new Date();
@@ -52,8 +53,8 @@ function Calendar({ todos, dispatch, onOpenTodo }) {
                 </div>
             </div>
 
-            <div className="cal-grid" role="grid" aria-label={`${view.year}년 ${view.month + 1}월`}>
-                {DOW.map((d, i) => <div key={d} className={`cal-dow dow-${i}`} role="columnheader">{d}</div>)}
+            <div className="cal-grid" role="group" aria-label={`${view.year}년 ${view.month + 1}월`}>
+                {DOW.map((d, i) => <div key={d} className={`cal-dow dow-${i}`} aria-hidden="true">{d}</div>)}
                 {cells.map(cell => {
                     const items = byDay[cell.key] ?? [];
                     const cls = ['cal-cell', `dow-${cell.dow}`];
@@ -61,9 +62,9 @@ function Calendar({ todos, dispatch, onOpenTodo }) {
                     if (cell.key === todayKey) cls.push('today');
                     if (cell.key === selected) cls.push('selected');
                     return (
-                        <button type="button" key={cell.key} className={cls.join(' ')} role="gridcell"
-                            aria-selected={cell.key === selected} onClick={() => setSelected(cell.key)}
-                            aria-label={`${cell.key}, 할 일 ${items.length}개`}>
+                        <button type="button" key={cell.key} className={cls.join(' ')}
+                            aria-pressed={cell.key === selected} onClick={() => setSelected(cell.key)}
+                            aria-label={`${cell.key} ${DOW[cell.dow]}요일, 할 일 ${items.length}개`}>
                             <span className="cal-date">{cell.date}</span>
                             {items.length > 0 && (
                                 <span className="cal-items">
