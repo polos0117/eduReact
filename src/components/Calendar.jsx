@@ -36,6 +36,7 @@ function Calendar({ todos, dispatch, onOpenTodo }) {
     const cells = monthCells(view.year, view.month);
     const dayTodos = sortByPriority(byDay[selected] ?? []);
     const [sy, sm, sd] = selected.split('-').map(Number);
+    const noDueCount = todos.filter(todo => !todo.completed && !todo.dueDate).length;
 
     function addTodo(text, priority, dueDate) {
         const now = Date.now();
@@ -47,6 +48,11 @@ function Calendar({ todos, dispatch, onOpenTodo }) {
             <div className="cal-head">
                 <h2 className="cal-title">{view.year}년 {view.month + 1}월</h2>
                 <div className="cal-nav">
+                    {noDueCount > 0 && (
+                        <a href="#todos?filter=active&due=none" className="ghost-btn" title="마감일이 없는 남은 할 일을 목록에서 보기">
+                            마감 없음 {noDueCount}
+                        </a>
+                    )}
                     <button type="button" className="ghost-btn" onClick={goToday}>오늘</button>
                     <button type="button" className="icon-btn" onClick={() => moveMonth(-1)} aria-label="이전 달">‹</button>
                     <button type="button" className="icon-btn" onClick={() => moveMonth(1)} aria-label="다음 달">›</button>
@@ -83,9 +89,14 @@ function Calendar({ todos, dispatch, onOpenTodo }) {
             </div>
 
             <section className="cal-day" aria-labelledby="cal-day-title">
-                <h3 id="cal-day-title" className="section-title">
-                    {sm}월 {sd}일 {DOW[new Date(sy, sm - 1, sd).getDay()]}요일{selected === todayKey ? ' (오늘)' : ''}
-                </h3>
+                <div className="cal-day-head">
+                    <h3 id="cal-day-title" className="section-title">
+                        {sm}월 {sd}일 {DOW[new Date(sy, sm - 1, sd).getDay()]}요일{selected === todayKey ? ' (오늘)' : ''}
+                    </h3>
+                    {dayTodos.length > 0 && (
+                        <a href={`#todos?due=${selected}`} className="link-btn">목록에서 보기</a>
+                    )}
+                </div>
                 {dayTodos.length === 0
                     ? <p className="section-note">이 날짜가 마감인 항목이 없어요.</p>
                     : (

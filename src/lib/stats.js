@@ -38,18 +38,24 @@ export function countByPriority(todos) {
     return counts;
 }
 
-// 남은 할 일을 마감 기준으로 나눈다
+// 마감 기준 분류 — 대시보드 집계와 목록 필터가 같은 기준을 쓴다
+export const DUE_BUCKETS = ['overdue', 'today', 'week', 'later', 'none'];
+export const DUE_LABEL = { overdue: '지난 마감', today: '오늘 마감', week: '이번 주 마감', later: '그 이후 마감', none: '마감 없음' };
+
+export function dueBucketOf(todo, todayKey) {
+    if (!todo.dueDate) return 'none';
+    if (todo.dueDate < todayKey) return 'overdue';
+    if (todo.dueDate === todayKey) return 'today';
+    if (todo.dueDate <= addDays(todayKey, 6)) return 'week';
+    return 'later';
+}
+
+// 남은 할 일을 마감 기준으로 센다
 export function dueBuckets(todos, now = Date.now()) {
     const today = dayKey(now);
-    const weekEnd = addDays(today, 6);
     const buckets = { overdue: 0, today: 0, week: 0, later: 0, none: 0 };
     for (const todo of todos) {
-        if (todo.completed) continue;
-        if (!todo.dueDate) buckets.none++;
-        else if (todo.dueDate < today) buckets.overdue++;
-        else if (todo.dueDate === today) buckets.today++;
-        else if (todo.dueDate <= weekEnd) buckets.week++;
-        else buckets.later++;
+        if (!todo.completed) buckets[dueBucketOf(todo, today)]++;
     }
     return buckets;
 }

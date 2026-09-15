@@ -275,11 +275,11 @@
 }
 
 [data-skin="neo"] .stat-value.is-high,
-[data-skin="neo"] .due-rows .is-high dd {
+[data-skin="neo"] .due-rows .is-high .due-v {
   text-shadow: 0 0 16px rgba(255, 93, 143, 0.5);
 }
 
-[data-skin="neo"] .due-rows > div {
+[data-skin="neo"] .due-rows > a {
   background: var(--neo-face);
   box-shadow: var(--neo-raise);
 }

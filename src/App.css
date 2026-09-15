@@ -572,12 +572,24 @@ button.priority-btn:hover {
   }
 }
 
+/* 타일은 링크 — 누르면 그 조건의 목록으로 */
 .stat {
   display: flex;
   flex-direction: column;
   gap: 2px;
   padding: 18px 20px 16px;
   border-right: 1px solid var(--line);
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.stat:hover {
+  background: var(--sheet-2);
+}
+
+.stat:hover .stat-label {
+  color: var(--accent);
 }
 
 .stat:last-child,
@@ -711,6 +723,8 @@ button.priority-btn:hover {
 }
 
 .stack-seg {
+  color: inherit;
+  text-decoration: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -766,10 +780,25 @@ button.priority-btn:hover {
   font-variant-numeric: tabular-nums;
 }
 
-.legend-item {
+.legend-item a {
   display: flex;
   align-items: center;
   gap: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.legend-item a:hover {
+  color: var(--accent);
+}
+
+/* 차트 안 링크 */
+.chart a {
+  cursor: pointer;
+}
+
+.chart a:focus-visible .bar {
+  fill: var(--chart-1);
 }
 
 .swatch {
@@ -790,27 +819,35 @@ button.priority-btn:hover {
   }
 }
 
-.due-rows > div {
+.due-rows > a {
   display: flex;
   flex-direction: column;
   gap: 2px;
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
 }
 
-.due-rows dt {
+.due-rows > a:hover {
+  border-color: var(--line-2);
+  background: var(--sheet-2);
+}
+
+.due-k {
   font-size: 12px;
   color: var(--ink-2);
 }
 
-.due-rows dd {
+.due-v {
   font-size: 20px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
-.due-rows .is-high dd {
+.due-rows .is-high .due-v {
   color: var(--high);
 }
 
@@ -836,7 +873,7 @@ button.priority-btn:hover {
 
 .cal-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr)); /* 긴 제목이 열을 밀지 않게 */
   border-bottom: 1px solid var(--line);
 }
 
@@ -860,6 +897,7 @@ button.priority-btn:hover {
 }
 
 .cal-cell {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -986,8 +1024,42 @@ button.priority-btn:hover {
   padding: 16px 0 0;
 }
 
-.cal-day .section-title {
+.cal-day-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
   padding: 0 20px;
+  font-size: 13px;
+}
+
+.cal-day-head .section-title {
+  padding: 0;
+}
+
+/* 대시보드·캘린더에서 넘어온 조건 표시 */
+.todo-scope {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.scope-chip {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.scope-count {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
 }
 
 .cal-day .section-note {

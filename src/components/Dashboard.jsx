@@ -1,9 +1,13 @@
 import { PRIORITIES, PRIORITY_LABEL } from '../reducers/todoReducer';
-import { completedPerDay, countByPriority, dueBuckets, formatDay, dayKey } from '../lib/stats';
+import { completedPerDay, countByPriority, dueBuckets, formatDay, dayKey, DUE_BUCKETS } from '../lib/stats';
 import { useNow } from '../hooks/useNow';
 
 const DAYS = 14;
 const WEEK_MS = 7 * 24 * 3600 * 1000;
+const DUE_SHORT = { overdue: '지난 마감', today: '오늘', week: '이번 주', later: '그 이후', none: '마감 없음' };
+
+// 목록 탭으로 가는 링크. 조건은 해시 쿼리로 (TodoPage가 읽는다)
+const listHref = (query) => `#todos?${new URLSearchParams(query)}`;
 
 // 완료율 링. 값이 텍스트로도 나오므로 그림은 보조다.
 function Ring({ percent }) {
@@ -18,7 +22,7 @@ function Ring({ percent }) {
     );
 }
 
-// 최근 14일 완료 막대. 한 계열이라 범례 없음, 최대값과 오늘만 직접 라벨.
+// 최근 14일 완료 막대. 한 계열이라 범례 없음, 최대값과 오늘만 직접 라벨. 막대를 누르면 그날 완료 목록.
 function CompletedChart({ rows, todayKey }) {
     const W = 560, H = 120, PAD_B = 22, PAD_T = 14;
     const gap = 6;
@@ -36,8 +40,8 @@ function CompletedChart({ rows, todayKey }) {
                 const y = H - PAD_B - h;
                 const label = r.day === todayKey ? '오늘' : formatDay(r.day, todayKey);
                 const showLabel = (i === maxIndex && max > 0) || r.day === todayKey;
-                return (
-                    <g key={r.day} className="bar-group">
+                const bar = (
+                    <g className="bar-group">
                         <rect x={x} y={PAD_T} width={barW} height={plotH} className="bar-hit" />
                         <rect x={x} y={y} width={barW} height={h} rx="3" className="bar" />
                         {showLabel && r.count > 0 && (
@@ -46,9 +50,12 @@ function CompletedChart({ rows, todayKey }) {
                         {(i === 0 || i === rows.length - 1 || i === Math.floor(rows.length / 2)) && (
                             <text x={x + barW / 2} y={H - 6} textAnchor="middle" className="axis-label">{label}</text>
                         )}
-                        <title>{`${label}: ${r.count}개 완료`}</title>
+                        <title>{`${label}: ${r.count}개 완료${r.count > 0 ? ' — 눌러서 목록 보기' : ''}`}</title>
                     </g>
                 );
+                return r.count > 0
+                    ? <a key={r.day} href={listHref({ filter: 'completed', done: r.day })} aria-label={`${label} 완료 ${r.count}개 목록`}>{bar}</a>
+                    : <g key={r.day}>{bar}</g>;
             })}
         </svg>
     );
@@ -72,25 +79,25 @@ function Dashboard({ todos }) {
     return (
         <div className="dashboard">
             <div className="stats">
-                <div className="stat">
+                <a className="stat" href={listHref({ filter: 'active' })}>
                     <span className="stat-value">{left}</span>
                     <span className="stat-label">남은 할 일</span>
-                </div>
-                <div className="stat stat-ring">
+                </a>
+                <a className="stat stat-ring" href={listHref({ filter: 'completed' })}>
                     <Ring percent={percent} />
                     <div>
                         <span className="stat-value">{percent}%</span>
                         <span className="stat-label">완료율</span>
                     </div>
-                </div>
-                <div className="stat">
+                </a>
+                <a className="stat" href={listHref({ filter: 'active', priority: 'high' })}>
                     <span className={`stat-value${byPriority.high > 0 ? ' is-high' : ''}`}>{byPriority.high}</span>
                     <span className="stat-label">높음 우선순위</span>
-                </div>
-                <div className="stat">
+                </a>
+                <a className="stat" href={listHref({ filter: 'completed', done: '7d' })}>
                     <span className="stat-value">{weekDone}</span>
                     <span className="stat-label">최근 7일 완료</span>
-                </div>
+                </a>
             </div>
 
             <section className="section" aria-labelledby="chart-title">
@@ -108,16 +115,19 @@ function Dashboard({ todos }) {
                         <>
                             <div className="stack" role="img" aria-label={PRIORITIES.map(p => `${PRIORITY_LABEL[p]} ${byPriority[p]}개`).join(', ')}>
                                 {PRIORITIES.map(p => byPriority[p] > 0 && (
-                                    <div key={p} className={`stack-seg seg-${p}`} style={{ flexGrow: byPriority[p] }}>
+                                    <a key={p} className={`stack-seg seg-${p}`} style={{ flexGrow: byPriority[p] }}
+                                        href={listHref({ filter: 'active', priority: p })} title={`${PRIORITY_LABEL[p]} ${byPriority[p]}개 — 목록 보기`}>
                                         {byPriority[p] / stackTotal >= 0.12 && <span>{byPriority[p]}</span>}
-                                    </div>
+                                    </a>
                                 ))}
                             </div>
                             <ul className="legend">
                                 {PRIORITIES.map(p => (
                                     <li key={p} className="legend-item">
-                                        <span className={`swatch seg-${p}`} aria-hidden="true" />
-                                        {PRIORITY_LABEL[p]} <strong>{byPriority[p]}</strong>
+                                        <a href={listHref({ filter: 'active', priority: p })}>
+                                            <span className={`swatch seg-${p}`} aria-hidden="true" />
+                                            {PRIORITY_LABEL[p]} <strong>{byPriority[p]}</strong>
+                                        </a>
                                     </li>
                                 ))}
                             </ul>
@@ -127,13 +137,15 @@ function Dashboard({ todos }) {
 
             <section className="section" aria-labelledby="due-title">
                 <h2 id="due-title" className="section-title">마감</h2>
-                <dl className="due-rows">
-                    <div className={buckets.overdue > 0 ? 'is-high' : ''}><dt>지난 마감</dt><dd>{buckets.overdue}</dd></div>
-                    <div><dt>오늘</dt><dd>{buckets.today}</dd></div>
-                    <div><dt>이번 주</dt><dd>{buckets.week}</dd></div>
-                    <div><dt>그 이후</dt><dd>{buckets.later}</dd></div>
-                    <div><dt>마감 없음</dt><dd>{buckets.none}</dd></div>
-                </dl>
+                <div className="due-rows">
+                    {DUE_BUCKETS.map(b => (
+                        <a key={b} className={b === 'overdue' && buckets[b] > 0 ? 'is-high' : ''}
+                            href={listHref({ filter: 'active', due: b })}>
+                            <span className="due-k">{DUE_SHORT[b]}</span>
+                            <span className="due-v">{buckets[b]}</span>
+                        </a>
+                    ))}
+                </div>
             </section>
         </div>
     );

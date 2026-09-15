@@ -24,19 +24,21 @@ function sanitizeTodos(raw) {
     return raw.map((todo, i) => normalizeTodo(todo, now + i)).filter(Boolean);
 }
 
-// 탭은 URL 해시로. 새로고침·뒤로가기가 그냥 된다 (라우터 불필요)
-function readTab() {
-    const hash = location.hash.slice(1);
-    return TABS.some(([key]) => key === hash) ? hash : 'todos';
+// 탭과 목록 조건은 URL 해시로: #todos?filter=active&due=overdue
+// 새로고침·뒤로가기·북마크가 그냥 된다 (라우터 불필요)
+function readHash() {
+    const [path, query = ''] = location.hash.slice(1).split('?');
+    const tab = TABS.some(([key]) => key === path) ? path : 'todos';
+    return { tab, params: new URLSearchParams(query), hash: location.hash };
 }
-function useHashTab() {
-    const [tab, setTab] = useState(readTab);
+function useHash() {
+    const [state, setState] = useState(readHash);
     useEffect(() => {
-        const onChange = () => setTab(readTab());
+        const onChange = () => setState(readHash());
         window.addEventListener('hashchange', onChange);
         return () => window.removeEventListener('hashchange', onChange);
     }, []);
-    return tab;
+    return state;
 }
 
 function App() {
@@ -44,7 +46,7 @@ function App() {
     const today = DATE_FORMAT.format(useNow());
     const [theme, cycleTheme] = useTheme();
     const [skin, cycleSkin] = useSkin();
-    const tab = useHashTab();
+    const { tab, params, hash } = useHash();
     const [toast, setToast] = useState(null); // { text, actionLabel?, onAction? }
     const [detailId, setDetailId] = useState(null); // 상세 화면에 열린 todo
     const fileRef = useRef(null);
@@ -130,7 +132,9 @@ function App() {
             </nav>
 
             <main className="sheet">
-                {tab === 'todos' && <TodoPage todos={todos} dispatch={dispatch} onRemoveTodo={removeTodo} onOpenTodo={setDetailId} />}
+                {/* key=hash: 조건이 바뀌면 목록 페이지를 새로 그려 필터 상태를 해시에서 다시 읽는다 */}
+                {tab === 'todos' && <TodoPage key={hash} todos={todos} dispatch={dispatch} params={params}
+                    onRemoveTodo={removeTodo} onOpenTodo={setDetailId} />}
                 {tab === 'dashboard' && <Dashboard todos={todos} />}
                 {tab === 'calendar' && <Calendar todos={todos} dispatch={dispatch} onOpenTodo={setDetailId} />}
             </main>

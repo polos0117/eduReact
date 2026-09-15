@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { completedPerDay, dueBuckets, monthCells, addDays, dayKey } from './stats';
+import { completedPerDay, dueBuckets, dueBucketOf, monthCells, addDays, dayKey } from './stats';
 
 const NOW = new Date(2026, 8, 15, 12).getTime(); // 2026-09-15 정오
 
@@ -39,4 +39,13 @@ test('monthCells는 일요일부터 42칸이고 해당 달만 inMonth', () => {
 test('addDays는 월 경계를 넘는다', () => {
     expect(addDays('2026-09-30', 1)).toBe('2026-10-01');
     expect(dayKey(new Date(2026, 0, 5))).toBe('2026-01-05');
+});
+
+test('dueBucketOf는 dueBuckets와 같은 기준으로 분류한다', () => {
+    const today = '2026-09-15';
+    expect(dueBucketOf({ dueDate: '2026-09-10' }, today)).toBe('overdue');
+    expect(dueBucketOf({ dueDate: '2026-09-15' }, today)).toBe('today');
+    expect(dueBucketOf({ dueDate: '2026-09-21' }, today)).toBe('week');
+    expect(dueBucketOf({ dueDate: '2026-09-22' }, today)).toBe('later');
+    expect(dueBucketOf({}, today)).toBe('none');
 });
