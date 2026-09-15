@@ -227,6 +227,12 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* appearance:base-select 를 쓰면 <select> 가 flex 상자가 된다. 우리는 height 를 고정해 두는데
+   기본 align-items 가 stretch 라 글자가 상자 위쪽에 붙는다 — 가운데로 내린다 (.header-select 도 같은 이유) */
+.priority-select {
+  align-items: center;
+}
+
 /* 값이 있으면 잉크색으로 */
 .due-input:valid:not(:placeholder-shown) {
   color: var(--ink);
