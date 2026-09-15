@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { sortByPriority, PRIORITY_LABEL } from "../../reducers/todoReducer";
-import { dayKey, dueBucketOf, DUE_LABEL, formatDay } from "../../lib/stats";
+import { sortTodos, PRIORITY_LABEL } from "../../reducers/todoReducer";
+import { useLocalState } from "../../hooks/useLocalState";
+import { dayKey, addDays, dueBucketOf, DUE_LABEL, formatDay } from "../../lib/stats";
 import { useNow } from "../../hooks/useNow";
 import TodoList from "./TodoList";
 import TodoForm from "./TodoForm";
@@ -18,6 +19,7 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onOpenT
         return f === 'active' || f === 'completed' ? f : 'all';
     });
     const [search, setSearch] = useState('');
+    const [sort, setSort] = useLocalState('sort', 'priority');
     // 선택은 화면에만 있는 상태다 — 저장하지 않고, 조건이 바뀌면(App이 key로 재마운트) 비워진다
     const [selectedIds, setSelectedIds] = useState(() => new Set());
     const now = useNow();
@@ -29,6 +31,17 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onOpenT
     }
     function toggleTodo(id) {
         dispatch({ type: 'TOGGLE', id, at: Date.now() });
+    }
+    // 처음 여는 사람을 위한 예시 세 개 — 태그·마감·우선순위·하위 항목이 어떻게 보이는지
+    function handleAddSamples() {
+        const at = now; // 버튼은 목록이 빌 때만 있어 같은 분에 두 번 눌릴 일이 없다
+        const samples = [
+            { text: '이 앱 둘러보기 — 제목을 누르면 상세 화면', priority: 'high', dueDate: todayKey, tags: ['예시'],
+              subtasks: [{ id: at + 10, text: '하위 항목은 이렇게', done: true }, { id: at + 11, text: '체크해 보기', done: false }] },
+            { text: '장보기 — 제목 끝에 #개인 @내일 이라고 적은 결과', priority: 'normal', dueDate: addDays(todayKey, 1), tags: ['개인'] },
+            { text: '끝낸 일은 동그라미를 눌러요', priority: 'low', tags: ['예시'] },
+        ];
+        samples.forEach((s, i) => dispatch({ type: 'ADD', todo: { id: at + i, completed: false, createdAt: at + i, ...s } }));
     }
     function clearCompletedTodos() {
         dispatch({ type: 'CLEAR_COMPLETED' });
@@ -67,11 +80,11 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onOpenT
         return todo.text.toLowerCase().includes(searchText)
             || (todo.notes ?? []).some(note => note.text.toLowerCase().includes(searchText));
     }
-    const visibleTodos = sortByPriority(todos.filter(todo => {
+    const visibleTodos = sortTodos(todos.filter(todo => {
         if (filter === 'active') return !todo.completed;
         if (filter === 'completed') return todo.completed;
         return true;
-    }).filter(matchesScope).filter(matchesSearch));
+    }).filter(matchesScope).filter(matchesSearch), sort);
 
     // 화면에서 사라진 항목은 선택에서도 빼고 센다 (지웠거나 조건에서 빠졌을 때)
     const visibleIds = visibleTodos.map(todo => todo.id);
@@ -105,6 +118,7 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onOpenT
         <>
             <TodoForm onAddTodo={addTodo} />
             <TodoFilter currentFilter={filter} onFilterChange={setFilter} search={search} setSearch={setSearch}
+                sort={sort} onSortChange={setSort}
                 allSelected={allSelected} someSelected={selected.length > 0 && !allSelected}
                 onToggleSelectAll={toggleSelectAll} hasVisible={visibleIds.length > 0} />
             {selected.length > 0 && (
@@ -121,6 +135,8 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onOpenT
                 </div>
             )}
             <TodoList todos={visibleTodos} total={todos.length} todayKey={todayKey}
+                search={search} onClearSearch={() => setSearch('')} filter={filter} onShowAll={() => setFilter('all')}
+                scoped={scope.length > 0} onAddSamples={handleAddSamples}
                 selectedIds={selectedIds} onSelect={toggleSelect}
                 onToggleTodo={toggleTodo} onRemoveTodo={onRemoveTodo} onSetPriority={setPriority} onOpenTodo={onOpenTodo} />
             <TodoFooter total={todos.length} done={doneCount} onClearCompleted={clearCompletedTodos} />

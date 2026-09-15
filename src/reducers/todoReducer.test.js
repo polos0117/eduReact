@@ -1,5 +1,5 @@
 import {test, expect} from 'vitest';
-import {todoReducer, sortByPriority, normalizeTodo, parseTags, subtaskProgress} from './todoReducer';
+import {todoReducer, sortByPriority, sortTodos, normalizeTodo, parseTags, subtaskProgress} from './todoReducer';
 
     test('addTest', () => {
         const state = [];
@@ -195,3 +195,17 @@ import {todoReducer, sortByPriority, normalizeTodo, parseTags, subtaskProgress} 
         expect(normalizeTodo({ id: 1, text: 'a', path: '   ' }).path).toBeUndefined();
         expect(normalizeTodo({ id: 1, text: 'a', path: 3 }).path).toBeUndefined();
     });
+
+test('sortTodos는 기준이 무엇이든 완료한 것을 뒤로 보낸다', () => {
+    const todos = [
+        { id: 1, text: 'a', completed: true, priority: 'high', dueDate: '2026-09-01', createdAt: 3 },
+        { id: 2, text: 'b', completed: false, priority: 'low', dueDate: '2026-09-20', createdAt: 1 },
+        { id: 3, text: 'c', completed: false, priority: 'normal', createdAt: 2 },
+        { id: 4, text: 'd', completed: false, priority: 'high', dueDate: '2026-09-10', createdAt: 0 },
+    ];
+    expect(sortTodos(todos, 'priority').map(t => t.id)).toEqual([4, 3, 2, 1]);
+    expect(sortTodos(todos, 'due').map(t => t.id)).toEqual([4, 2, 3, 1]);      // 마감 없는 3은 뒤로
+    expect(sortTodos(todos, 'recent').map(t => t.id)).toEqual([3, 2, 4, 1]);
+    expect(sortTodos(todos, '이상한값').map(t => t.id)).toEqual([4, 3, 2, 1]); // 모르는 기준은 우선순위
+    expect(sortTodos(todos)).not.toBe(todos);
+});

@@ -1,11 +1,11 @@
 import { useState, useRef } from "react";
 import { PRIORITIES, PRIORITY_LABEL, parseTags } from "../../reducers/todoReducer";
+import { dayKey, parseDue } from "../../lib/stats";
 
 // fixedDue가 있으면(캘린더에서 날짜를 고른 경우) 날짜 입력을 숨기고 그 날짜로 추가한다
-// 제목 끝에 "#태그"를 붙이면 태그로 떼어낸다: "배포 준비 #kipa"
-// 안내 문구는 짧게 — 칸이 좁으면 placeholder 가 잘려서 아무 말도 못 한다.
-// #태그 설명은 title 로 옮겼다.
-const TAG_HINT = '제목 끝에 #태그 를 붙이면 태그로 따로 저장됩니다. 예) 배포 준비 #kipa';
+// 제목 끝에 "#태그"를 붙이면 태그로, "@내일" 같은 표기는 마감일로 떼어낸다: "배포 준비 #kipa @금"
+// 안내 문구는 짧게 — 칸이 좁으면 placeholder 가 잘려서 아무 말도 못 한다. 설명은 title 로.
+const TAG_HINT = '#태그 는 태그로, @오늘·@내일·@금·@9/25 는 마감일로 따로 저장됩니다. 예) 배포 준비 #kipa @금';
 
 function TodoForm({ onAddTodo, fixedDue, placeholder = '할 일을 입력하고 Enter' }) {
     const [text, setText] = useState('');
@@ -16,7 +16,8 @@ function TodoForm({ onAddTodo, fixedDue, placeholder = '할 일을 입력하고 
         e.preventDefault();
         if (text.trim() === '') return;
         const parsed = parseTags(text);
-        onAddTodo(parsed.text, priority, fixedDue ?? dueDate, parsed.tags);
+        const withDue = parseDue(parsed.text, dayKey(Date.now()));
+        onAddTodo(withDue.text, priority, fixedDue ?? (dueDate || withDue.dueDate), parsed.tags);
         setText('');
         setPriority('normal');
         setDueDate('');

@@ -16,7 +16,7 @@ function TodoItem({ todo, todayKey, selected, onSelect, onToggleTodo, onRemoveTo
     const sub = subtaskProgress(todo);
 
     return (
-        <li className={`todo-item priority-${priority}${todo.completed ? ' completed' : ''}${selected ? ' selected' : ''}`}>
+        <li className={`todo-item priority-${priority}${todo.completed ? ' completed' : ''}${selected ? ' selected' : ''}${overdue ? ' overdue' : ''}`}>
             {/* 좁은 화면에서는 main 이 한 줄을 다 쓰고 meta 가 아래로 내려간다 */}
             <div className="todo-item-main">
                 <input type="checkbox" className="todo-item-checkbox" checked={selected}

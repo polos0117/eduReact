@@ -623,7 +623,7 @@
 /* 둥근 것들을 각지게 — --radius 로 안 덮이는 알약·원형만 따로 */
 [data-skin="terminal"] :is(
   .tag-chip, .filter-btn, .priority-select, .todo-add-btn, .bulk-btn, .ghost-btn,
-  .header-select, .note, .note-textarea, .settings-input, .due-input, .todo-search,
+  .sort-select, .note, .note-textarea, .settings-input, .due-input, .todo-search,
   .todo-item-checkbox, .color-input, .tagcolor-auto, .due-rows > a, .stack, .stack-seg,
   .toast, .note-count, .scope-chip, .swatch, .todo-item-btn, .path-input, .subtask-text,
   .done-btn, .icon-btn, .cal-date, .cal-chip, .cal-dot, .todo-progress, .tag-editor,

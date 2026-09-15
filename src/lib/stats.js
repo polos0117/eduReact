@@ -13,6 +13,40 @@ export function addDays(key, n) {
     return dayKey(new Date(y, m - 1, d + n));
 }
 
+// 제목 끝의 "@내일" 같은 마감 표기를 떼어낸다 (#태그와 같은 방식).
+//   @오늘 @내일 @모레 @다음주(=7일 뒤) @월…@일(다음 그 요일) @9/25 @2026-09-25
+// 못 알아듣는 @표기는 그냥 제목의 일부로 둔다.
+const DOW = ['일', '월', '화', '수', '목', '금', '토'];
+const RELATIVE = { 오늘: 0, 내일: 1, 모레: 2, 다음주: 7 };
+export function parseDue(raw, todayKey) {
+    let dueDate;
+    const text = raw.replace(/(^|\s)@(\S+)/g, (whole, lead, token) => {
+        const key = dueFromToken(token, todayKey);
+        if (!key) return whole;
+        dueDate = key;
+        return lead;
+    }).replace(/\s{2,}/g, ' ').trim();
+    return { text: text || raw.trim(), dueDate };
+}
+function dueFromToken(token, todayKey) {
+    if (token in RELATIVE) return addDays(todayKey, RELATIVE[token]);
+    const dow = DOW.indexOf(token.replace(/요일$/, ''));
+    if (dow >= 0 && token.length <= 3) {
+        const [y, m, d] = todayKey.split('-').map(Number);
+        const today = new Date(y, m - 1, d).getDay();
+        return addDays(todayKey, ((dow - today + 7) % 7) || 7); // 오늘이 그 요일이면 다음 주
+    }
+    let match = token.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (match) return dayKey(new Date(+match[1], match[2] - 1, +match[3]));
+    match = token.match(/^(\d{1,2})\/(\d{1,2})$/);
+    if (match) {
+        const year = Number(todayKey.slice(0, 4));
+        const key = dayKey(new Date(year, match[1] - 1, +match[2]));
+        return key < todayKey ? dayKey(new Date(year + 1, match[1] - 1, +match[2])) : key; // 지난 날짜면 내년
+    }
+    return null;
+}
+
 // "9/20" 처럼 짧게. 올해가 아니면 "2027/1/5"
 export function formatDay(key, todayKey) {
     const [y, m, d] = key.split('-').map(Number);

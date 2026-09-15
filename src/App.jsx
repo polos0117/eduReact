@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { todoReducer, normalizeTodo } from './reducers/todoReducer';
 import { usePersistedReducer } from './hooks/usePersistedReducer';
-import { useTheme, useSkin, THEMES, SKINS } from './hooks/useTheme';
+import { useTheme, useSkin } from './hooks/useTheme';
 import { useNow } from './hooks/useNow';
 import { useLocalState } from './hooks/useLocalState';
 import { TagColorProvider } from './hooks/useTagColors';
@@ -55,6 +55,36 @@ function App() {
     const [tagColors, setTagColors] = useLocalState('tagColors', {}); // { 태그: 0..3 } — 고른 색
     const [colorBy, setColorBy] = useLocalState('colorBy', 'priority'); // 대시보드·캘린더 색 기준
     const fileRef = useRef(null);
+
+    // 단축키 — 글자를 입력 중이거나 대화상자가 열려 있으면 건드리지 않는다.
+    // 목록 안 이동(j/k/x/Delete)은 DOM 의 초점을 옮기는 것으로 충분해서 상태를 두지 않는다.
+    useEffect(() => {
+        function onKey(e) {
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+            const el = e.target;
+            if (el.closest('input, textarea, select, [contenteditable]') || document.querySelector('dialog[open]')) return;
+            const focus = (selector) => { const target = document.querySelector(selector); if (target) { target.focus(); e.preventDefault(); } };
+            const go = (key) => { location.hash = `#${key}`; e.preventDefault(); };
+            const row = el.closest?.('.todo-item');
+            const rows = [...document.querySelectorAll('.todo-item .todo-item-text')];
+            const index = rows.findIndex(r => r.closest('.todo-item') === row);
+            switch (e.key) {
+                case 'n': if (location.hash.startsWith('#todos') || !location.hash) focus('#new-todo'); else { go('todos'); setTimeout(() => focus('#new-todo'), 50); } break;
+                case '/': focus('.todo-search'); break;
+                case '1': go('todos'); break;
+                case '2': go('dashboard'); break;
+                case '3': go('calendar'); break;
+                case 'j': case 'ArrowDown': if (rows.length) { rows[Math.min(index + 1, rows.length - 1)].focus(); e.preventDefault(); } break;
+                case 'k': case 'ArrowUp': if (rows.length) { rows[Math.max(index - 1, 0)].focus(); e.preventDefault(); } break;
+                case 'x': row?.querySelector('.done-btn')?.click(); break;
+                case 'Delete': case 'Backspace': if (row) { row.querySelector('.todo-item-btn')?.click(); e.preventDefault(); } break;
+                case '?': setSettingsOpen(true); break;
+                default: return;
+            }
+        }
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, []);
     const detailTodo = todos.find(todo => todo.id === detailId); // 삭제되면 자연히 닫힌다
     const allTags = [...new Set(todos.flatMap(todo => todo.tags ?? []))].sort((a, b) => a.localeCompare(b, 'ko'));
 
@@ -132,21 +162,16 @@ function App() {
                         <input ref={fileRef} type="file" accept="application/json,.json" hidden
                             onChange={(e) => { const f = e.target.files[0]; if (f) importJson(f); e.target.value = ''; }} />
                         <button type="button" className="ghost-btn" onClick={() => setSettingsOpen(true)}>설정</button>
-                        <select className="header-select skin-select" value={skin} onChange={(e) => setSkin(e.target.value)}
-                            aria-label="스킨" title="스킨">
-                            {SKINS.map(([key, label]) => <option key={key} value={key}>◈ {label}</option>)}
-                        </select>
-                        <select className="header-select theme-select" value={theme} onChange={(e) => setTheme(e.target.value)}
-                            aria-label="테마" title="테마">
-                            {THEMES.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
-                        </select>
                     </div>
                 </header>
 
                 <nav className="tabs" aria-label="화면">
                     {TABS.map(([key, label]) => (
                         <a key={key} href={`#${key}`} className={`tab${tab === key ? ' active' : ''}`}
-                            aria-current={tab === key ? 'page' : undefined}>{label}</a>
+                            aria-current={tab === key ? 'page' : undefined}>
+                            {label}
+                            {key === 'todos' && leftCount > 0 && <span className="tab-badge" aria-label={`남은 할 일 ${leftCount}개`}>{leftCount}</span>}
+                        </a>
                     ))}
                 </nav>
 

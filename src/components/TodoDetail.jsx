@@ -151,7 +151,7 @@ function TodoDetail({ todo, dispatch, revTemplate, onClose }) {
                 <header className="detail-head">
                     <DoneButton completed={todo.completed} label={todo.text}
                         onToggle={() => dispatch({ type: 'TOGGLE', id: todo.id, at: Date.now() })} />
-                    <input id="detail-title" className="detail-title" value={title} aria-label="제목"
+                    <input id="detail-title" className="detail-title" value={title} aria-label="제목 (눌러서 수정)" title="눌러서 수정"
                         onChange={(e) => setTitle(e.target.value)} onBlur={saveTitle}
                         onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }} />
                     <button type="button" className="icon-btn" onClick={onClose} aria-label="닫기">×</button>

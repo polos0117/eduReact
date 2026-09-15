@@ -11,10 +11,22 @@ export function priorityOf(todo) {
 // 완료를 먼저 가르는 이유: 그러지 않으면 완료된 항목의 우선순위를 높음으로 바꿨을 때
 // 맨 위로 튀어올라 상태가 바뀐 것처럼 보인다.
 export function sortByPriority(todos) {
-    return [...todos].sort((a, b) =>
-        (a.completed === true) - (b.completed === true)
-        || PRIORITIES.indexOf(priorityOf(a)) - PRIORITIES.indexOf(priorityOf(b))
-    );
+    return sortTodos(todos, 'priority');
+}
+
+// 목록 정렬 기준. 어느 기준이든 완료한 것은 뒤로 간다.
+//   priority: 높음 → 보통 → 낮음 (기본)
+//   due:      마감 빠른 순, 마감 없는 것은 뒤로
+//   recent:   최근에 추가한 것부터
+export const SORTS = [['priority', '우선순위'], ['due', '마감일'], ['recent', '최근 추가']];
+const SORT_CMP = {
+    priority: (a, b) => PRIORITIES.indexOf(priorityOf(a)) - PRIORITIES.indexOf(priorityOf(b)),
+    due: (a, b) => (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999'),
+    recent: (a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0),
+};
+export function sortTodos(todos, by = 'priority') {
+    const cmp = SORT_CMP[by] ?? SORT_CMP.priority;
+    return [...todos].sort((a, b) => (a.completed === true) - (b.completed === true) || cmp(a, b));
 }
 
 // 상세 노트 분류. 개발 작업을 백/프론트로 나눠 붙여 넣는 용도

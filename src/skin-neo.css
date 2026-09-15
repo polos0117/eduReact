@@ -93,7 +93,6 @@
 
 /* 솟은 버튼과 입력 컨트롤 */
 [data-skin="neo"] .ghost-btn,
-[data-skin="neo"] .header-select,
 [data-skin="neo"] .icon-btn,
 [data-skin="neo"] .due-input,
 [data-skin="neo"] .priority-select,
@@ -112,11 +111,6 @@
 [data-skin="neo"] option {
   background: #0e1328;
   color: var(--ink);
-}
-
-[data-skin="neo"] .skin-select {
-  color: var(--accent);
-  border-color: rgba(77, 225, 255, 0.4);
 }
 
 [data-skin="neo"] .ghost-btn:hover:not(:disabled),

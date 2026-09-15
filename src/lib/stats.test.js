@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { completedPerDay, dueBuckets, dueBucketOf, monthCells, addDays, dayKey, countByTag } from './stats';
+import { completedPerDay, dueBuckets, dueBucketOf, monthCells, addDays, dayKey, countByTag, parseDue } from './stats';
 
 const NOW = new Date(2026, 8, 15, 12).getTime(); // 2026-09-15 정오
 
@@ -65,4 +65,25 @@ test('countByTag는 태그가 여러 개인 항목을 각 태그에 세고, 없�
         { tag: null, count: 2 },
     ]);
     expect(countByTag([])).toEqual([]);
+});
+
+test('parseDue는 제목 끝의 @표기를 마감일로 떼어낸다', () => {
+    const today = '2026-09-15'; // 화요일
+    expect(parseDue('보고서 @내일', today)).toEqual({ text: '보고서', dueDate: '2026-09-16' });
+    expect(parseDue('보고서 @오늘', today).dueDate).toBe('2026-09-15');
+    expect(parseDue('보고서 @모레', today).dueDate).toBe('2026-09-17');
+    expect(parseDue('보고서 @다음주', today).dueDate).toBe('2026-09-22');
+    expect(parseDue('보고서 @금', today).dueDate).toBe('2026-09-18');     // 이번 주 금요일
+    expect(parseDue('보고서 @화요일', today).dueDate).toBe('2026-09-22'); // 오늘이 화요일이면 다음 주
+    expect(parseDue('보고서 @9/25', today).dueDate).toBe('2026-09-25');
+    expect(parseDue('보고서 @1/5', today).dueDate).toBe('2027-01-05');    // 지난 날짜면 내년
+    expect(parseDue('보고서 @2026-10-02', today).dueDate).toBe('2026-10-02');
+    expect(parseDue('@내일 보고서 제출', today)).toEqual({ text: '보고서 제출', dueDate: '2026-09-16' });
+});
+
+test('parseDue는 못 알아듣는 @표기와 이메일은 그대로 둔다', () => {
+    const today = '2026-09-15';
+    expect(parseDue('메일 보내기 @철수', today)).toEqual({ text: '메일 보내기 @철수', dueDate: undefined });
+    expect(parseDue('a@b.com 확인', today).text).toBe('a@b.com 확인'); // 앞에 공백이 없으면 표기가 아니다
+    expect(parseDue('@내일', today)).toEqual({ text: '@내일', dueDate: '2026-09-16' }); // 제목이 비면 원문 유지
 });

@@ -2,6 +2,18 @@ import { useEffect, useRef } from 'react';
 import { customColor, pickerValue, tagStyle } from '../lib/tags';
 import { SKINS, THEMES } from '../hooks/useTheme';
 
+// 단축키 목록 — 동작은 App.jsx 의 keydown 처리에 있다
+const SHORTCUTS = [
+    [['n'], '새 할 일 칸으로'],
+    [['/'], '검색'],
+    [['1', '2', '3'], '할 일 · 대시보드 · 캘린더 탭'],
+    [['j', 'k'], '목록에서 아래 · 위로 (↓ ↑ 도 됨)'],
+    [['Enter'], '초점 둔 항목의 상세 열기'],
+    [['x'], '초점 둔 항목 완료 / 완료 취소'],
+    [['Delete'], '초점 둔 항목 삭제 (취소 가능)'],
+    [['?'], '설정 열기'],
+];
+
 // 스킨 하나의 미리보기 카드. 미리보기 칸에 data-skin 을 붙여 그 스킨의 토큰으로 그려진다 (CSS 참고)
 function SkinCard({ id, label, desc, active, onPick }) {
     return (
@@ -67,8 +79,8 @@ function Settings({ revTemplate, onChangeRevTemplate, allTags, tagColors, onChan
                     <button type="button" className="icon-btn" onClick={onClose} aria-label="닫기">×</button>
                 </header>
                 <div className="settings-body">
-                    <section className="settings-field">
-                        <h3 className="section-title">모양</h3>
+                    <details className="settings-field" open>
+                        <summary className="section-title">모양</summary>
                         <div className="skin-grid" role="radiogroup" aria-label="스킨">
                             {SKINS.map(([key, label, desc]) => (
                                 <SkinCard key={key} id={key} label={label} desc={desc}
@@ -83,10 +95,10 @@ function Settings({ revTemplate, onChangeRevTemplate, allTags, tagColors, onChan
                                     onClick={() => onChangeTheme(key)}>{label}</button>
                             ))}
                         </div>
-                    </section>
+                    </details>
 
-                    <section className="settings-field">
-                        <h3 className="section-title">태그 색</h3>
+                    <details className="settings-field" open>
+                        <summary className="section-title">태그 색</summary>
                         {allTags.length === 0
                             ? <p className="section-note">태그를 달면 여기에서 색을 고를 수 있어요.</p>
                             : (
@@ -103,10 +115,20 @@ function Settings({ revTemplate, onChangeRevTemplate, allTags, tagColors, onChan
                                     </p>
                                 </>
                             )}
-                    </section>
+                    </details>
 
-                    <section className="settings-field">
-                        <h3 className="section-title">커밋 번호 링크 형식</h3>
+                    <details className="settings-field">
+                        <summary className="section-title">단축키</summary>
+                        <dl className="shortcut-list">
+                            {SHORTCUTS.map(([keys, what]) => (
+                                <div key={what}><dt>{keys.map(k => <kbd key={k}>{k}</kbd>)}</dt><dd>{what}</dd></div>
+                            ))}
+                        </dl>
+                        <p className="section-note">글자를 입력하는 중이거나 대화상자가 열려 있을 때는 동작하지 않습니다.</p>
+                    </details>
+
+                    <details className="settings-field">
+                        <summary className="section-title">커밋 번호 링크 형식</summary>
                         <label>
                             <input type="url" className="settings-input" value={revTemplate} placeholder="https://svn.example.com/rev/{n}"
                                 aria-label="커밋 번호 링크 형식" onChange={(e) => onChangeRevTemplate(e.target.value.trim())} />
@@ -115,7 +137,7 @@ function Settings({ revTemplate, onChangeRevTemplate, allTags, tagColors, onChan
                             노트 안의 <code>r5074</code> 같은 번호가 이 주소로 열립니다. <code>{'{n}'}</code> 자리에 번호가 들어가고,
                             없으면 끝에 붙습니다. 비워 두면 링크로 만들지 않습니다. URL(<code>https://…</code>)은 설정 없이 항상 링크입니다.
                         </p>
-                    </section>
+                    </details>
                 </div>
             </div>
         </dialog>
