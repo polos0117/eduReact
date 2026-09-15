@@ -61,3 +61,5 @@ Building a Todo List app in `c:\eduReact` (Vite + React 19 + JS) as a React lear
 - 테스트 38개.
 
 **헤드리스 캡처 함정 2개 (다음에 시간 낭비 말 것):** ① `public/`에 프로브·시드 HTML을 만들면 **Vite가 전체 새로고침**을 걸어 React 상태(열린 다이얼로그 등)가 지워진다 → 파일 만든 뒤 `sleep 4` 하고 실행할 것. ② 그래도 `<dialog>.showModal()`은 iframe 안에서 `--screenshot`에 안 잡힌다(top layer). 다이얼로그는 스크린샷 대신 `--dump-dom` 으로 검증할 것.
+
+**2026-09-15 밤 6:** 캘린더 하단 선택일 목록에도 태그 칩 표시(`tagHref` + `useTagClass`, 목록 화면과 동일한 칩). 테스트 38개 유지.

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { PRIORITY_LABEL, priorityOf, sortByPriority } from '../reducers/todoReducer';
 import { dayKey, monthCells } from '../lib/stats';
 import { useNow } from '../hooks/useNow';
+import { tagHref } from '../lib/tags';
 import { useTagClass } from '../hooks/useTagColors';
 import ColorByToggle from './ColorByToggle';
 import TodoForm from './Todo/TodoForm';
@@ -119,6 +120,10 @@ function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
                                         {todo.text}
                                         {todo.notes?.length > 0 && <span className="note-count">≡ {todo.notes.length}</span>}
                                     </button>
+                                    {todo.tags?.map(tag => (
+                                        <a key={tag} className={`tag-chip ${tagClass(tag)}`} href={tagHref(tag)}
+                                            title={`#${tag} 항목만 보기`}>#{tag}</a>
+                                    ))}
                                     <span className="priority-btn as-text">{PRIORITY_LABEL[priorityOf(todo)]}</span>
                                 </li>
                             ))}
