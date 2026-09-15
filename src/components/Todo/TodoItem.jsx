@@ -2,13 +2,13 @@ import { PRIORITIES, PRIORITY_LABEL, priorityOf, subtaskProgress } from '../../r
 import { formatDay } from '../../lib/stats';
 import { holidayOn } from '../../lib/holidays';
 import { tagHref } from '../../lib/tags';
-import { useTagClass } from '../../hooks/useTagColors';
+import { useTagStyle } from '../../hooks/useTagColors';
 import DoneButton from './DoneButton';
 
 // 목록의 한 줄. 앞의 네모 체크박스는 "선택"이고, 완료는 동그란 ✓ 버튼이 한다.
 // 제목·마감일 편집은 상세 화면(제목 클릭)에서.
 function TodoItem({ todo, todayKey, selected, onSelect, onToggleTodo, onRemoveTodo, onSetPriority, onOpenTodo }) {
-    const tagClass = useTagClass();
+    const tagStyle = useTagStyle();
     const priority = priorityOf(todo);
     const overdue = todo.dueDate && !todo.completed && todo.dueDate < todayKey;
     const dueHoliday = holidayOn(todo.dueDate);
@@ -33,7 +33,8 @@ function TodoItem({ todo, todayKey, selected, onSelect, onToggleTodo, onRemoveTo
             </div>
             <div className="todo-item-meta">
                 {todo.tags?.map(tag => (
-                    <a key={tag} className={`tag-chip ${tagClass(tag)}`} href={tagHref(tag)} title={`#${tag} 항목만 보기`}>#{tag}</a>
+                    <a key={tag} {...tagStyle(tag)} className={`tag-chip ${tagStyle(tag).className}`}
+                        href={tagHref(tag)} title={`#${tag} 항목만 보기`}>#{tag}</a>
                 ))}
                 {todo.dueDate && (
                     <span className={`due-chip${overdue ? ' overdue' : ''}${dueHoliday ? ' on-holiday' : ''}`}

@@ -4,7 +4,7 @@ import { dayKey, monthCells } from '../lib/stats';
 import { holidaysForRange } from '../lib/holidays';
 import { useNow } from '../hooks/useNow';
 import { tagHref } from '../lib/tags';
-import { useTagClass } from '../hooks/useTagColors';
+import { useTagStyle } from '../hooks/useTagColors';
 import ColorByToggle from './ColorByToggle';
 import TodoForm from './Todo/TodoForm';
 import DoneButton from './Todo/DoneButton';
@@ -13,7 +13,7 @@ const DOW = ['일', '월', '화', '수', '목', '금', '토'];
 const MAX_CHIPS = 2;
 
 function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
-    const tagClass = useTagClass();
+    const tagStyle = useTagStyle();
     const todayKey = dayKey(useNow());
     const [selected, setSelected] = useState(todayKey);
     const [view, setView] = useState(() => {
@@ -46,9 +46,9 @@ function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
     const noDueCount = todos.filter(todo => !todo.completed && !todo.dueDate).length;
 
     // 칸 안 칩은 왼쪽 선 색만 바꾼다 — 우선순위 또는 첫 태그 (태그가 없으면 회색)
-    const chipColorClass = (todo) => colorBy === 'tag'
-        ? (todo.tags?.[0] ? tagClass(todo.tags[0]) : 'no-tag')
-        : `priority-${priorityOf(todo)}`;
+    const chipColor = (todo) => colorBy === 'tag'
+        ? (todo.tags?.[0] ? tagStyle(todo.tags[0]) : { className: 'no-tag' })
+        : { className: `priority-${priorityOf(todo)}` };
 
     function addTodo(text, priority, dueDate, tags) {
         const now = Date.now();
@@ -91,7 +91,8 @@ function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
                             {items.length > 0 && (
                                 <span className="cal-items">
                                     {items.slice(0, MAX_CHIPS).map(todo => (
-                                        <span key={todo.id} className={`cal-chip ${chipColorClass(todo)}${todo.completed ? ' completed' : ''}`}>
+                                        <span key={todo.id} style={chipColor(todo).style}
+                                            className={`cal-chip ${chipColor(todo).className}${todo.completed ? ' completed' : ''}`}>
                                             {todo.text}
                                         </span>
                                     ))}
@@ -130,8 +131,8 @@ function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
                                     </div>
                                     <div className="todo-item-meta">
                                     {todo.tags?.map(tag => (
-                                        <a key={tag} className={`tag-chip ${tagClass(tag)}`} href={tagHref(tag)}
-                                            title={`#${tag} 항목만 보기`}>#{tag}</a>
+                                        <a key={tag} {...tagStyle(tag)} className={`tag-chip ${tagStyle(tag).className}`}
+                                            href={tagHref(tag)} title={`#${tag} 항목만 보기`}>#{tag}</a>
                                     ))}
                                     <select className={`priority-select priority-${priorityOf(todo)}`} value={priorityOf(todo)}
                                         onChange={(e) => dispatch({ type: 'SET_PRIORITY', id: todo.id, priority: e.target.value })}

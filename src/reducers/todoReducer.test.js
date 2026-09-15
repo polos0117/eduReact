@@ -183,3 +183,15 @@ import {todoReducer, sortByPriority, normalizeTodo, parseTags, subtaskProgress} 
         const back = todoReducer(removed, { type: 'RESTORE_MANY', entries: [{ todo: { id: 4 }, index: 3 }, { todo: { id: 2 }, index: 1 }] });
         expect(back.map(t => t.id)).toEqual([1, 2, 3, 4]);
     });
+
+    test('SET_PATH는 작업 화면 경로를 넣고, 빈 값이면 지운다', () => {
+        const state = [{ id: 1, text: 'a' }];
+        const withPath = todoReducer(state, { type: 'SET_PATH', id: 1, path: '  IP 담보대출 > MyWork > 대출실행여부 등록  ' });
+        expect(withPath[0].path).toBe('IP 담보대출 > MyWork > 대출실행여부 등록');
+        expect(todoReducer(withPath, { type: 'SET_PATH', id: 1, path: '   ' })[0].path).toBeUndefined();
+    });
+    test('normalizeTodo는 path도 받아들이고 공백만 있으면 버린다', () => {
+        expect(normalizeTodo({ id: 1, text: 'a', path: '  화면 > 경로 ' }).path).toBe('화면 > 경로');
+        expect(normalizeTodo({ id: 1, text: 'a', path: '   ' }).path).toBeUndefined();
+        expect(normalizeTodo({ id: 1, text: 'a', path: 3 }).path).toBeUndefined();
+    });

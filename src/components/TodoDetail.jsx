@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { PRIORITIES, PRIORITY_LABEL, priorityOf, NOTE_CATEGORIES, NOTE_LABEL, subtaskProgress } from '../reducers/todoReducer';
 import { linkify, revUrl } from '../lib/linkify';
 import { holidayOn } from '../lib/holidays';
-import { useTagClass } from '../hooks/useTagColors';
+import { useTagStyle } from '../hooks/useTagColors';
 import DoneButton from './Todo/DoneButton';
 
 // 클립보드 복사 버튼. 결과를 1.5초간 보여준다. (clipboard API는 https/localhost에서만 동작)
@@ -76,7 +76,7 @@ function Note({ note, revTemplate, onEdit, onRemove }) {
 
 // 태그 편집: 칩 + 입력. Enter/쉼표로 추가, 빈 칸에서 Backspace면 마지막 태그 제거
 function TagEditor({ tags, onChange }) {
-    const tagClass = useTagClass();
+    const tagStyle = useTagStyle();
     const [draft, setDraft] = useState('');
     function commit() {
         const value = draft.trim().replace(/^#/, '');
@@ -86,7 +86,7 @@ function TagEditor({ tags, onChange }) {
     return (
         <span className="tag-editor">
             {tags.map(tag => (
-                <span key={tag} className={`tag-chip ${tagClass(tag)}`}>
+                <span key={tag} {...tagStyle(tag)} className={`tag-chip ${tagStyle(tag).className}`}>
                     #{tag}
                     <button type="button" className="tag-remove" onClick={() => onChange(tags.filter(t => t !== tag))} aria-label={`태그 ${tag} 제거`}>×</button>
                 </span>
@@ -105,6 +105,7 @@ function TagEditor({ tags, onChange }) {
 function TodoDetail({ todo, dispatch, revTemplate, onClose }) {
     const ref = useRef(null);
     const [title, setTitle] = useState(todo.text);
+    const [path, setPath] = useState(todo.path ?? '');
     const [draft, setDraft] = useState({ category: 'backend', text: '' });
     const [subDraft, setSubDraft] = useState('');
 
@@ -120,6 +121,9 @@ function TodoDetail({ todo, dispatch, revTemplate, onClose }) {
         const trimmed = title.trim();
         if (trimmed !== '' && trimmed !== todo.text) dispatch({ type: 'EDIT', id: todo.id, newText: trimmed });
         else setTitle(todo.text);
+    }
+    function savePath() {
+        if (path.trim() !== (todo.path ?? '')) dispatch({ type: 'SET_PATH', id: todo.id, path });
     }
     function addNote() {
         if (draft.text.trim() === '') return;
@@ -152,6 +156,16 @@ function TodoDetail({ todo, dispatch, revTemplate, onClose }) {
                         onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }} />
                     <button type="button" className="icon-btn" onClick={onClose} aria-label="닫기">×</button>
                 </header>
+
+                {/* 작업 화면 경로 — 보고서에 그대로 붙여 넣는 값이라 복사 버튼을 둔다 */}
+                <div className="detail-path">
+                    <label htmlFor="detail-path" className="sr-only">작업 화면 경로</label>
+                    <input id="detail-path" className="path-input" value={path}
+                        placeholder="작업 화면 경로 — 예) IP 담보대출 &gt; MyWork &gt; 대출실행여부 등록"
+                        onChange={(e) => setPath(e.target.value)} onBlur={savePath}
+                        onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }} />
+                    {todo.path && <CopyButton text={todo.path} />}
+                </div>
 
                 <div className="detail-meta">
                     <label>우선순위

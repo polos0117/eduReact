@@ -397,3 +397,9 @@
     color: var(--accent);
   }
 }
+
+[data-skin="neo"] .path-input:hover,
+[data-skin="neo"] .path-input:focus {
+  background: rgba(0, 0, 0, 0.28);
+  border-color: var(--line);
+}

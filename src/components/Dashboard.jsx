@@ -1,7 +1,7 @@
 import { PRIORITIES, PRIORITY_LABEL } from '../reducers/todoReducer';
 import { completedPerDay, countByPriority, countByTag, dueBuckets, formatDay, dayKey, DUE_BUCKETS } from '../lib/stats';
 import { useNow } from '../hooks/useNow';
-import { useTagClass } from '../hooks/useTagColors';
+import { useTagStyle } from '../hooks/useTagColors';
 import ColorByToggle from './ColorByToggle';
 
 const DAYS = 14;
@@ -62,7 +62,7 @@ function CompletedChart({ rows, todayKey, listHref }) {
 
 // params: 해시 쿼리 — tag=x 면 그 태그의 할 일만 집계하고, 목록 링크에도 태그를 실어 보낸다
 function Dashboard({ todos: allTodos, params, colorBy, onColorByChange }) {
-    const tagClass = useTagClass();
+    const tagStyle = useTagStyle();
     const now = useNow();
     const todayKey = dayKey(now);
     const tag = params.get('tag');
@@ -91,7 +91,8 @@ function Dashboard({ todos: allTodos, params, colorBy, onColorByChange }) {
                 <nav className="tag-row" aria-label="태그별 보기">
                     <a href="#dashboard" className={`tag-chip${tag ? '' : ' active'}`}>전체</a>
                     {allTags.map(t => (
-                        <a key={t} href={`#dashboard?tag=${encodeURIComponent(t)}`} className={`tag-chip ${tagClass(t)}${tag === t ? ' active' : ''}`}>#{t}</a>
+                        <a key={t} href={`#dashboard?tag=${encodeURIComponent(t)}`} {...tagStyle(t)}
+                            className={`tag-chip ${tagStyle(t).className}${tag === t ? ' active' : ''}`}>#{t}</a>
                     ))}
                 </nav>
             )}
@@ -138,8 +139,8 @@ function Dashboard({ todos: allTodos, params, colorBy, onColorByChange }) {
                             <div className="stack" role="img"
                                 aria-label={tagRows.map(r => `${r.tag ?? '태그 없음'} ${r.count}개`).join(', ')}>
                                 {tagRows.map(r => (
-                                    <a key={r.tag ?? '__none'} style={{ flexGrow: r.count }}
-                                        className={`stack-seg ${r.tag ? `seg-tag ${tagClass(r.tag)}` : 'seg-untagged'}`}
+                                    <a key={r.tag ?? '__none'} style={{ flexGrow: r.count, ...(r.tag ? tagStyle(r.tag).style : null) }}
+                                        className={`stack-seg ${r.tag ? `seg-tag ${tagStyle(r.tag).className}` : 'seg-untagged'}`}
                                         href={r.tag ? listHref({ filter: 'active', tag: r.tag }) : listHref({ filter: 'active' })}
                                         title={`${r.tag ?? '태그 없음'} ${r.count}개 — 목록 보기`} />
                                 ))}
@@ -148,7 +149,8 @@ function Dashboard({ todos: allTodos, params, colorBy, onColorByChange }) {
                                 {tagRows.map(r => (
                                     <li key={r.tag ?? '__none'} className="legend-item">
                                         <a href={r.tag ? listHref({ filter: 'active', tag: r.tag }) : listHref({ filter: 'active' })}>
-                                            <span className={`swatch ${r.tag ? `seg-tag ${tagClass(r.tag)}` : 'seg-untagged'}`} aria-hidden="true" />
+                                            <span aria-hidden="true" style={r.tag ? tagStyle(r.tag).style : undefined}
+                                                className={`swatch ${r.tag ? `seg-tag ${tagStyle(r.tag).className}` : 'seg-untagged'}`} />
                                             {r.tag ? `#${r.tag}` : '태그 없음'} <strong>{r.count}</strong>
                                         </a>
                                     </li>

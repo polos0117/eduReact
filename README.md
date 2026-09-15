@@ -16,9 +16,9 @@
 - 우선순위 높음 · 보통 · 낮음 — 추가할 때, 또는 항목의 드롭다운에서 골라서. 정렬은 완료한 것을 뒤로 보낸 다음 우선순위 순
 - 마감일 — 지나면 빨갛게, 공휴일이면 점선 밑줄(이름은 마우스를 올리면)
 - 전체 / 진행중 / 완료 보기, 검색(제목과 노트 본문), 전체 완료 토글, 완료 진행률
-- **태그** — 제목 끝에 `#kipa #개인`처럼 붙이면 태그로 분리. 상세에서 편집, 목록의 태그 칩을 누르면 그 태그만, 대시보드도 태그별로. 태그마다 **색**이 붙습니다 — 기본은 이름 해시로 자동 배정이고, 설정에서 태그별로 직접 고를 수 있습니다. 색은 네 가지뿐인데, 색각 이상에서도 서로 구분되는 한도가 거기까지라서입니다(dataviz 검증기 전체 쌍 통과). 태그가 더 많으면 색이 겹치지만 이름이 함께 보이므로 구분에는 지장이 없습니다
+- **태그** — 제목 끝에 `#kipa #개인`처럼 붙이면 태그로 분리. 상세에서 편집, 목록의 태그 칩을 누르면 그 태그만, 대시보드도 태그별로. 태그마다 **색**이 붙습니다 — 기본은 이름 해시로 네 가지 중 자동 배정(색각 이상에서도 서로 구분되도록 dataviz 검증기로 고른 값)이고, 설정에서 **색상 선택기로 원하는 색을 직접** 고를 수 있습니다. 글자는 늘 잉크색이라 어떤 색을 골라도 읽힙니다
 - **하위 체크리스트** — 상세에서 항목을 추가·체크·수정·삭제. 목록에 `☑ 2/3` 진행 표시
-- **상세 화면** — 제목을 누르면 열림. 제목·우선순위·마감일·태그 편집, 하위 항목, 그리고 **백엔드 / 프론트엔드 / 메모**로 나뉜 노트 목록. 코드·경로·링크를 붙여 넣으면 줄바꿈과 들여쓰기가 그대로 보존되고(고정폭), 노트마다 복사·수정·삭제. Ctrl+Enter로 추가, Esc로 닫기
+- **상세 화면** — 제목을 누르면 열림. 제목 아래 **작업 화면 경로** 칸(보고서에 붙여 넣기 좋게 복사 버튼 포함), 우선순위·마감일·태그 편집, 하위 항목, 그리고 **백엔드 / 프론트엔드 / 메모**로 나뉜 노트 목록. 코드·경로·링크를 붙여 넣으면 줄바꿈과 들여쓰기가 그대로 보존되고(고정폭), 노트마다 복사·수정·삭제. Ctrl+Enter로 추가, Esc로 닫기
 - **노트 자동 링크** — `https://…`는 항상 링크, `r5074` 같은 커밋 번호는 설정(헤더 "설정")에 링크 형식(`https://svn.example.com/rev/{n}`)을 넣으면 링크
 
 ![상세 화면](docs/detail.png)
@@ -93,7 +93,7 @@ src/
   reducers/
     todoReducer.js          ADD · TOGGLE · TOGGLE_ALL · REMOVE · RESTORE · CLEAR_COMPLETED · EDIT · SET_PRIORITY · SET_DUE · SET_TAGS
                             · ADD/EDIT/REMOVE_NOTE · ADD/TOGGLE/EDIT/REMOVE_SUBTASK · IMPORT
-                            · 일괄: SET_COMPLETED_MANY · SET_PRIORITY_MANY · REMOVE_MANY · RESTORE_MANY
+                            · SET_PATH · 일괄: SET_COMPLETED_MANY · SET_PRIORITY_MANY · REMOVE_MANY · RESTORE_MANY
                             + 우선순위 정렬, 가져온 JSON 정규화(normalizeTodo), parseTags, subtaskProgress
     todoReducer.test.js
   lib/
@@ -103,7 +103,7 @@ src/
     holidays.test.js
     linkify.js              노트의 URL·r번호를 링크 조각으로
     linkify.test.js
-    tags.js                 태그 색 배정(이름 해시 → 4색), 태그 링크 주소
+    tags.js                 태그 색 — 이름 해시 자동 배정과 직접 고른 색(hex), 태그 링크 주소
     tags.test.js
   components/
     Todo/
@@ -127,6 +127,7 @@ drills/                     학습용 순수 JS 연습 문제 (node drills/01-de
 ```json
 { "id": 1757900000000, "text": "로그인 API 연동", "completed": false,
   "priority": "high", "dueDate": "2026-09-18",
+  "path": "IP 담보대출 > MyWork > 대출실행여부 등록",
   "createdAt": 1757900000000, "completedAt": 1757950000000,
   "tags": ["kipa"],
   "subtasks": [{ "id": 1757900000002, "text": "JWT 발급", "done": true }],
@@ -135,7 +136,7 @@ drills/                     학습용 순수 JS 연습 문제 (node drills/01-de
   ] }
 ```
 
-`priority`·`dueDate`·`completedAt`·`tags`·`subtasks`·`notes`는 없을 수 있습니다(예전 데이터). 없으면 보통 / 마감 없음 / 시각 모름 / 없음으로 봅니다. `notes[].category`는 `backend` · `frontend` · `memo`.
+`priority`·`dueDate`·`completedAt`·`path`·`tags`·`subtasks`·`notes`는 없을 수 있습니다(예전 데이터). 없으면 보통 / 마감 없음 / 시각 모름 / 없음으로 봅니다. `notes[].category`는 `backend` · `frontend` · `memo`.
 
 ### 공휴일
 

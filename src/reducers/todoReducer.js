@@ -45,6 +45,7 @@ export function normalizeTodo(raw, now = Date.now()) {
         createdAt: Number.isFinite(raw.createdAt) ? raw.createdAt : Number.isFinite(raw.id) ? raw.id : now,
     };
     if (typeof raw.dueDate === 'string' && DAY_KEY.test(raw.dueDate)) todo.dueDate = raw.dueDate;
+    if (typeof raw.path === 'string' && raw.path.trim() !== '') todo.path = raw.path.trim();
     if (todo.completed && Number.isFinite(raw.completedAt)) todo.completedAt = raw.completedAt;
     if (Array.isArray(raw.notes)) {
         const notes = raw.notes.map((n, i) => normalizeNote(n, now + i + 1)).filter(Boolean);
@@ -132,6 +133,10 @@ export function todoReducer(state, action) {
         );
         case 'SET_PRIORITY': return state.map(todo =>
             todo.id === action.id ? { ...todo, priority: action.priority } : todo
+        );
+        // 작업 화면 경로 — 빈 값이면 필드를 지운다
+        case 'SET_PATH': return updateTodo(state, action.id, todo =>
+            ({ ...todo, path: action.path.trim() || undefined })
         );
         // dueDate: 'YYYY-MM-DD' 또는 undefined(마감 없음)
         case 'SET_DUE': return state.map(todo =>

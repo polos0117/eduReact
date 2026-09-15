@@ -102,3 +102,10 @@ Building a Todo List app in `c:\eduReact` (Vite + React 19 + JS) as a React lear
 - 할 일 줄도 제목 칸이 ~96px 밖에 안 남아 한 단어씩 끊겼다. `.todo-item-main`(체크·완료·제목) / `.todo-item-meta`(태그·마감·우선순위) 로 묶고, ≤560px 에서 main 을 `flex: 1 0 100%` 로.
 - **CSS 함정 둘**: ① `flex: 1 1 100%` 는 줄바꿈 대신 **줄어든다** — 줄을 넘기려면 `flex: 1 0 100%`(shrink 0). ② 미디어 쿼리를 파일 앞쪽에 두면 **뒤에 오는 같은 특이도의 기본 규칙에 진다**. `.todo-item-main{flex:1}` 이 뒤에 있어서 무시됐다 → 좁은 화면 블록은 **파일 끝**에 둘 것(App.css 에 주석으로 적어 둠).
 - 죽은 export 제거: `LUNAR_YEARS`, `todayHoliday`, `useTagColorIndex`, `normalizeTags`(내부 함수로).
+
+**2026-09-15 밤 13: 태그 색 자유 선택 + 상세의 작업 경로 칸.**
+- 태그 색이 4개로 부족하다는 요청 → `tagColors` 값이 **hex 문자열**이 됨(`{ 태그: '#7b2ff7' }`). 예전 판의 0..3 숫자도 계속 읽는다. `tagStyle(tag, overrides)` 가 `{className, style}` 을 돌려주고(자동이면 테마별 `tag-cN` 클래스, 직접 고르면 `tag-custom` + 인라인 `--tag`), `useTagClass` → `useTagStyle` 로 교체(4곳). 설정은 스와치 4개 대신 `<input type="color">` + "자동".
+- 상세 상단에 `todo.path`(작업 화면 경로) 칸 + 복사 버튼. 리듀서 `SET_PATH`, `normalizeTodo` 에서 검증. 고정폭 글꼴.
+- 테스트 55개.
+
+**앞서 헤맨 것 두 가지 (도구 쪽):** ① `Page.navigate` 를 **같은 해시 URL**로 부르면 문서를 다시 읽지 않는다(프래그먼트 이동) → 시드한 localStorage 가 반영 안 돼 "데이터가 안 불러와진다"고 오판했다. `Page.reload({ignoreCache:true})` 를 쓸 것. ② `<dialog onClose>` 는 **프로그램이 close() 해도 불린다** → StrictMode 이중 효과의 정리(close())가 onClose 를 호출해 다이얼로그가 즉시 닫혔다. 사용자 닫기는 `onCancel` 로 받을 것.

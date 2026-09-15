@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { tagColorIndex, tagClass, tagHref, TAG_COLOR_COUNT } from './tags';
+import { tagColorIndex, tagStyle, customColor, pickerValue, tagHref, TAG_COLOR_COUNT } from './tags';
 
 test('tagColorIndex는 같은 이름에 늘 같은 색을, 범위 안에서 준다', () => {
     expect(tagColorIndex('kipa')).toBe(tagColorIndex('kipa'));
@@ -8,7 +8,7 @@ test('tagColorIndex는 같은 이름에 늘 같은 색을, 범위 안에서 준�
         expect(i).toBeGreaterThanOrEqual(0);
         expect(i).toBeLessThan(TAG_COLOR_COUNT);
     }
-    expect(tagClass('kipa')).toMatch(/^tag-c[0-3]$/);
+    expect(tagStyle('kipa').className).toMatch(/^tag-c[0-3]$/);
 });
 
 // 이 테스트가 없어서 한글 태그가 한 색으로 몰리는 걸 놓쳤다.
@@ -34,10 +34,26 @@ test('tagHref는 한글·특수문자를 인코딩한다', () => {
     expect(tagHref('a b')).toBe('#todos?tag=a%20b');
 });
 
-test('tagColorIndex는 사용자가 고른 색을 우선하고, 잘못된 값은 무시한다', () => {
-    expect(tagColorIndex('잔여', { 잔여: 1 })).toBe(1);
+test('직접 고른 색(hex)이 자동 배정을 이긴다', () => {
+    expect(customColor('잔여', { 잔여: '#ff8800' })).toBe('#ff8800');
+    expect(tagStyle('잔여', { 잔여: '#ff8800' })).toEqual({ className: 'tag-custom', style: { '--tag': '#ff8800' } });
+    expect(pickerValue('잔여', { 잔여: '#ff8800' })).toBe('#ff8800');
+});
+
+test('hex 가 아닌 값은 무시하고 자동으로 돌아간다', () => {
+    for (const bad of ['red', '#fff', '#12345', 'ff8800', 42, null, undefined]) {
+        expect(customColor('잔여', { 잔여: bad })).toBeNull();
+        expect(tagStyle('잔여', { 잔여: bad }).className).toBe(tagStyle('잔여').className);
+    }
+    expect(customColor('잔여', { 개선: '#ff8800' })).toBeNull();
+});
+
+test('예전 판이 저장한 0..3 숫자도 그대로 읽는다', () => {
+    expect(tagColorIndex('잔여', { 잔여: 2 })).toBe(2);
+    expect(tagStyle('잔여', { 잔여: 2 }).className).toBe('tag-c2');
     expect(tagColorIndex('잔여', { 잔여: 9 })).toBe(tagColorIndex('잔여'));
-    expect(tagColorIndex('잔여', { 잔여: '2' })).toBe(tagColorIndex('잔여'));
-    expect(tagColorIndex('잔여', { 개선: 1 })).toBe(tagColorIndex('잔여'));
-    expect(tagClass('잔여', { 잔여: 2 })).toBe('tag-c2');
+});
+
+test('pickerValue 는 자동일 때 팔레트 색을 시작값으로 준다', () => {
+    expect(pickerValue('잔여')).toMatch(/^#[0-9a-f]{6}$/);
 });

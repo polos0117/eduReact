@@ -1,30 +1,26 @@
 import { useEffect, useRef } from 'react';
-import { TAG_COLOR_COUNT, TAG_COLOR_LABELS, tagColorIndex } from '../lib/tags';
+import { customColor, pickerValue, tagStyle } from '../lib/tags';
 
-const SLOTS = Array.from({ length: TAG_COLOR_COUNT }, (_, i) => i);
-
-// 태그 하나의 색 고르기. 고른 적이 없으면 "자동"(이름 해시)이 눌린 상태.
-function TagColorRow({ tag, picked, onPick }) {
-    const shown = tagColorIndex(tag, picked == null ? undefined : { [tag]: picked });
+// 태그 하나의 색 고르기. 고른 적이 없으면 이름에 따라 자동으로 정해진다.
+function TagColorRow({ tag, colors, onPick }) {
+    const custom = customColor(tag, colors);
+    const chip = tagStyle(tag, colors);
     return (
         <li className="tagcolor-row">
-            <span className={`tag-chip tag-c${shown}`}>#{tag}</span>
-            <span className="tagcolor-swatches" role="group" aria-label={`${tag} 색`}>
-                {SLOTS.map(i => (
-                    <button key={i} type="button" className={`swatch-btn tag-c${i}${picked === i ? ' active' : ''}`}
-                        aria-pressed={picked === i} title={TAG_COLOR_LABELS[i]}
-                        aria-label={`${tag} 색을 ${TAG_COLOR_LABELS[i]}으로`}
-                        onClick={() => onPick(i)} />
-                ))}
-                <button type="button" className={`tagcolor-auto${picked == null ? ' active' : ''}`}
-                    aria-pressed={picked == null} onClick={() => onPick(null)}
+            <span {...chip} className={`tag-chip ${chip.className}`}>#{tag}</span>
+            <span className="tagcolor-controls">
+                <input type="color" className="color-input" value={pickerValue(tag, colors)}
+                    aria-label={`${tag} 색 고르기`} title="색 고르기"
+                    onChange={(e) => onPick(e.target.value)} />
+                <button type="button" className={`tagcolor-auto${custom ? '' : ' active'}`}
+                    aria-pressed={!custom} onClick={() => onPick(null)}
                     title="이름에 따라 자동으로 정하기">자동</button>
             </span>
         </li>
     );
 }
 
-// 설정 — 커밋 번호 링크 형식, 태그 색. 값은 localStorage(useLocalState)에 있다.
+// 설정 — 태그 색, 커밋 번호 링크 형식. 값은 localStorage(useLocalState)에 있다.
 function Settings({ revTemplate, onChangeRevTemplate, allTags, tagColors, onChangeTagColors, onClose }) {
     const ref = useRef(null);
     // StrictMode 는 효과를 두 번 돌린다(정리 → 재실행). 정리의 close() 도 close 이벤트를 내므로
@@ -35,10 +31,10 @@ function Settings({ revTemplate, onChangeRevTemplate, allTags, tagColors, onChan
         return () => dialog.close();
     }, []);
 
-    function pick(tag, index) {
+    function pick(tag, color) {
         const next = { ...tagColors };
-        if (index == null) delete next[tag]; // 자동으로 되돌리기
-        else next[tag] = index;
+        if (color == null) delete next[tag]; // 자동으로 되돌리기
+        else next[tag] = color;
         onChangeTagColors(next);
     }
 
@@ -59,13 +55,13 @@ function Settings({ revTemplate, onChangeRevTemplate, allTags, tagColors, onChan
                                 <>
                                     <ul className="tagcolor-list">
                                         {allTags.map(tag => (
-                                            <TagColorRow key={tag} tag={tag} picked={tagColors[tag] ?? null}
-                                                onPick={(i) => pick(tag, i)} />
+                                            <TagColorRow key={tag} tag={tag} colors={tagColors}
+                                                onPick={(c) => pick(tag, c)} />
                                         ))}
                                     </ul>
                                     <p className="section-note">
-                                        색은 네 가지뿐입니다 — 색각 이상에서도 서로 구분되는 한도가 여기까지라서요.
-                                        태그가 더 많으면 색이 겹치지만, 이름이 함께 보이므로 구분에는 문제가 없습니다.
+                                        고르지 않은 태그는 이름에 따라 자동으로 정해집니다. 글자는 늘 잉크색이라 어떤 색을 골라도 읽히지만,
+                                        배경과 너무 비슷한 색은 칩이 옅어 보일 수 있습니다.
                                     </p>
                                 </>
                             )}
