@@ -77,22 +77,24 @@
   color: var(--ink);
 }
 
-/* 머리글의 스킨·테마 고르기 — 목록에서 직접 선택 */
+/* 머리글의 스킨·테마 고르기 — 옆의 글자 버튼들과 같은 결로 */
 .header-select {
-  height: 30px;
-  padding: 0 6px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--sheet);
+  appearance: none;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
   color: var(--ink-2);
-  font-size: 13px;
+  font-size: 14px;
+  text-align: center;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: color 0.15s, background 0.15s;
 }
 
 .header-select:hover {
-  border-color: var(--line-2);
   color: var(--ink);
+  background: var(--sheet-2);
 }
 
 /* ===== 탭 ===== */
@@ -469,8 +471,17 @@
   color: var(--high);
 }
 
+/* 일괄 막대의 우선순위 고르기 — 옆 버튼들과 높이를 맞춘다 */
 .bulk-select {
   display: inline-flex;
+}
+
+.bulk-select .priority-select {
+  height: 28px;
+  padding: 0 4px 0 10px;
+  border-radius: 8px;
+  background: var(--sheet);
+  color: var(--ink);
 }
 
 /* 제목은 버튼 — 누르면 상세. 글자처럼 보이게 */
@@ -538,17 +549,33 @@ button.todo-item-text:hover {
   font-weight: 400;
 }
 
-/* 줄 안의 우선순위 선택은 조용하게 — 값이 "높음"일 때만 눈에 띈다(.priority-select.priority-high) */
+/* 줄 안의 우선순위 — 칩처럼 조용히 앉아 있다가 누르면 목록이 열린다.
+   줄마다 화살표가 붙으면 목록이 시끄러워서 기본 화살표는 지웠다(hover 때 테두리로 눌린다는 걸 알린다) */
 .todo-item .priority-select {
+  appearance: none;
   flex-shrink: 0;
-  height: 26px;
-  border-color: transparent;
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 999px;
   background: transparent;
+  color: var(--ink-3);
+  font-size: 12px;
+  text-align: center;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
 .todo-item .priority-select:hover {
+  color: var(--ink);
   border-color: var(--line);
   background: var(--sheet);
+}
+
+.todo-item .priority-select.priority-high {
+  color: var(--high);
+  border-color: transparent;
+  background: var(--high-soft);
+  font-weight: 600;
 }
 
 .todo-item.completed .priority-select {

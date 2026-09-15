@@ -72,3 +72,7 @@ Building a Todo List app in `c:\eduReact` (Vite + React 19 + JS) as a React lear
 - 테스트 39개.
 
 **oxlint react(purity) 함정:** 컴포넌트 본문 함수 안의 `Date.now()` 는 그 함수가 **props 로 직접 전달될 때만** 핸들러로 인정된다. `onX={() => fn(true)}` 처럼 화살표로 감싸면 "렌더 중 호출"로 오탐한다 → JSX 안에 인라인 화살표로 dispatch 하면 깨끗해진다.
+
+**2026-09-15 밤 8: 드롭다운 디자인 손질.** 줄마다 브라우저 기본 화살표가 붙어 목록이 시끄럽고 머리글 셀렉트가 옆 글자 버튼들과 안 맞는다는 지적 → ① `.todo-item .priority-select` 는 `appearance:none` + 알약 칩 모양(화살표 없음, hover 때 테두리로 눌린다는 걸 알림), 높음일 때만 `--high-soft` 배경 ② `.header-select` 는 테두리 없이 ghost-btn 과 같은 결(hover 때 `--sheet-2`) ③ 일괄 막대 셀렉트는 높이 28px 로 옆 버튼과 맞춤. 폼(추가 줄·상세·설정)의 셀렉트는 기본 화살표 유지 — 폼 문맥에선 그게 맞다.
+
+**localStorage 저장 형식이 두 가지다 (스크린샷 시드 짤 때 두 번 틀림):** `theme`·`skin` 은 `useRootAttr` 가 **원시 문자열**로 읽고 쓴다(`index.html` 인라인 스크립트도 동일). `colorBy`·`tagColors`·`revUrl`·`todos` 는 `useLocalState`/`usePersistedReducer` 라 **JSON**. 시드할 때 `localStorage.setItem('skin','neo')` vs `setItem('colorBy', JSON.stringify('tag'))`.

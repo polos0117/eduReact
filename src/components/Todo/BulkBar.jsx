@@ -13,7 +13,7 @@ function BulkBar({ count, allDone, onSetCompleted, onSetPriority, onRemove, onCl
                     <span className="sr-only">선택한 항목의 우선순위</span>
                     <select className="priority-select" defaultValue=""
                         onChange={(e) => { if (e.target.value) { onSetPriority(e.target.value); e.target.value = ''; } }}>
-                        <option value="" disabled>우선순위…</option>
+                        <option value="" disabled>우선순위</option>
                         {PRIORITIES.map(p => <option key={p} value={p}>{PRIORITY_LABEL[p]}</option>)}
                     </select>
                 </label>
