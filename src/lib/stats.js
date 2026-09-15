@@ -95,6 +95,40 @@ export function dueBuckets(todos, now = Date.now()) {
 }
 
 // 달력 칸 42개(6주), 일요일 시작. month는 0부터.
+// ===== 실제 작업 기간 =====
+// 시작일이 없으면 기간이 아니다. 종료일이 없으면 아직 진행 중이라 보고
+// 완료한 날(없으면 오늘)까지 그린다 — 종료일을 안 적어도 막대가 보이게.
+export function rangeOf(todo, todayKey) {
+    if (!todo?.startDate) return null;
+    const open = todo.completed && todo.completedAt ? dayKey(todo.completedAt) : todayKey;
+    const to = todo.endDate ?? (open > todo.startDate ? open : todo.startDate);
+    return { from: todo.startDate, to: to < todo.startDate ? todo.startDate : to, ongoing: !todo.endDate };
+}
+
+// 한 주(7칸)에 걸친 기간 막대를 겹치지 않게 층으로 나눈다.
+// 같은 층에 놓아야 여러 칸에 걸친 막대가 한 줄로 이어져 보인다.
+// ranges: [{ todo, from, to, ongoing }] → 층 배열, 층마다 칸 번호(startCol..endCol)가 붙은 조각들
+export function weekLanes(ranges, weekKeys) {
+    const first = weekKeys[0];
+    const last = weekKeys.at(-1);
+    const lanes = [];
+    const inWeek = ranges.filter(r => r.from <= last && r.to >= first)
+        .sort((a, b) => a.from.localeCompare(b.from) || b.to.localeCompare(a.to)); // 이른 것부터, 긴 것부터
+    for (const r of inWeek) {
+        const seg = {
+            ...r,
+            startCol: r.from <= first ? 0 : weekKeys.indexOf(r.from),
+            endCol: r.to >= last ? weekKeys.length - 1 : weekKeys.indexOf(r.to),
+            openLeft: r.from < first,   // 지난 주에서 이어짐
+            openRight: r.to > last,     // 다음 주로 이어짐
+        };
+        let lane = lanes.find(l => l.every(s => s.endCol < seg.startCol || s.startCol > seg.endCol));
+        if (!lane) lanes.push(lane = []);
+        lane.push(seg);
+    }
+    return lanes;
+}
+
 export function monthCells(year, month) {
     const firstDow = new Date(year, month, 1).getDay();
     return Array.from({ length: 42 }, (_, i) => {

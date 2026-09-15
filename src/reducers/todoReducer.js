@@ -57,6 +57,13 @@ export function normalizeTodo(raw, now = Date.now()) {
         createdAt: Number.isFinite(raw.createdAt) ? raw.createdAt : Number.isFinite(raw.id) ? raw.id : now,
     };
     if (typeof raw.dueDate === 'string' && DAY_KEY.test(raw.dueDate)) todo.dueDate = raw.dueDate;
+    // 실제 작업 기간. 종료일만 있는 건 기간이 아니라서 버린다
+    if (typeof raw.startDate === 'string' && DAY_KEY.test(raw.startDate)) {
+        todo.startDate = raw.startDate;
+        if (typeof raw.endDate === 'string' && DAY_KEY.test(raw.endDate)) {
+            todo.endDate = raw.endDate < raw.startDate ? raw.startDate : raw.endDate;
+        }
+    }
     if (typeof raw.path === 'string' && raw.path.trim() !== '') todo.path = raw.path.trim();
     if (todo.completed && Number.isFinite(raw.completedAt)) todo.completedAt = raw.completedAt;
     if (Array.isArray(raw.notes)) {
@@ -154,6 +161,13 @@ export function todoReducer(state, action) {
         case 'SET_DUE': return state.map(todo =>
             todo.id === action.id ? { ...todo, dueDate: action.dueDate || undefined } : todo
         );
+        // 실제 작업 기간. 시작일을 비우면 종료일도 같이 지운다 (종료일만 있는 상태는 없다)
+        case 'SET_RANGE': return updateTodo(state, action.id, todo => {
+            const next = { ...todo, startDate: action.startDate || undefined, endDate: action.endDate || undefined };
+            if (!next.startDate) next.endDate = undefined;
+            else if (next.endDate && next.endDate < next.startDate) next.endDate = next.startDate;
+            return next;
+        });
         case 'ADD_NOTE': return updateTodo(state, action.id, todo =>
             ({ ...todo, notes: [...(todo.notes ?? []), action.note] })
         );

@@ -36,6 +36,11 @@ function TodoItem({ todo, todayKey, selected, onSelect, onToggleTodo, onRemoveTo
                     <a key={tag} {...tagStyle(tag)} className={`tag-chip ${tagStyle(tag).className}`}
                         href={tagHref(tag)} title={`#${tag} 항목만 보기`}>#{tag}</a>
                 ))}
+                {todo.startDate && (
+                    <span className="range-chip" title={`실제 기간 ${todo.startDate} ~ ${todo.endDate ?? '진행 중'}`}>
+                        {formatDay(todo.startDate, todayKey)}~{todo.endDate ? formatDay(todo.endDate, todayKey) : ''}
+                    </span>
+                )}
                 {todo.dueDate && (
                     <span className={`due-chip${overdue ? ' overdue' : ''}${dueHoliday ? ' on-holiday' : ''}`}
                         title={`${overdue ? '마감 지남' : '마감일'}${dueHoliday ? ` · ${dueHoliday} (공휴일)` : ''}`}>

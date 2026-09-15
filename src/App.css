@@ -603,6 +603,18 @@ button.todo-item-text:hover {
   font-variant-numeric: tabular-nums;
 }
 
+/* 실제 작업 기간 — 마감 칩과 헷갈리지 않게 테두리를 두른 알약으로 */
+.range-chip {
+  flex-shrink: 0;
+  padding: 0 7px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--ink-3);
+  font-size: 11px;
+  line-height: 17px;
+  font-variant-numeric: tabular-nums;
+}
+
 .due-chip.overdue {
   color: var(--high);
   font-weight: 600;
@@ -1109,6 +1121,8 @@ button.todo-item-text:hover {
 .cal-nav {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap; /* 보기·색 토글까지 있어 좁은 화면에서는 줄이 넘어간다 */
   gap: 4px;
 }
 
@@ -1116,6 +1130,7 @@ button.todo-item-text:hover {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr)); /* 긴 제목이 열을 밀지 않게 */
   border-bottom: 1px solid var(--line);
+  --bar-base: 34px; /* 막대가 시작하는 높이 — 날짜 숫자 아래 */
 }
 
 .cal-dow {
@@ -1168,6 +1183,83 @@ button.todo-item-text:hover {
 
 .cal-cell.selected {
   background: var(--accent-soft);
+}
+
+/* ===== 기간 막대 =====
+   시작~종료가 여러 칸에 걸치므로 칸 안이 아니라 격자에 직접 놓는다(grid-column: 시작 / 끝+1).
+   같은 줄의 칸들보다 DOM 뒤에 있어 위에 그려지고, 칸 경계선을 덮어 하나로 이어져 보인다.
+   층(--lane)은 weekLanes 가 정한다 — 겹치는 막대끼리만 아래로 내려간다. */
+.cal-bar {
+  --bar: var(--chart-2);
+  z-index: 1;
+  align-self: start;
+  margin-top: calc(var(--bar-base) + var(--holiday-row) * 18px + var(--lane) * 20px);
+  margin-bottom: 4px;
+  margin-inline: 3px;
+  min-width: 0;
+  height: 18px;
+  padding: 0 8px;
+  border: none;
+  border-radius: 9px;
+  background: color-mix(in oklab, var(--bar) 18%, var(--tag-base, var(--sheet)));
+  box-shadow: inset 3px 0 0 var(--bar);
+  color: var(--ink-2);
+  font-size: 11px;
+  line-height: 18px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s, background 0.15s;
+}
+
+.cal-bar:hover {
+  color: var(--ink);
+  background: color-mix(in oklab, var(--bar) 30%, var(--tag-base, var(--sheet)));
+}
+
+.cal-bar.priority-high {
+  --bar: var(--chart-1);
+}
+
+.cal-bar.priority-low {
+  --bar: var(--chart-3);
+}
+
+/* 태그 기준일 때 — tagStyle 이 --tag 를 넣어 준다 */
+.cal-bar:is(.tag-c0, .tag-c1, .tag-c2, .tag-c3, .tag-custom) {
+  --bar: var(--tag);
+}
+
+.cal-bar.no-tag {
+  --bar: var(--line-2);
+}
+
+.cal-bar.completed {
+  color: var(--ink-3);
+  text-decoration: line-through;
+}
+
+/* 주 경계를 넘어가는 쪽은 각지게 붙여서 다음 줄로 이어진다는 걸 보인다 */
+.cal-bar.open-left {
+  margin-inline-start: 0;
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+  box-shadow: none;
+}
+
+.cal-bar.open-right {
+  margin-inline-end: 0;
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+/* 종료일을 안 적은 것 = 진행 중 — 끝을 흐리게 풀어 둔다 */
+.cal-bar.ongoing:not(.open-right) {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent);
 }
 
 .cal-cell.out .cal-date,
@@ -1269,6 +1361,18 @@ button.todo-item-text:hover {
   .cal-cell {
     min-height: 56px;
     padding: 4px;
+  }
+
+  .cal-grid {
+    --bar-base: 28px;
+  }
+
+  .cal-bar {
+    height: 15px;
+    padding: 0 5px;
+    margin-top: calc(var(--bar-base) + var(--holiday-row) * 16px + var(--lane) * 17px);
+    font-size: 10px;
+    line-height: 15px;
   }
   .cal-chip,
   .cal-more {
@@ -1448,10 +1552,30 @@ button.todo-item-text:hover {
   color: var(--ink-2);
 }
 
-.detail-meta label {
+.detail-meta label,
+.detail-range {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.range-dash {
+  color: var(--ink-3);
+}
+
+.range-ongoing {
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 11px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.detail-range .due-input:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .notes {

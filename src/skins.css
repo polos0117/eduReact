@@ -627,7 +627,7 @@
   .todo-item-checkbox, .color-input, .tagcolor-auto, .due-rows > a, .stack, .stack-seg,
   .toast, .note-count, .scope-chip, .swatch, .todo-item-btn, .path-input, .subtask-text,
   .done-btn, .icon-btn, .cal-date, .cal-chip, .cal-dot, .todo-progress, .tag-editor,
-  .skin-card-canvas, .skin-card-sheet, .skin-card-dot, .skin-card-bar
+  .skin-card-canvas, .skin-card-sheet, .skin-card-dot, .skin-card-bar, .cal-bar, .range-chip
 ) {
   border-radius: 0;
 }

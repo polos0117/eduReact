@@ -179,6 +179,18 @@ function TodoDetail({ todo, dispatch, revTemplate, onClose }) {
                             onChange={(e) => dispatch({ type: 'SET_DUE', id: todo.id, dueDate: e.target.value })} />
                         {holidayOn(todo.dueDate) && <span className="due-holiday">{holidayOn(todo.dueDate)} (공휴일)</span>}
                     </label>
+                    {/* 실제로 손댄 기간. 마감일(언제까지)과 다른 값이라 따로 둔다 */}
+                    <span className="detail-range">기간
+                        <input type="date" className="due-input" value={todo.startDate ?? ''} aria-label="시작일" title="실제 시작일"
+                            max={todo.endDate || undefined}
+                            onChange={(e) => dispatch({ type: 'SET_RANGE', id: todo.id, startDate: e.target.value, endDate: todo.endDate })} />
+                        <span className="range-dash" aria-hidden="true">~</span>
+                        <input type="date" className="due-input" value={todo.endDate ?? ''} aria-label="종료일"
+                            title={todo.startDate ? '실제 종료일 — 비워 두면 진행 중' : '시작일을 먼저 고르세요'}
+                            min={todo.startDate || undefined} disabled={!todo.startDate}
+                            onChange={(e) => dispatch({ type: 'SET_RANGE', id: todo.id, startDate: todo.startDate, endDate: e.target.value })} />
+                        {todo.startDate && !todo.endDate && <span className="range-ongoing">진행 중</span>}
+                    </span>
                     <span className="detail-tags">태그
                         <TagEditor tags={tags} onChange={(next) => dispatch({ type: 'SET_TAGS', id: todo.id, tags: next })} />
                     </span>

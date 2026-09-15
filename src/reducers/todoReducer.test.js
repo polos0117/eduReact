@@ -209,3 +209,23 @@ test('sortTodos는 기준이 무엇이든 완료한 것을 뒤로 보낸다', ()
     expect(sortTodos(todos, '이상한값').map(t => t.id)).toEqual([4, 3, 2, 1]); // 모르는 기준은 우선순위
     expect(sortTodos(todos)).not.toBe(todos);
 });
+
+test('SET_RANGE는 실제 작업 기간을 넣고, 시작일을 비우면 종료일도 지운다', () => {
+    const state = [{ id: 1, text: 'a', completed: false }];
+    const set = todoReducer(state, { type: 'SET_RANGE', id: 1, startDate: '2026-09-10', endDate: '2026-09-12' });
+    expect(set[0]).toMatchObject({ startDate: '2026-09-10', endDate: '2026-09-12' });
+    // 종료일이 시작일보다 앞이면 시작일로 당긴다
+    expect(todoReducer(set, { type: 'SET_RANGE', id: 1, startDate: '2026-09-10', endDate: '2026-09-01' })[0].endDate)
+        .toBe('2026-09-10');
+    const cleared = todoReducer(set, { type: 'SET_RANGE', id: 1, startDate: '', endDate: '2026-09-12' });
+    expect(cleared[0].startDate).toBeUndefined();
+    expect(cleared[0].endDate).toBeUndefined();
+});
+
+test('normalizeTodo는 기간을 검사하고 종료일만 있는 것은 버린다', () => {
+    expect(normalizeTodo({ text: 'a', startDate: '2026-09-10', endDate: '2026-09-12' }))
+        .toMatchObject({ startDate: '2026-09-10', endDate: '2026-09-12' });
+    expect(normalizeTodo({ text: 'a', endDate: '2026-09-12' }).endDate).toBeUndefined();
+    expect(normalizeTodo({ text: 'a', startDate: '9/10' }).startDate).toBeUndefined();
+    expect(normalizeTodo({ text: 'a', startDate: '2026-09-10', endDate: '2026-09-01' }).endDate).toBe('2026-09-10');
+});

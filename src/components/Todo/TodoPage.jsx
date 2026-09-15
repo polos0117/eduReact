@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { sortTodos, PRIORITY_LABEL } from "../../reducers/todoReducer";
 import { useLocalState } from "../../hooks/useLocalState";
-import { dayKey, addDays, dueBucketOf, DUE_LABEL, formatDay } from "../../lib/stats";
+import { dayKey, addDays, dueBucketOf, DUE_LABEL, formatDay, rangeOf } from "../../lib/stats";
 import { useNow } from "../../hooks/useNow";
 import TodoList from "./TodoList";
 import TodoForm from "./TodoForm";
@@ -55,16 +55,22 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onOpenT
     const priority = params.get('priority'); // high|normal|low
     const done = params.get('done');         // 7d (최근 n일) | YYYY-MM-DD (그날 완료)
     const tag = params.get('tag');
+    const range = params.get('range');       // none | YYYY-MM-DD — 실제 작업 기간 기준
     const scope = [];
     if (tag) scope.push(`#${tag}`);
     if (due) scope.push(DUE_LABEL[due] ?? `${formatDay(due, todayKey)} 마감`);
     if (priority && PRIORITY_LABEL[priority]) scope.push(`우선순위 ${PRIORITY_LABEL[priority]}`);
+    if (range) scope.push(range === 'none' ? '시작일 없음' : `${formatDay(range, todayKey)} 진행`);
     if (done) scope.push(/^\d+d$/.test(done) ? `최근 ${parseInt(done)}일 완료` : `${formatDay(done, todayKey)} 완료`);
 
     function matchesScope(todo) {
         if (tag && !(todo.tags ?? []).includes(tag)) return false;
         if (due && !(DUE_LABEL[due] ? dueBucketOf(todo, todayKey) === due : todo.dueDate === due)) return false;
         if (priority && (todo.priority ?? 'normal') !== priority) return false;
+        if (range) {
+            const r = rangeOf(todo, todayKey);
+            if (range === 'none' ? r : !r || range < r.from || range > r.to) return false;
+        }
         if (done) {
             if (!todo.completed || !todo.completedAt) return false;
             if (/^\d+d$/.test(done)) return now - todo.completedAt < parseInt(done) * DAY_MS;
