@@ -162,6 +162,7 @@ function App() {
                 {detailTodo && <TodoDetail todo={detailTodo} dispatch={dispatch} revTemplate={revTemplate} onClose={() => setDetailId(null)} />}
                 {settingsOpen && (
                     <Settings revTemplate={revTemplate} onChangeRevTemplate={setRevTemplate}
+                        skin={skin} onChangeSkin={setSkin} theme={theme} onChangeTheme={setTheme}
                         allTags={allTags} tagColors={tagColors} onChangeTagColors={setTagColors}
                         onClose={() => setSettingsOpen(false)} />
                 )}

@@ -1,111 +1,505 @@
-/* ===== 가벼운 스킨들 =====
-   네오처럼 재질을 통째로 바꾸지 않고 색 토큰만 갈아끼우는 스킨은 여기 모은다.
+/* ===== 스킨들 =====
+   클래식(index.css)의 토큰을 덮어쓰고, 스킨마다 서체·재질·모양을 몇 군데 더 손본다.
    (네오는 배경·유리·글로우까지 손대서 분량이 커 skin-neo.css 로 따로 둔다)
 
-   태그 자동 배정 색(--tag-0..3)은 dataviz 검증기를 통과한 값을 그대로 쓴다.
-   스킨마다 새로 고르면 색각 이상에서 구분이 깨지기 쉬워서, 밝은 바탕이면 라이트 세트,
-   어두운 바탕이면 다크 세트를 재사용한다. */
+   규칙
+   - 색은 light-dark(라이트, 다크) 로 한 번만 적는다. 어두운 톤 전용 스킨은 color-scheme: dark 로 고정.
+   - 선택자는 :is(:root, .skin-card-canvas)[data-skin=…] — 설정의 스킨 고르기 카드가 제 색·서체로 그려지게.
+   - 태그 자동 배정 색(--tag-0..3)은 dataviz 검증기를 통과한 라이트/다크 세트를 그대로 쓴다.
+     스킨마다 새로 고르면 색각 이상에서 구분이 깨지기 쉽다.
+   - 표시용 서체(--font-display)는 index.html 에서 Google Fonts 로 받는다. 못 받으면 뒤의 대체 서체. */
 
-/* ---------- 종이: 크림색 바탕에 잉크, 세리프 제목 ---------- */
-:root[data-skin="paper"] {
-  --canvas: #e9e0cc;
-  --sheet: #fbf7ec;
-  --sheet-2: #f2ebda;
-  --ink: #2a241c;
-  --ink-2: #6b6050;
-  --ink-3: #9a8f7c;
-  --line: #ded3ba;
-  --line-2: #c5b699;
-  --accent: #2d5b8e;
-  --accent-ink: #ffffff;
-  --accent-soft: #e0e9f2;
-  --high: #a83226;
-  --high-soft: #f3e1dd;
-  --chart-1: #1f4a78;
-  --chart-2: #4a7db0;
-  --chart-3: #a6bed6;
-  --toast-bg: #2a241c;
-  --toast-fg: #fbf7ec;
-  --tag-0: #2a78d6;
-  --tag-1: #eb6834;
-  --tag-2: #1baf7a;
-  --tag-3: #c2185b;
+/* 종이·수묵이 같이 쓰는 결 — 검은 노이즈(알파 0.11)를 배경 위에 곱한다.
+   body::before 같은 덮개(z-index -1)는 body 배경 뒤로 숨어 보이지 않으므로 배경 레이어로 얹는다 */
+:root {
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+/* ======================================================================
+   종이 — 공책. 크림색 종이, 파란 볼펜, 붉은 여백선, 색인 탭, 세리프 제목
+   ====================================================================== */
+:is(:root, .skin-card-canvas)[data-skin="paper"] {
+  --canvas: light-dark(#e9e0cc, #1e1a14);
+  --sheet: light-dark(#fbf7ec, #29241c);
+  --sheet-2: light-dark(#f2ebda, #332d23);
+  --ink: light-dark(#2a241c, #ece3cf);
+  --ink-2: light-dark(#6b6050, #b3a48a);
+  --ink-3: light-dark(#9a8f7c, #82765e);
+  --line: light-dark(#ded3ba, #3d362a);
+  --line-2: light-dark(#c5b699, #554b3a);
+  --accent: light-dark(#2d5b8e, #85b2df);
+  --accent-ink: light-dark(#ffffff, #191510);
+  --accent-soft: light-dark(#e0e9f2, #2b3847);
+  --high: light-dark(#a83226, #e08d7a);
+  --high-soft: light-dark(#f3e1dd, #3c2a24);
+  --chart-1: light-dark(#1f4a78, #9dc0e6);
+  --chart-2: light-dark(#4a7db0, #5f86b0);
+  --chart-3: light-dark(#a6bed6, #37516d);
+  --toast-bg: light-dark(#2a241c, #ece3cf);
+  --toast-fg: light-dark(#fbf7ec, #1e1a14);
+  --tag-0: light-dark(#2a78d6, #3987e5);
+  --tag-1: light-dark(#eb6834, #e0703a);
+  --tag-2: light-dark(#1baf7a, #2aa87d);
+  --tag-3: light-dark(#c2185b, #b83a6b);
+  --font-display: "Gowun Batang", "Iowan Old Style", "Palatino Linotype", Palatino, "Apple SD Gothic Neo", serif;
   --radius: 6px;
-  color-scheme: light;
+  /* 공책 줄은 옅은 파랑, 여백선은 붉게 */
+  --paper-rule: light-dark(#c6d3e4, #3d3a30);
+  --paper-margin: light-dark(rgba(190, 60, 50, 0.45), rgba(224, 141, 122, 0.35));
 }
 
-@media (prefers-color-scheme: dark) {
-  :root[data-skin="paper"]:not([data-theme="light"]) {
-    --canvas: #1e1a14;
-    --sheet: #29241c;
-    --sheet-2: #332d23;
-    --ink: #ece3cf;
-    --ink-2: #b3a48a;
-    --ink-3: #82765e;
-    --line: #3d362a;
-    --line-2: #554b3a;
-    --accent: #85b2df;
-    --accent-ink: #191510;
-    --accent-soft: #2b3847;
-    --high: #e08d7a;
-    --high-soft: #3c2a24;
-    --chart-1: #9dc0e6;
-    --chart-2: #5f86b0;
-    --chart-3: #37516d;
-    --toast-bg: #ece3cf;
-    --toast-fg: #1e1a14;
-    --tag-0: #3987e5;
-    --tag-1: #e0703a;
-    --tag-2: #2aa87d;
-    --tag-3: #b83a6b;
-    color-scheme: dark;
-  }
-}
-
-:root[data-skin="paper"][data-theme="dark"] {
-  --canvas: #1e1a14;
-  --sheet: #29241c;
-  --sheet-2: #332d23;
-  --ink: #ece3cf;
-  --ink-2: #b3a48a;
-  --ink-3: #82765e;
-  --line: #3d362a;
-  --line-2: #554b3a;
-  --accent: #85b2df;
-  --accent-ink: #191510;
-  --accent-soft: #2b3847;
-  --high: #e08d7a;
-  --high-soft: #3c2a24;
-  --chart-1: #9dc0e6;
-  --chart-2: #5f86b0;
-  --chart-3: #37516d;
-  --toast-bg: #ece3cf;
-  --toast-fg: #1e1a14;
-  --tag-0: #3987e5;
-  --tag-1: #e0703a;
-  --tag-2: #2aa87d;
-  --tag-3: #b83a6b;
-  color-scheme: dark;
+/* 종이 결 — 바탕과 시트 모두 */
+[data-skin="paper"] body,
+[data-skin="paper"] .sheet,
+[data-skin="paper"] .detail {
+  background-image: var(--grain);
+  background-blend-mode: multiply;
 }
 
 [data-skin="paper"] .brand h1,
-[data-skin="paper"] .cal-title,
 [data-skin="paper"] .detail-title,
-[data-skin="paper"] .settings-title {
-  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+[data-skin="paper"] .stat-value {
   letter-spacing: 0;
 }
 
-[data-skin="paper"] .sheet,
-[data-skin="paper"] .detail {
-  box-shadow: 0 1px 2px rgba(60, 48, 30, 0.08), 0 10px 24px -14px rgba(60, 48, 30, 0.35);
+/* 색인 탭 — 열린 탭이 시트와 이어진다 */
+[data-skin="paper"] .tabs {
+  margin-bottom: 0;
+  padding: 0 12px;
+  border-bottom: none;
+  align-items: flex-end;
 }
 
-/* ---------- 터미널: 검은 바탕에 초록 인광, 각진 모서리, 고정폭 ---------- */
-:root[data-skin="terminal"] {
-  --canvas: #070a07;
-  --sheet: #0d120d;
-  --sheet-2: #141c14;
+[data-skin="paper"] .tab {
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+}
+
+[data-skin="paper"] .tab.active {
+  z-index: 1;
+  margin-bottom: -1px;
+  padding-bottom: 11px;
+  border-color: var(--line-2);
+  background: var(--sheet);
+}
+
+[data-skin="paper"] .tab.active::after {
+  display: none;
+}
+
+/* 시트 — 뒤에 종이 두 장이 더 깔린 메모 패드 */
+[data-skin="paper"] .sheet {
+  border-color: var(--line-2);
+  box-shadow:
+    0 1px 2px rgba(60, 48, 30, 0.08),
+    0 6px 0 -3px var(--sheet-2),
+    0 7px 0 -3px var(--line-2),
+    0 12px 0 -6px var(--sheet-2),
+    0 13px 0 -6px var(--line-2);
+}
+
+[data-skin="paper"] .detail {
+  border-color: var(--line-2);
+  box-shadow: 0 1px 2px rgba(60, 48, 30, 0.08), 0 30px 60px -30px rgba(60, 48, 30, 0.6);
+}
+
+/* 공책 줄과 붉은 여백선 — 줄은 파랗게, 여백선은 체크박스와 완료 버튼 사이를 지난다 */
+[data-skin="paper"] .todo-item {
+  position: relative;
+  border-bottom-color: var(--paper-rule);
+}
+
+[data-skin="paper"] .todo-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: -1px;
+  left: 44px;
+  width: 1px;
+  background: var(--paper-margin);
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  [data-skin="paper"] .todo-item::before {
+    left: 38px;
+  }
+}
+
+/* 캘린더 줄에는 선택 체크박스가 없어 여백선 자리가 다르다 */
+[data-skin="paper"] .cal-day-list .todo-item::before {
+  display: none;
+}
+
+/* 끝낸 일은 붉은 펜으로 긋는다 */
+[data-skin="paper"] .todo-item.completed .todo-item-text {
+  text-decoration-color: var(--high);
+  text-decoration-thickness: 1.5px;
+}
+
+[data-skin="paper"] .todo-add-btn,
+[data-skin="paper"] .bulk-btn.primary {
+  border-radius: 4px;
+}
+
+/* ======================================================================
+   수묵 — 한지 위의 먹. 쪽빛 강조, 주홍 낙관, 붓 밑줄, 명조 제목
+   ====================================================================== */
+:is(:root, .skin-card-canvas)[data-skin="sumuk"] {
+  --canvas: light-dark(#ede7d9, #171512);
+  --sheet: light-dark(#f8f4ea, #211e19);
+  --sheet-2: light-dark(#efe9db, #2a2620);
+  --ink: light-dark(#1d1a16, #e9e2d3);
+  --ink-2: light-dark(#5e574c, #aea48f);
+  --ink-3: light-dark(#948b7b, #7a7160);
+  --line: light-dark(#d9d0be, #383329);
+  --line-2: light-dark(#b8ad95, #52493a);
+  --accent: light-dark(#2f4a6b, #8fb0d6);
+  --accent-ink: light-dark(#ffffff, #14120e);
+  --accent-soft: light-dark(#e1e7ee, #283441);
+  --high: light-dark(#b5342b, #e07a6a);
+  --high-soft: light-dark(#f4e2de, #3e2722);
+  --chart-1: light-dark(#233a55, #a6c2e2);
+  --chart-2: light-dark(#5f7c9c, #6787a8);
+  --chart-3: light-dark(#b4c3d2, #3b4f65);
+  --toast-bg: light-dark(#1d1a16, #e9e2d3);
+  --toast-fg: light-dark(#f8f4ea, #171512);
+  --tag-0: light-dark(#2a78d6, #3987e5);
+  --tag-1: light-dark(#eb6834, #e0703a);
+  --tag-2: light-dark(#1baf7a, #2aa87d);
+  --tag-3: light-dark(#c2185b, #b83a6b);
+  --font-display: Hahmlet, "Noto Serif KR", "Apple SD Gothic Neo", "Nanum Myeongjo", serif;
+  --radius: 3px;
+}
+
+/* 한지 결 */
+[data-skin="sumuk"] body,
+[data-skin="sumuk"] .sheet,
+[data-skin="sumuk"] .detail {
+  background-image: var(--grain);
+  background-blend-mode: multiply;
+}
+
+/* 명조는 제목·탭·할 일 제목·큰 숫자에 — 작은 메타 글자는 고딕 그대로 (작게 쓰면 흐려진다) */
+[data-skin="sumuk"] .tab,
+[data-skin="sumuk"] .todo-item-text,
+[data-skin="sumuk"] .stat-value,
+[data-skin="sumuk"] .section-title,
+[data-skin="sumuk"] .detail-title,
+[data-skin="sumuk"] .cal-day-title {
+  font-family: var(--font-display);
+}
+
+[data-skin="sumuk"] .brand h1 {
+  letter-spacing: 0.04em;
+}
+
+[data-skin="sumuk"] .tab {
+  font-size: 16px;
+}
+
+/* 붓으로 그은 밑줄 — 모양은 마스크, 색은 먹 */
+[data-skin="sumuk"] .tab.active::after {
+  left: 6px;
+  right: 6px;
+  bottom: -4px;
+  height: 7px;
+  border-radius: 0;
+  background: var(--ink);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M1 4.5 C 18 2, 34 6.5, 52 4 S 84 2.5, 99 4.8' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M1 4.5 C 18 2, 34 6.5, 52 4 S 84 2.5, 99 4.8' fill='none' stroke='%23000' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+
+/* 시트 — 두 겹 가는 테두리 (족자 틀) */
+[data-skin="sumuk"] .sheet,
+[data-skin="sumuk"] .detail {
+  border-color: var(--line-2);
+  box-shadow: 0 0 0 3px var(--sheet), 0 0 0 4px var(--line);
+}
+
+[data-skin="sumuk"] .detail {
+  box-shadow: 0 0 0 3px var(--sheet), 0 0 0 4px var(--line), 0 30px 60px -30px rgba(0, 0, 0, 0.5);
+}
+
+/* 완료는 먹으로 — 버튼도, 체크도 */
+[data-skin="sumuk"] .done-btn.is-done {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--sheet);
+}
+
+[data-skin="sumuk"] .todo-add-btn,
+[data-skin="sumuk"] .bulk-btn.primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--sheet);
+}
+
+[data-skin="sumuk"] .todo-add-btn:hover:not(:disabled) {
+  filter: none;
+  background: var(--ink-2);
+}
+
+/* 끝낸 일에는 주홍 낙관(完)을 찍는다 — 줄은 옅게 */
+[data-skin="sumuk"] .todo-item.completed .todo-item-text {
+  text-decoration-color: var(--line-2);
+}
+
+[data-skin="sumuk"] .todo-item.completed .todo-item-text::after {
+  content: "完";
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-left: 8px;
+  border: 1.5px solid var(--high);
+  border-radius: 3px;
+  color: var(--high);
+  font: 700 11px/1 var(--font-display);
+  vertical-align: -4px;
+  transform: rotate(-8deg);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--high) 25%, transparent);
+}
+
+[data-skin="sumuk"] .cal-cell.today .cal-date {
+  background: var(--ink);
+  color: var(--sheet);
+}
+
+[data-skin="sumuk"] .cal-cell.today.holiday .cal-date,
+[data-skin="sumuk"] .cal-cell.today.dow-0 .cal-date {
+  background: var(--high);
+}
+
+[data-skin="sumuk"] .todo-progress-bar {
+  background: var(--ink);
+}
+
+/* ======================================================================
+   말랑 — 푹신한 클레이. 라벤더 바탕, 둥근 알약, 눌리는 버튼, 둥근 제목 서체
+   ====================================================================== */
+:is(:root, .skin-card-canvas)[data-skin="clay"] {
+  --canvas: light-dark(#ece6f7, #1b1826);
+  --sheet: light-dark(#fdfcff, #27223a);
+  --sheet-2: light-dark(#f3eefb, #302a46);
+  --ink: light-dark(#2b2440, #f1ecff);
+  --ink-2: light-dark(#6a6284, #b8afd2);
+  --ink-3: light-dark(#a199b8, #7c7398);
+  --line: light-dark(#e7e1f3, #3b3455);
+  --line-2: light-dark(#d2c9e6, #4d4468);
+  --accent: light-dark(#6f4ff2, #a99bff);
+  --accent-ink: light-dark(#ffffff, #1b1826);
+  --accent-soft: light-dark(#ebe5ff, #362e5c);
+  --high: light-dark(#e8456b, #ff8aa5);
+  --high-soft: light-dark(#ffe5ec, #4a2536);
+  --chart-1: light-dark(#5a3ad6, #c2b7ff);
+  --chart-2: light-dark(#9a86f5, #8a78e0);
+  --chart-3: light-dark(#d5ccf8, #4c4184);
+  --toast-bg: light-dark(#2b2440, #f1ecff);
+  --toast-fg: light-dark(#ffffff, #1b1826);
+  --tag-0: light-dark(#2a78d6, #3987e5);
+  --tag-1: light-dark(#eb6834, #e0703a);
+  --tag-2: light-dark(#1baf7a, #2aa87d);
+  --tag-3: light-dark(#c2185b, #b83a6b);
+  --font: "Gowun Dodum", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-display: Jua, "Gowun Dodum", "Apple SD Gothic Neo", sans-serif;
+  --radius: 24px;
+  --row: 54px;
+  /* 클레이 재질 — 위는 밝게, 아래는 그늘 */
+  --clay-lift: inset 0 2px 0 light-dark(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.08)),
+    inset 0 -3px 0 light-dark(rgba(70, 50, 130, 0.12), rgba(0, 0, 0, 0.35));
+  --clay-drop: 0 18px 36px -18px light-dark(rgba(80, 60, 150, 0.35), rgba(0, 0, 0, 0.6));
+}
+
+[data-skin="clay"] .brand h1 {
+  font-weight: 400;
+  font-size: 30px;
+  letter-spacing: 0;
+}
+
+[data-skin="clay"] .tab,
+[data-skin="clay"] .todo-add-btn,
+[data-skin="clay"] .stat-value,
+[data-skin="clay"] .bulk-btn.primary {
+  font-family: var(--font-display);
+  font-weight: 400;
+}
+
+/* 탭은 알약 한 줄 — 밑줄 대신 눌린 알약 */
+[data-skin="clay"] .tabs {
+  gap: 4px;
+  padding: 4px;
+  border: none;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--sheet) 55%, transparent);
+  box-shadow: var(--clay-lift);
+  width: fit-content;
+}
+
+[data-skin="clay"] .tab {
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 16px;
+}
+
+[data-skin="clay"] .tab.active {
+  background: var(--sheet);
+  color: var(--accent);
+  box-shadow: 0 2px 6px -2px light-dark(rgba(70, 50, 130, 0.35), rgba(0, 0, 0, 0.6));
+}
+
+[data-skin="clay"] .tab.active::after {
+  display: none;
+}
+
+/* 시트와 대화상자 — 테두리 없이 부풀린 면 */
+[data-skin="clay"] .sheet,
+[data-skin="clay"] .detail {
+  border: none;
+  box-shadow: var(--clay-lift), var(--clay-drop);
+}
+
+[data-skin="clay"] .detail {
+  box-shadow: var(--clay-lift), 0 40px 80px -30px rgba(0, 0, 0, 0.5);
+}
+
+/* 줄마다 방석 하나 — 헤어라인 대신 살짝 뜬 알약 */
+[data-skin="clay"] .todo-list {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+[data-skin="clay"] .todo-item {
+  border: none;
+  border-radius: 18px;
+  background: var(--sheet-2);
+  box-shadow: inset 0 1px 0 light-dark(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.05));
+}
+
+[data-skin="clay"] .todo-item:hover {
+  background: var(--accent-soft);
+}
+
+[data-skin="clay"] .todo-empty {
+  border: none;
+}
+
+[data-skin="clay"] .todo-filter {
+  background: transparent;
+  border-bottom-color: var(--line);
+}
+
+/* 눌리는 것들 — 위는 밝고 아래는 그늘, 누르면 2px 내려앉는다 */
+[data-skin="clay"] .todo-add-btn,
+[data-skin="clay"] .bulk-btn,
+[data-skin="clay"] .icon-btn,
+[data-skin="clay"] .due-input,
+[data-skin="clay"] .priority-select,
+[data-skin="clay"] .filter-btn.active,
+[data-skin="clay"] .due-rows > a,
+[data-skin="clay"] .tagcolor-auto {
+  border: none;
+  border-radius: 999px;
+  background: var(--sheet);
+  box-shadow: var(--clay-lift);
+}
+
+[data-skin="clay"] .todo-add-btn,
+[data-skin="clay"] .bulk-btn.primary {
+  height: 34px;
+  padding: 0 18px;
+  background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 80%, white), var(--accent));
+  color: var(--accent-ink);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.18),
+    0 8px 16px -8px var(--accent);
+}
+
+[data-skin="clay"] .todo-add-btn:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+[data-skin="clay"] .todo-add-btn:active:not(:disabled),
+[data-skin="clay"] .bulk-btn:active,
+[data-skin="clay"] .tab:active,
+[data-skin="clay"] .filter-btn:active {
+  transform: translateY(2px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+}
+
+[data-skin="clay"] .filter-btn.active {
+  color: var(--accent);
+}
+
+/* 완료 버튼은 젤리처럼 눌린다 */
+[data-skin="clay"] .done-btn,
+[data-skin="clay"] .todo-item-checkbox {
+  border-width: 2px;
+  transition: transform 0.15s cubic-bezier(0.3, 1.6, 0.5, 1), background 0.15s, border-color 0.15s;
+}
+
+[data-skin="clay"] .done-btn {
+  width: 24px;
+  height: 24px;
+}
+
+[data-skin="clay"] .done-btn:active,
+[data-skin="clay"] .todo-item-checkbox:active {
+  transform: scale(0.85);
+}
+
+[data-skin="clay"] .done-btn.is-done {
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2), 0 4px 10px -4px var(--accent);
+}
+
+[data-skin="clay"] .todo-item-checkbox {
+  border-radius: 8px;
+}
+
+/* 칩은 테두리 없이 색만 — 젤리 */
+[data-skin="clay"] .tag-chip,
+[data-skin="clay"] .note-count {
+  box-shadow: none;
+  background: color-mix(in oklab, var(--tag, var(--ink-3)) 16%, var(--sheet));
+}
+
+[data-skin="clay"] .tag-chip.active {
+  box-shadow: 0 0 0 2px var(--tag);
+}
+
+/* 진행률 — 두툼한 막대 */
+[data-skin="clay"] .todo-progress {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--sheet-2);
+  box-shadow: inset 0 2px 3px light-dark(rgba(70, 50, 130, 0.12), rgba(0, 0, 0, 0.4));
+}
+
+[data-skin="clay"] .todo-progress-bar {
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--accent), var(--high));
+}
+
+[data-skin="clay"] .cal-cell.today .cal-date {
+  box-shadow: 0 4px 10px -4px var(--accent);
+}
+
+[data-skin="clay"] .toast {
+  border-radius: 999px;
+  padding-inline: 20px;
+}
+
+/* ======================================================================
+   터미널 — 검은 유리 위의 초록 인광. 고정폭, 각진 모서리, 주사선, 깜빡이는 커서
+   ====================================================================== */
+:is(:root, .skin-card-canvas)[data-skin="terminal"] {
+  --canvas: #060806;
+  --sheet: #0c110c;
+  --sheet-2: #131b13;
   --ink: #c9f2c9;
   --ink-2: #7fb37f;
   --ink-3: #4f704f;
@@ -127,7 +521,10 @@
   --tag-2: #2aa87d;
   --tag-3: #b83a6b;
   --radius: 0;
-  --font: ui-monospace, "Cascadia Code", Consolas, "D2Coding", "D2Coding ligature", monospace;
+  /* 한글도 한 칸에 맞는 고정폭 */
+  --font: "Nanum Gothic Coding", "D2Coding", "Cascadia Code", Consolas, ui-monospace, monospace;
+  --font-display: var(--font);
+  --glow: 0 0 8px color-mix(in oklab, currentColor 55%, transparent);
   color-scheme: dark;
 }
 
@@ -136,13 +533,101 @@
   display: none;
 }
 
+/* 주사선과 가장자리 어둠 — 클릭은 통과한다 */
+[data-skin="terminal"] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.45) 100%);
+}
+
+/* 인광 — 밝은 글자만 살짝 번진다 */
+[data-skin="terminal"] .brand h1,
+[data-skin="terminal"] .tab.active,
+[data-skin="terminal"] .filter-btn.active,
+[data-skin="terminal"] .stat-value,
+[data-skin="terminal"] .link-btn,
+[data-skin="terminal"] .cal-title {
+  text-shadow: var(--glow);
+}
+
+[data-skin="terminal"] .brand h1 {
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+[data-skin="terminal"] .brand h1::before {
+  content: "> ";
+  color: var(--accent);
+}
+
+/* 프롬프트 커서 */
+[data-skin="terminal"] .subline::after {
+  content: "▮";
+  margin-left: 4px;
+  color: var(--accent);
+  animation: term-blink 1.1s steps(2, start) infinite;
+}
+
+@keyframes term-blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+[data-skin="terminal"] .tab.active::after {
+  box-shadow: 0 0 10px var(--accent);
+}
+
+/* 필터는 [전체] 처럼 */
+[data-skin="terminal"] .filter-btn.active {
+  background: transparent;
+  box-shadow: none;
+  color: var(--accent);
+}
+
+[data-skin="terminal"] .filter-btn.active::before {
+  content: "[";
+}
+
+[data-skin="terminal"] .filter-btn.active::after {
+  content: "]";
+}
+
+[data-skin="terminal"] .todo-input,
+[data-skin="terminal"] .todo-search,
+[data-skin="terminal"] .note-textarea {
+  caret-color: var(--accent);
+}
+
+[data-skin="terminal"] .todo-item:hover {
+  background: rgba(53, 209, 90, 0.06);
+}
+
+[data-skin="terminal"] .todo-add-btn,
+[data-skin="terminal"] .done-btn.is-done,
+[data-skin="terminal"] .todo-item-checkbox:checked,
+[data-skin="terminal"] .cal-cell.today .cal-date {
+  box-shadow: 0 0 12px rgba(53, 209, 90, 0.45);
+}
+
+[data-skin="terminal"] .todo-progress-bar,
+[data-skin="terminal"] .chart .bar {
+  filter: drop-shadow(0 0 4px rgba(53, 209, 90, 0.6));
+}
+
 /* 둥근 것들을 각지게 — --radius 로 안 덮이는 알약·원형만 따로 */
 [data-skin="terminal"] :is(
   .tag-chip, .filter-btn, .priority-select, .todo-add-btn, .bulk-btn, .ghost-btn,
   .header-select, .note, .note-textarea, .settings-input, .due-input, .todo-search,
   .todo-item-checkbox, .color-input, .tagcolor-auto, .due-rows > a, .stack, .stack-seg,
   .toast, .note-count, .scope-chip, .swatch, .todo-item-btn, .path-input, .subtask-text,
-  .done-btn, .icon-btn, .cal-date, .cal-chip, .cal-dot, .todo-progress, .tag-editor
+  .done-btn, .icon-btn, .cal-date, .cal-chip, .cal-dot, .todo-progress, .tag-editor,
+  .skin-card-canvas, .skin-card-sheet, .skin-card-dot, .skin-card-bar
 ) {
   border-radius: 0;
 }
@@ -152,96 +637,38 @@
   box-shadow: none;
 }
 
-[data-skin="terminal"] .brand h1::before {
-  content: "> ";
-  color: var(--accent);
-}
-
 [data-skin="terminal"] :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
 
-/* ---------- 고대비: 순흑백에 굵은 선, 큰 포커스 링 ---------- */
-:root[data-skin="contrast"] {
-  --canvas: #ffffff;
-  --sheet: #ffffff;
-  --sheet-2: #ededed;
-  --ink: #000000;
-  --ink-2: #2b2b2b;
-  --ink-3: #4a4a4a;
-  --line: #000000;
-  --line-2: #000000;
-  --accent: #0b3fd4;
-  --accent-ink: #ffffff;
-  --accent-soft: #dde4fb;
-  --high: #b00000;
-  --high-soft: #ffe2e2;
-  --chart-1: #0b3fd4;
-  --chart-2: #5577e0;
-  --chart-3: #aab6ee;
-  --toast-bg: #000000;
-  --toast-fg: #ffffff;
-  --tag-0: #2a78d6;
-  --tag-1: #eb6834;
-  --tag-2: #1baf7a;
-  --tag-3: #c2185b;
+/* ======================================================================
+   고대비 — 순흑백에 굵은 선, 큰 초점 링. 읽기 우선
+   ====================================================================== */
+:is(:root, .skin-card-canvas)[data-skin="contrast"] {
+  --canvas: light-dark(#ffffff, #000000);
+  --sheet: light-dark(#ffffff, #000000);
+  --sheet-2: light-dark(#ededed, #1c1c1c);
+  --ink: light-dark(#000000, #ffffff);
+  --ink-2: light-dark(#2b2b2b, #e0e0e0);
+  --ink-3: light-dark(#4a4a4a, #bdbdbd);
+  --line: light-dark(#000000, #ffffff);
+  --line-2: light-dark(#000000, #ffffff);
+  --accent: light-dark(#0b3fd4, #8ab4ff);
+  --accent-ink: light-dark(#ffffff, #000000);
+  --accent-soft: light-dark(#dde4fb, #13233f);
+  --high: light-dark(#b00000, #ff8f85);
+  --high-soft: light-dark(#ffe2e2, #3a1210);
+  --chart-1: light-dark(#0b3fd4, #8ab4ff);
+  --chart-2: light-dark(#5577e0, #5f86e0);
+  --chart-3: light-dark(#aab6ee, #34497f);
+  --toast-bg: light-dark(#000000, #ffffff);
+  --toast-fg: light-dark(#ffffff, #000000);
+  --tag-0: light-dark(#2a78d6, #3987e5);
+  --tag-1: light-dark(#eb6834, #e0703a);
+  --tag-2: light-dark(#1baf7a, #2aa87d);
+  --tag-3: light-dark(#c2185b, #b83a6b);
   --radius: 4px;
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root[data-skin="contrast"]:not([data-theme="light"]) {
-    --canvas: #000000;
-    --sheet: #000000;
-    --sheet-2: #1c1c1c;
-    --ink: #ffffff;
-    --ink-2: #e0e0e0;
-    --ink-3: #bdbdbd;
-    --line: #ffffff;
-    --line-2: #ffffff;
-    --accent: #8ab4ff;
-    --accent-ink: #000000;
-    --accent-soft: #13233f;
-    --high: #ff8f85;
-    --high-soft: #3a1210;
-    --chart-1: #8ab4ff;
-    --chart-2: #5f86e0;
-    --chart-3: #34497f;
-    --toast-bg: #ffffff;
-    --toast-fg: #000000;
-    --tag-0: #3987e5;
-    --tag-1: #e0703a;
-    --tag-2: #2aa87d;
-    --tag-3: #b83a6b;
-    color-scheme: dark;
-  }
-}
-
-:root[data-skin="contrast"][data-theme="dark"] {
-  --canvas: #000000;
-  --sheet: #000000;
-  --sheet-2: #1c1c1c;
-  --ink: #ffffff;
-  --ink-2: #e0e0e0;
-  --ink-3: #bdbdbd;
-  --line: #ffffff;
-  --line-2: #ffffff;
-  --accent: #8ab4ff;
-  --accent-ink: #000000;
-  --accent-soft: #13233f;
-  --high: #ff8f85;
-  --high-soft: #3a1210;
-  --chart-1: #8ab4ff;
-  --chart-2: #5f86e0;
-  --chart-3: #34497f;
-  --toast-bg: #ffffff;
-  --toast-fg: #000000;
-  --tag-0: #3987e5;
-  --tag-1: #e0703a;
-  --tag-2: #2aa87d;
-  --tag-3: #b83a6b;
-  color-scheme: dark;
 }
 
 [data-skin="contrast"] .sheet,

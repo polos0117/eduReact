@@ -2,7 +2,7 @@
    DOM과 레이아웃은 App.css 그대로. 여기서는 토큰을 덮어쓰고 재질만 바꾼다.
    어두운 톤 전용이라 테마 선택은 숨긴다. */
 
-:root[data-skin="neo"] {
+:is(:root, .skin-card-canvas)[data-skin="neo"] {
   --canvas: #060913;
   --sheet: rgba(16, 22, 44, 0.72);
   --sheet-2: rgba(255, 255, 255, 0.05);
@@ -29,6 +29,7 @@
   --tag-3: #b83a6b;
   --tag-base: #101628;
   --radius: 18px;
+  --font-display: Orbit, Pretendard, "Apple SD Gothic Neo", sans-serif; /* 각진 미래풍 — 굵기는 400 하나 */
 
   /* 이 스킨에서만 쓰는 재질 토큰 */
   --neo-violet: #8b7bff;
@@ -69,7 +70,8 @@
 
 /* 머리글: 제목에 은은한 빛 */
 [data-skin="neo"] .brand h1 {
-  letter-spacing: -0.01em;
+  font-weight: 400;
+  letter-spacing: 0.06em;
   text-shadow: 0 0 24px rgba(77, 225, 255, 0.35);
 }
 
@@ -402,4 +404,12 @@
 [data-skin="neo"] .path-input:focus {
   background: rgba(0, 0, 0, 0.28);
   border-color: var(--line);
+}
+
+/* 설정의 스킨 카드 — body 의 성운은 카드에 안 오므로 작게 다시 그린다 */
+.skin-card-canvas[data-skin="neo"] {
+  background:
+    radial-gradient(80px 50px at 20% 0%, rgba(139, 123, 255, 0.45), transparent 70%),
+    radial-gradient(70px 50px at 100% 100%, rgba(77, 225, 255, 0.25), transparent 65%),
+    var(--canvas);
 }

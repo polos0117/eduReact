@@ -32,6 +32,7 @@
 }
 
 .brand h1 {
+  font-family: var(--font-display);
   font-size: 26px;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -920,7 +921,7 @@ button.todo-item-text:hover {
 
 .seg-high {
   background: var(--chart-1);
-  color: #fff;
+  color: light-dark(#fff, #111317); /* 다크의 chart-1 은 밝은 색이라 글자는 어둡게 */
 }
 
 .seg-normal {
@@ -931,20 +932,6 @@ button.todo-item-text:hover {
 .seg-low {
   background: var(--chart-3);
   color: var(--ink);
-}
-
-:root[data-theme="dark"] .seg-high,
-:root[data-theme="dark"] .seg-low {
-  color: var(--ink);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .seg-high {
-    color: #111317;
-  }
-  :root:not([data-theme="light"]) .seg-low {
-    color: var(--ink);
-  }
 }
 
 .legend {
@@ -1047,6 +1034,7 @@ button.todo-item-text:hover {
 }
 
 .cal-title {
+  font-family: var(--font-display);
   font-size: 16px;
   font-weight: 600;
   white-space: nowrap;
@@ -1328,6 +1316,7 @@ button.todo-item-text:hover {
   flex: 1;
   min-width: 0;
   padding: 4px 0;
+  font-family: var(--font-display);
   border: none;
   border-bottom: 1px solid transparent;
   background: transparent;
@@ -1801,6 +1790,7 @@ a.tag-chip:hover {
 
 .settings-title {
   flex: 1;
+  font-family: var(--font-display);
   font-size: 18px;
   font-weight: 600;
 }
@@ -1839,6 +1829,137 @@ a.tag-chip:hover {
   background: var(--sheet-2);
   font-family: ui-monospace, Consolas, monospace;
   font-size: 12px;
+}
+
+/* ===== 설정: 스킨 고르기 =====
+   미리보기 칸(.skin-card-canvas)에 data-skin 이 붙어 그 스킨의 토큰(색·서체·모서리)을 그대로 물려받는다.
+   그래서 칸 안은 var(--canvas) 같은 토큰만 쓰면 알아서 그 스킨의 색으로 그려지고,
+   칸 밖의 이름·설명은 지금 화면의 색으로 남는다 */
+/* 카드는 지금 스킨이 아니라 지금 테마를 따라 밝게/어둡게 — 네오 위에서도 종이 카드는 라이트로 */
+.skin-grid {
+  color-scheme: light dark;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 12px 10px;
+  margin-top: 4px;
+}
+
+:root[data-theme="light"] .skin-grid {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] .skin-grid {
+  color-scheme: dark;
+}
+
+.skin-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--ink-2);
+  font: 12px/1.3 var(--font);
+  text-align: center;
+  cursor: pointer;
+}
+
+.skin-card-canvas {
+  display: block;
+  height: 76px;
+  padding: 12px 12px 0;
+  border-radius: 10px;
+  background: var(--canvas);
+  box-shadow: 0 0 0 1px var(--line-2);
+  overflow: hidden;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.skin-card:hover .skin-card-canvas {
+  transform: translateY(-2px);
+}
+
+.skin-card.active .skin-card-canvas {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.skin-card.active .skin-card-label {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.skin-card-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  height: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-bottom: none;
+  border-radius: min(10px, var(--radius)) min(10px, var(--radius)) 0 0;
+  background: var(--sheet);
+  text-align: left;
+}
+
+.skin-card-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.skin-card-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.skin-card-dot {
+  flex-shrink: 0;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--line-2);
+  border-radius: 50%;
+}
+
+.skin-card-dot.is-done {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.skin-card-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line-2);
+}
+
+.skin-card-bar.high {
+  flex: 0 0 36%;
+  background: var(--high);
+}
+
+.skin-card-label {
+  display: block;
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.skin-card-desc {
+  display: block;
+  color: var(--ink-3);
+  font-size: 11px;
+}
+
+/* 테마(시스템·라이트·다크) 고르기 — 필터 알약을 그대로 쓴다 */
+.theme-seg {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--sheet-2);
 }
 
 /* ===== 토스트 ===== */

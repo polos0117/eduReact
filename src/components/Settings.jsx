@@ -1,5 +1,24 @@
 import { useEffect, useRef } from 'react';
 import { customColor, pickerValue, tagStyle } from '../lib/tags';
+import { SKINS, THEMES } from '../hooks/useTheme';
+
+// 스킨 하나의 미리보기 카드. 미리보기 칸에 data-skin 을 붙여 그 스킨의 토큰으로 그려진다 (CSS 참고)
+function SkinCard({ id, label, desc, active, onPick }) {
+    return (
+        <button type="button" role="radio" aria-checked={active}
+            className={`skin-card${active ? ' active' : ''}`} onClick={onPick}>
+            <span className="skin-card-canvas" data-skin={id} aria-hidden="true">
+                <span className="skin-card-sheet">
+                    <span className="skin-card-title">할 일</span>
+                    <span className="skin-card-row"><i className="skin-card-dot" /><i className="skin-card-bar high" /></span>
+                    <span className="skin-card-row"><i className="skin-card-dot is-done" /><i className="skin-card-bar" /></span>
+                </span>
+            </span>
+            <span className="skin-card-label">{label}</span>
+            <span className="skin-card-desc">{desc}</span>
+        </button>
+    );
+}
 
 // 태그 하나의 색 고르기. 고른 적이 없으면 이름에 따라 자동으로 정해진다.
 function TagColorRow({ tag, colors, onPick }) {
@@ -20,8 +39,9 @@ function TagColorRow({ tag, colors, onPick }) {
     );
 }
 
-// 설정 — 태그 색, 커밋 번호 링크 형식. 값은 localStorage(useLocalState)에 있다.
-function Settings({ revTemplate, onChangeRevTemplate, allTags, tagColors, onChangeTagColors, onClose }) {
+// 설정 — 모양(스킨·테마), 태그 색, 커밋 번호 링크 형식. 값은 localStorage(useLocalState)에 있다.
+function Settings({ revTemplate, onChangeRevTemplate, allTags, tagColors, onChangeTagColors,
+    skin, onChangeSkin, theme, onChangeTheme, onClose }) {
     const ref = useRef(null);
     // StrictMode 는 효과를 두 번 돌린다(정리 → 재실행). 정리의 close() 도 close 이벤트를 내므로
     // <dialog onClose> 를 쓰면 스스로 닫혀 버린다. 사용자가 닫는 경로(Esc)는 cancel 로 받는다.
@@ -47,6 +67,24 @@ function Settings({ revTemplate, onChangeRevTemplate, allTags, tagColors, onChan
                     <button type="button" className="icon-btn" onClick={onClose} aria-label="닫기">×</button>
                 </header>
                 <div className="settings-body">
+                    <section className="settings-field">
+                        <h3 className="section-title">모양</h3>
+                        <div className="skin-grid" role="radiogroup" aria-label="스킨">
+                            {SKINS.map(([key, label, desc]) => (
+                                <SkinCard key={key} id={key} label={label} desc={desc}
+                                    active={skin === key} onPick={() => onChangeSkin(key)} />
+                            ))}
+                        </div>
+                        {/* .theme-select: 어두운 톤 전용 스킨이 이 클래스를 숨긴다 (머리글의 드롭다운과 같이) */}
+                        <div className="filter-tabs theme-seg theme-select" role="group" aria-label="테마">
+                            {THEMES.map(([key, label]) => (
+                                <button key={key} type="button" aria-pressed={theme === key}
+                                    className={`filter-btn${theme === key ? ' active' : ''}`}
+                                    onClick={() => onChangeTheme(key)}>{label}</button>
+                            ))}
+                        </div>
+                    </section>
+
                     <section className="settings-field">
                         <h3 className="section-title">태그 색</h3>
                         {allTags.length === 0
