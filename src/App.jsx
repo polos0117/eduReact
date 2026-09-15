@@ -3,13 +3,14 @@ import { todoReducer, normalizeTodo } from './reducers/todoReducer';
 import { usePersistedReducer } from './hooks/usePersistedReducer';
 import { useTheme, useSkin } from './hooks/useTheme';
 import { useNow } from './hooks/useNow';
+import { useLocalState } from './hooks/useLocalState';
+import { TagColorProvider } from './hooks/useTagColors';
 import { dayKey } from './lib/stats';
 import TodoPage from './components/Todo/TodoPage';
 import Dashboard from './components/Dashboard';
 import Calendar from './components/Calendar';
 import TodoDetail from './components/TodoDetail';
 import Settings from './components/Settings';
-import { useLocalState } from './hooks/useLocalState';
 import './App.css';
 import './skin-neo.css';
 
@@ -53,8 +54,11 @@ function App() {
     const [detailId, setDetailId] = useState(null); // 상세 화면에 열린 todo
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [revTemplate, setRevTemplate] = useLocalState('revUrl', ''); // 노트의 r번호 → 커밋 링크 형식
+    const [tagColors, setTagColors] = useLocalState('tagColors', {}); // { 태그: 0..3 } — 고른 색
+    const [colorBy, setColorBy] = useLocalState('colorBy', 'priority'); // 대시보드·캘린더 색 기준
     const fileRef = useRef(null);
     const detailTodo = todos.find(todo => todo.id === detailId); // 삭제되면 자연히 닫힌다
+    const allTags = [...new Set(todos.flatMap(todo => todo.tags ?? []))].sort((a, b) => a.localeCompare(b, 'ko'));
 
     // 토스트는 6초 뒤 사라진다. 새 토스트가 오면 타이머를 새로 건다.
     useEffect(() => {
@@ -104,58 +108,65 @@ function App() {
     const summary = todos.length === 0 ? '아직 비어 있어요' : leftCount === 0 ? '모두 끝냈어요' : `${leftCount}개 남았어요`;
 
     return (
-        <div className="app">
-            <header className="app-header">
-                <div className="brand">
-                    <h1>할 일</h1>
-                    <p className="subline" aria-live="polite">{today}, {summary}</p>
-                </div>
-                <div className="header-actions">
-                    <button type="button" className="ghost-btn" onClick={exportJson} disabled={todos.length === 0}>내보내기</button>
-                    <button type="button" className="ghost-btn" onClick={() => fileRef.current.click()}>가져오기</button>
-                    <input ref={fileRef} type="file" accept="application/json,.json" hidden
-                        onChange={(e) => { const f = e.target.files[0]; if (f) importJson(f); e.target.value = ''; }} />
-                    <button type="button" className="ghost-btn" onClick={() => setSettingsOpen(true)}>설정</button>
-                    <button type="button" className="skin-btn" onClick={cycleSkin}
-                        title={`스킨: ${SKIN_LABEL[skin]} (눌러서 바꾸기)`}
-                        aria-label={`스킨: ${SKIN_LABEL[skin]}, 눌러서 바꾸기`}>
-                        <span aria-hidden="true">◈</span> {SKIN_LABEL[skin]}
-                    </button>
-                    <button type="button" className="theme-btn" onClick={cycleTheme}
-                        title={`테마: ${THEME_LABEL[theme]} (눌러서 바꾸기)`}
-                        aria-label={`테마: ${THEME_LABEL[theme]}, 눌러서 바꾸기`}>
-                        <span aria-hidden="true">{THEME_ICON[theme]}</span>
-                    </button>
-                </div>
-            </header>
+        <TagColorProvider value={tagColors}>
+            <div className="app">
+                <header className="app-header">
+                    <div className="brand">
+                        <h1>할 일</h1>
+                        <p className="subline" aria-live="polite">{today}, {summary}</p>
+                    </div>
+                    <div className="header-actions">
+                        <button type="button" className="ghost-btn" onClick={exportJson} disabled={todos.length === 0}>내보내기</button>
+                        <button type="button" className="ghost-btn" onClick={() => fileRef.current.click()}>가져오기</button>
+                        <input ref={fileRef} type="file" accept="application/json,.json" hidden
+                            onChange={(e) => { const f = e.target.files[0]; if (f) importJson(f); e.target.value = ''; }} />
+                        <button type="button" className="ghost-btn" onClick={() => setSettingsOpen(true)}>설정</button>
+                        <button type="button" className="skin-btn" onClick={cycleSkin}
+                            title={`스킨: ${SKIN_LABEL[skin]} (눌러서 바꾸기)`}
+                            aria-label={`스킨: ${SKIN_LABEL[skin]}, 눌러서 바꾸기`}>
+                            <span aria-hidden="true">◈</span> {SKIN_LABEL[skin]}
+                        </button>
+                        <button type="button" className="theme-btn" onClick={cycleTheme}
+                            title={`테마: ${THEME_LABEL[theme]} (눌러서 바꾸기)`}
+                            aria-label={`테마: ${THEME_LABEL[theme]}, 눌러서 바꾸기`}>
+                            <span aria-hidden="true">{THEME_ICON[theme]}</span>
+                        </button>
+                    </div>
+                </header>
 
-            <nav className="tabs" aria-label="화면">
-                {TABS.map(([key, label]) => (
-                    <a key={key} href={`#${key}`} className={`tab${tab === key ? ' active' : ''}`}
-                        aria-current={tab === key ? 'page' : undefined}>{label}</a>
-                ))}
-            </nav>
+                <nav className="tabs" aria-label="화면">
+                    {TABS.map(([key, label]) => (
+                        <a key={key} href={`#${key}`} className={`tab${tab === key ? ' active' : ''}`}
+                            aria-current={tab === key ? 'page' : undefined}>{label}</a>
+                    ))}
+                </nav>
 
-            <main className="sheet">
-                {/* key=hash: 조건이 바뀌면 목록 페이지를 새로 그려 필터 상태를 해시에서 다시 읽는다 */}
-                {tab === 'todos' && <TodoPage key={hash} todos={todos} dispatch={dispatch} params={params}
-                    onRemoveTodo={removeTodo} onOpenTodo={setDetailId} />}
-                {tab === 'dashboard' && <Dashboard todos={todos} params={params} />}
-                {tab === 'calendar' && <Calendar todos={todos} dispatch={dispatch} onOpenTodo={setDetailId} />}
-            </main>
+                <main className="sheet">
+                    {/* key=hash: 조건이 바뀌면 목록 페이지를 새로 그려 필터 상태를 해시에서 다시 읽는다 */}
+                    {tab === 'todos' && <TodoPage key={hash} todos={todos} dispatch={dispatch} params={params}
+                        onRemoveTodo={removeTodo} onOpenTodo={setDetailId} />}
+                    {tab === 'dashboard' && <Dashboard todos={todos} params={params} colorBy={colorBy} onColorByChange={setColorBy} />}
+                    {tab === 'calendar' && <Calendar todos={todos} dispatch={dispatch} onOpenTodo={setDetailId}
+                        colorBy={colorBy} onColorByChange={setColorBy} />}
+                </main>
 
-            {detailTodo && <TodoDetail todo={detailTodo} dispatch={dispatch} revTemplate={revTemplate} onClose={() => setDetailId(null)} />}
-            {settingsOpen && <Settings revTemplate={revTemplate} onChangeRevTemplate={setRevTemplate} onClose={() => setSettingsOpen(false)} />}
+                {detailTodo && <TodoDetail todo={detailTodo} dispatch={dispatch} revTemplate={revTemplate} onClose={() => setDetailId(null)} />}
+                {settingsOpen && (
+                    <Settings revTemplate={revTemplate} onChangeRevTemplate={setRevTemplate}
+                        allTags={allTags} tagColors={tagColors} onChangeTagColors={setTagColors}
+                        onClose={() => setSettingsOpen(false)} />
+                )}
 
-            {toast && (
-                <div className="toast" role="status">
-                    <span>{toast.text}</span>
-                    {toast.actionLabel && (
-                        <button type="button" onClick={() => { toast.onAction(); setToast(null); }}>{toast.actionLabel}</button>
-                    )}
-                </div>
-            )}
-        </div>
+                {toast && (
+                    <div className="toast" role="status">
+                        <span>{toast.text}</span>
+                        {toast.actionLabel && (
+                            <button type="button" onClick={() => { toast.onAction(); setToast(null); }}>{toast.actionLabel}</button>
+                        )}
+                    </div>
+                )}
+            </div>
+        </TagColorProvider>
     );
 }
 

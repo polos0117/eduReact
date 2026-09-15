@@ -1,7 +1,8 @@
 import { PRIORITIES, PRIORITY_LABEL } from '../reducers/todoReducer';
-import { completedPerDay, countByPriority, dueBuckets, formatDay, dayKey, DUE_BUCKETS } from '../lib/stats';
+import { completedPerDay, countByPriority, countByTag, dueBuckets, formatDay, dayKey, DUE_BUCKETS } from '../lib/stats';
 import { useNow } from '../hooks/useNow';
-import { tagClass } from '../lib/tags';
+import { useTagClass } from '../hooks/useTagColors';
+import ColorByToggle from './ColorByToggle';
 
 const DAYS = 14;
 const WEEK_MS = 7 * 24 * 3600 * 1000;
@@ -60,7 +61,8 @@ function CompletedChart({ rows, todayKey, listHref }) {
 }
 
 // params: 해시 쿼리 — tag=x 면 그 태그의 할 일만 집계하고, 목록 링크에도 태그를 실어 보낸다
-function Dashboard({ todos: allTodos, params }) {
+function Dashboard({ todos: allTodos, params, colorBy, onColorByChange }) {
+    const tagClass = useTagClass();
     const now = useNow();
     const todayKey = dayKey(now);
     const tag = params.get('tag');
@@ -81,6 +83,7 @@ function Dashboard({ todos: allTodos, params }) {
     const rows = completedPerDay(todos, DAYS, now);
 
     const stackTotal = Math.max(1, active.length);
+    const tagRows = countByTag(active);
 
     return (
         <div className="dashboard">
@@ -123,10 +126,36 @@ function Dashboard({ todos: allTodos, params }) {
             </section>
 
             <section className="section" aria-labelledby="prio-title">
-                <h2 id="prio-title" className="section-title">남은 할 일의 우선순위</h2>
-                {active.length === 0
-                    ? <p className="section-note">남은 할 일이 없어요.</p>
-                    : (
+                <div className="section-head">
+                    <h2 id="prio-title" className="section-title">
+                        남은 할 일의 {colorBy === 'tag' ? '태그' : '우선순위'}
+                    </h2>
+                    <ColorByToggle value={colorBy} onChange={onColorByChange} />
+                </div>
+                {active.length === 0 ? <p className="section-note">남은 할 일이 없어요.</p>
+                    : colorBy === 'tag' ? (
+                        <>
+                            <div className="stack" role="img"
+                                aria-label={tagRows.map(r => `${r.tag ?? '태그 없음'} ${r.count}개`).join(', ')}>
+                                {tagRows.map(r => (
+                                    <a key={r.tag ?? '__none'} style={{ flexGrow: r.count }}
+                                        className={`stack-seg ${r.tag ? `seg-tag ${tagClass(r.tag)}` : 'seg-untagged'}`}
+                                        href={r.tag ? listHref({ filter: 'active', tag: r.tag }) : listHref({ filter: 'active' })}
+                                        title={`${r.tag ?? '태그 없음'} ${r.count}개 — 목록 보기`} />
+                                ))}
+                            </div>
+                            <ul className="legend">
+                                {tagRows.map(r => (
+                                    <li key={r.tag ?? '__none'} className="legend-item">
+                                        <a href={r.tag ? listHref({ filter: 'active', tag: r.tag }) : listHref({ filter: 'active' })}>
+                                            <span className={`swatch ${r.tag ? `seg-tag ${tagClass(r.tag)}` : 'seg-untagged'}`} aria-hidden="true" />
+                                            {r.tag ? `#${r.tag}` : '태그 없음'} <strong>{r.count}</strong>
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    ) : (
                         <>
                             <div className="stack" role="img" aria-label={PRIORITIES.map(p => `${PRIORITY_LABEL[p]} ${byPriority[p]}개`).join(', ')}>
                                 {PRIORITIES.map(p => byPriority[p] > 0 && (

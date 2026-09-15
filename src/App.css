@@ -734,6 +734,15 @@ button.priority-btn:hover {
   font-variant-numeric: tabular-nums;
 }
 
+/* 태그 색 세그먼트 — 숫자는 넣지 않는다(밝은 색 위 흰 글자가 안 읽힘). 개수는 범례가 든다 */
+.seg-tag {
+  background: var(--tag);
+}
+
+.seg-untagged {
+  background: var(--line-2);
+}
+
 .seg-high {
   background: var(--chart-1);
   color: #fff;
@@ -977,6 +986,15 @@ button.priority-btn:hover {
 
 .cal-chip.priority-low {
   border-left-color: var(--chart-3);
+}
+
+/* 태그 기준일 때 — 배경은 그대로 두고 왼쪽 선만 태그 색으로 */
+.cal-chip:is(.tag-c0, .tag-c1, .tag-c2, .tag-c3) {
+  border-left-color: var(--tag);
+}
+
+.cal-chip.no-tag {
+  border-left-color: var(--line-2);
 }
 
 .cal-chip.completed {
@@ -1351,6 +1369,89 @@ a.tag-chip:hover {
   background: transparent;
   font-size: 13px;
   outline: none;
+}
+
+/* 제목 + 색 기준 토글 한 줄 */
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.section-head .section-title {
+  margin-bottom: 0;
+}
+
+.colorby {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.colorby-label {
+  margin-right: 4px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* 설정의 태그 색 고르기 */
+.tagcolor-list {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tagcolor-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tagcolor-swatches {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch-btn {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--tag);
+  transition: box-shadow 0.15s, transform 0.1s;
+}
+
+.swatch-btn:hover {
+  transform: scale(1.12);
+}
+
+.swatch-btn.active {
+  box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--tag);
+}
+
+.tagcolor-auto {
+  padding: 3px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+.tagcolor-auto.active {
+  border-color: var(--ink-2);
+  color: var(--ink);
+  font-weight: 600;
 }
 
 /* 대시보드 위 태그 행 */

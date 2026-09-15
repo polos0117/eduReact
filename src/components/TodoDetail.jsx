@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { PRIORITIES, PRIORITY_LABEL, priorityOf, NOTE_CATEGORIES, NOTE_LABEL, subtaskProgress } from '../reducers/todoReducer';
 import { linkify, revUrl } from '../lib/linkify';
-import { tagClass } from '../lib/tags';
+import { useTagClass } from '../hooks/useTagColors';
 
 // 클립보드 복사 버튼. 결과를 1.5초간 보여준다. (clipboard API는 https/localhost에서만 동작)
 function CopyButton({ text }) {
@@ -74,6 +74,7 @@ function Note({ note, revTemplate, onEdit, onRemove }) {
 
 // 태그 편집: 칩 + 입력. Enter/쉼표로 추가, 빈 칸에서 Backspace면 마지막 태그 제거
 function TagEditor({ tags, onChange }) {
+    const tagClass = useTagClass();
     const [draft, setDraft] = useState('');
     function commit() {
         const value = draft.trim().replace(/^#/, '');

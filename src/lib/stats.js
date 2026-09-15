@@ -68,3 +68,18 @@ export function monthCells(year, month) {
         return { key: dayKey(d), date: d.getDate(), inMonth: d.getMonth() === month, dow: d.getDay() };
     });
 }
+
+// 태그별 개수. 많은 것부터, 같으면 이름순. 태그 없는 항목은 tag: null 로 맨 뒤에.
+export function countByTag(todos) {
+    const counts = new Map();
+    let untagged = 0;
+    for (const todo of todos) {
+        const tags = todo.tags ?? [];
+        if (tags.length === 0) { untagged++; continue; }
+        for (const tag of tags) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }
+    const rows = [...counts].map(([tag, count]) => ({ tag, count }))
+        .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag, 'ko'));
+    if (untagged > 0) rows.push({ tag: null, count: untagged });
+    return rows;
+}

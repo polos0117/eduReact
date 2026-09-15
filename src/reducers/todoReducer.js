@@ -7,9 +7,14 @@ export function priorityOf(todo) {
     return todo.priority ?? 'normal';
 }
 
-// 높음 → 보통 → 낮음 순, 같은 우선순위끼리는 원래 순서 유지 (sort는 안정 정렬)
+// 완료한 것은 뒤로, 그 다음 높음 → 보통 → 낮음. 같은 순위끼리는 원래 순서 유지(안정 정렬).
+// 완료를 먼저 가르는 이유: 그러지 않으면 완료된 항목의 우선순위를 높음으로 바꿨을 때
+// 맨 위로 튀어올라 상태가 바뀐 것처럼 보인다.
 export function sortByPriority(todos) {
-    return [...todos].sort((a, b) => PRIORITIES.indexOf(priorityOf(a)) - PRIORITIES.indexOf(priorityOf(b)));
+    return [...todos].sort((a, b) =>
+        (a.completed === true) - (b.completed === true)
+        || PRIORITIES.indexOf(priorityOf(a)) - PRIORITIES.indexOf(priorityOf(b))
+    );
 }
 
 // 상세 노트 분류. 개발 작업을 백/프론트로 나눠 붙여 넣는 용도

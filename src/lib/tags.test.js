@@ -33,3 +33,11 @@ test('tagHref는 한글·특수문자를 인코딩한다', () => {
     expect(tagHref('개인')).toBe('#todos?tag=%EA%B0%9C%EC%9D%B8');
     expect(tagHref('a b')).toBe('#todos?tag=a%20b');
 });
+
+test('tagColorIndex는 사용자가 고른 색을 우선하고, 잘못된 값은 무시한다', () => {
+    expect(tagColorIndex('잔여', { 잔여: 1 })).toBe(1);
+    expect(tagColorIndex('잔여', { 잔여: 9 })).toBe(tagColorIndex('잔여'));
+    expect(tagColorIndex('잔여', { 잔여: '2' })).toBe(tagColorIndex('잔여'));
+    expect(tagColorIndex('잔여', { 개선: 1 })).toBe(tagColorIndex('잔여'));
+    expect(tagClass('잔여', { 잔여: 2 })).toBe('tag-c2');
+});

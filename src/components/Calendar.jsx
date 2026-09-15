@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { PRIORITY_LABEL, priorityOf, sortByPriority } from '../reducers/todoReducer';
 import { dayKey, monthCells } from '../lib/stats';
 import { useNow } from '../hooks/useNow';
+import { useTagClass } from '../hooks/useTagColors';
+import ColorByToggle from './ColorByToggle';
 import TodoForm from './Todo/TodoForm';
 
 const DOW = ['일', '월', '화', '수', '목', '금', '토'];
 const MAX_CHIPS = 2;
 
-function Calendar({ todos, dispatch, onOpenTodo }) {
+function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
+    const tagClass = useTagClass();
     const todayKey = dayKey(useNow());
     const [selected, setSelected] = useState(todayKey);
     const [view, setView] = useState(() => {
@@ -38,6 +41,11 @@ function Calendar({ todos, dispatch, onOpenTodo }) {
     const [sy, sm, sd] = selected.split('-').map(Number);
     const noDueCount = todos.filter(todo => !todo.completed && !todo.dueDate).length;
 
+    // 칸 안 칩은 왼쪽 선 색만 바꾼다 — 우선순위 또는 첫 태그 (태그가 없으면 회색)
+    const chipColorClass = (todo) => colorBy === 'tag'
+        ? (todo.tags?.[0] ? tagClass(todo.tags[0]) : 'no-tag')
+        : `priority-${priorityOf(todo)}`;
+
     function addTodo(text, priority, dueDate, tags) {
         const now = Date.now();
         dispatch({ type: 'ADD', todo: { id: now, text, completed: false, priority, createdAt: now, dueDate, tags: tags?.length ? tags : undefined } });
@@ -53,6 +61,7 @@ function Calendar({ todos, dispatch, onOpenTodo }) {
                             마감 없음 {noDueCount}
                         </a>
                     )}
+                    <ColorByToggle value={colorBy} onChange={onColorByChange} />
                     <button type="button" className="ghost-btn" onClick={goToday}>오늘</button>
                     <button type="button" className="icon-btn" onClick={() => moveMonth(-1)} aria-label="이전 달">‹</button>
                     <button type="button" className="icon-btn" onClick={() => moveMonth(1)} aria-label="다음 달">›</button>
@@ -75,7 +84,7 @@ function Calendar({ todos, dispatch, onOpenTodo }) {
                             {items.length > 0 && (
                                 <span className="cal-items">
                                     {items.slice(0, MAX_CHIPS).map(todo => (
-                                        <span key={todo.id} className={`cal-chip priority-${priorityOf(todo)}${todo.completed ? ' completed' : ''}`}>
+                                        <span key={todo.id} className={`cal-chip ${chipColorClass(todo)}${todo.completed ? ' completed' : ''}`}>
                                             {todo.text}
                                         </span>
                                     ))}

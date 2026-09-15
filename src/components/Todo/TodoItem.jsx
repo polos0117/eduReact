@@ -1,12 +1,14 @@
 import { PRIORITY_LABEL, priorityOf, subtaskProgress } from '../../reducers/todoReducer';
 import { formatDay } from '../../lib/stats';
-import { tagHref, tagClass } from '../../lib/tags';
+import { tagHref } from '../../lib/tags';
+import { useTagClass } from '../../hooks/useTagColors';
 
 // 클릭할 때마다 보통 → 높음 → 낮음 → 보통
 const NEXT_PRIORITY = { normal: 'high', high: 'low', low: 'normal' };
 
 // 목록의 한 줄. 제목·마감일 편집은 상세 화면(제목 클릭)에서 한다.
 function TodoItem({ todo, todayKey, onToggleTodo, onRemoveTodo, onSetPriority, onOpenTodo }) {
+    const tagClass = useTagClass();
     const priority = priorityOf(todo);
     const overdue = todo.dueDate && !todo.completed && todo.dueDate < todayKey;
     const noteCount = todo.notes?.length ?? 0;

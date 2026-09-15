@@ -160,3 +160,13 @@ import {todoReducer, sortByPriority, normalizeTodo, parseTags, subtaskProgress} 
         expect(t.tags).toEqual(['a']);
         expect(normalizeTodo({ id: 1, text: 'a', tags: [] }).tags).toBeUndefined();
     });
+
+    test('sortByPriority는 완료한 항목을 뒤로 보낸다 (완료 건의 우선순위를 올려도 위로 튀지 않는다)', () => {
+        const state = [
+            { id: 1, priority: 'normal', completed: false },
+            { id: 2, priority: 'high', completed: true },
+            { id: 3, priority: 'low', completed: false },
+            { id: 4, priority: 'low', completed: true },
+        ];
+        expect(sortByPriority(state).map(t => t.id)).toEqual([1, 3, 2, 4]);
+    });

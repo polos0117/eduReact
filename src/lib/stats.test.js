@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { completedPerDay, dueBuckets, dueBucketOf, monthCells, addDays, dayKey } from './stats';
+import { completedPerDay, dueBuckets, dueBucketOf, monthCells, addDays, dayKey, countByTag } from './stats';
 
 const NOW = new Date(2026, 8, 15, 12).getTime(); // 2026-09-15 정오
 
@@ -48,4 +48,21 @@ test('dueBucketOf는 dueBuckets와 같은 기준으로 분류한다', () => {
     expect(dueBucketOf({ dueDate: '2026-09-21' }, today)).toBe('week');
     expect(dueBucketOf({ dueDate: '2026-09-22' }, today)).toBe('later');
     expect(dueBucketOf({}, today)).toBe('none');
+});
+
+test('countByTag는 태그가 여러 개인 항목을 각 태그에 세고, 없는 항목은 맨 뒤에 모은다', () => {
+    const todos = [
+        { tags: ['kipa', '긴급'] },
+        { tags: ['kipa'] },
+        { tags: ['개인'] },
+        {},
+        { tags: [] },
+    ];
+    expect(countByTag(todos)).toEqual([
+        { tag: 'kipa', count: 2 },
+        { tag: '개인', count: 1 },
+        { tag: '긴급', count: 1 },
+        { tag: null, count: 2 },
+    ]);
+    expect(countByTag([])).toEqual([]);
 });
