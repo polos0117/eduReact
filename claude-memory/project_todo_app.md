@@ -31,3 +31,13 @@ Building a Todo List app in `c:\eduReact` (Vite + React 19 + JS) as a React lear
 **Why:** tasks are ranked by concept-learned-per-effort, not feature value, since the goal is learning React.
 
 **How to apply:** keep giving one small step at a time and reviewing after each "했어". [[feedback-teach-principles-not-just-bugs]] [[user-react-beginner]]
+
+**2026-09-15: 학습 모드에서 "완성" 모드로 전환.** 사용자가 "하나의 완성된 프로젝트로 만들어줘 (기능·디자인·UI/UX 전부)"라고 명시 요청 → 이번엔 내가 직접 전부 작성했다 (이전의 "사용자가 타이핑" 규칙은 이 요청에 한해 해제). 결과: 공책 괘선 디자인(종이/잉크/괘선 파랑/볼펜 파랑 액센트, 크림+세리프+테라코타는 의도적으로 버림), 라이트/다크/시스템 테마(`useTheme`), 추천 할 일 fetch(dummyjson, AbortController), 삭제 취소 토스트(`RESTORE`), `TOGGLE_ALL`, 진행률, 빈 상태, 접근성. 테스트 10개 통과. 커밋은 안 함(사용자 요청 없었음). `docs/screenshot.png`는 headless Chrome으로 찍음.
+
+**2026-09-15 오후:** 사용자 요청으로 추천(fetch) 기능 삭제, 우선순위(high/normal/low, `SET_PRIORITY`, `sortByPriority`, 예전 데이터는 `priorityOf`로 normal 취급) 추가. 테스트 12개. 사용자가 "localStorage 대신 JSON 파일로 관리"를 검토 요청 — 브라우저만으로는 파일 쓰기 불가하므로 (a) JSON 내보내기/가져오기, (b) Vite dev 미들웨어로 `data/todos.json` 읽고 쓰기(서버 학습 단계), (c) File System Access API 중 택일 필요. 결정 대기.
+
+**2026-09-15 저녁 (현재 구조):** 사용자가 A(localStorage) 확정 + "세련된 디자인" + 탭(대시보드/캘린더) 요청 → 전면 재구성. 공책 괘선 디자인은 버리고 옅은 회색 바탕 + 흰 시트 + 헤어라인 구조로. `App.jsx`가 셸(상태, URL 해시 탭, 내보내기/가져오기, 토스트), 탭은 `TodoPage` / `Dashboard`(SVG 차트, 라이브러리 없음) / `Calendar`. 데이터에 `dueDate`, `createdAt`, `completedAt` 추가, 리듀서에 `SET_DUE`/`IMPORT`, `normalizeTodo`(가져온 JSON 검증), `src/lib/stats.js`(날짜/집계, 테스트 있음). 테스트 20개. 우선순위 색은 dataviz 검증기 돌려서 단일 색상 램프(--chart-1/2/3) + 직접 라벨 + 범례. 스크린샷은 `docs/todos|dashboard|calendar.png`. 여전히 커밋 안 함.
+
+**2026-09-15 밤:** "미래적·3D" 요청 → 기존 클래식은 그대로 두고 `src/skin-neo.css`가 `[data-skin="neo"]`에서 토큰/재질만 덮어쓰는 스킨 토글 추가(헤더 ◈ 버튼). `useTheme.js`는 `useRootAttr(attr, key, options)`로 일반화해 `useTheme`/`useSkin` 둘 다 거기서 나온다. 네오는 다크 전용이라 테마 버튼 숨김. `index.html`에 저장된 theme/skin을 React 전에 적용하는 인라인 스크립트(첫 화면 깜빡임 방지 — 헤드리스 스크린샷에서 트랜지션 시작 상태가 찍혀 발견). 스크린샷 `docs/neo-*.png`.
+
+**2026-09-15 심야:** 상세 화면 추가 — `src/components/TodoDetail.jsx`, 네이티브 `<dialog>`(showModal, Esc/배경 클릭 닫기). todo에 `notes: [{id, category: backend|frontend|memo, text, createdAt}]`, 리듀서 `ADD_NOTE/EDIT_NOTE/REMOVE_NOTE`, `normalizeNote`(코드 공백 보존). 목록에서 제목이 버튼이 되어 클릭 → 상세(`App`의 `detailId`), 더블클릭 편집은 제거하고 "이름 수정" 버튼만 남김. 노트 본문은 고정폭 `pre-wrap` + 복사 버튼. 네오 스킨 입력칸을 움푹한 필드로 바꿈(사용자가 안 보인다고 함). 문구: placeholder "새 할 일 — 제목을 입력하고 Enter", 빈 상태 문구 손질. 테스트 22개. 헤드리스에서 dialog 여는 법: 같은 출처 iframe 페이지에서 `contentDocument.querySelector('.todo-item-text').click()`.

@@ -1,3 +1,4 @@
-- [React beginner, wants step-by-step review not code](user_react_beginner.md) — user learns by typing themselves, I review each small step
-- [Todo app structure & progress](project_todo_app.md) — component layout, build progress, hybrid mode: JS syntax drills in `drills/` before project work
+- [React beginner, wants step-by-step review not code](user_react_beginner.md) — user learns by typing themselves, I review each small step (2026-09-15 완성 요청 때는 예외적으로 내가 전부 작성)
+- [Todo app structure & progress](project_todo_app.md) — component layout, build progress, drills in `drills/`; 2026-09-15에 완성본으로 리디자인
 - [Teach React principles, not just bug fixes](feedback_teach_principles_not_just_bugs.md) — concept → experiment → confirm in their own code
+- [Node env: fnm Node 22, not system Node 16](project_env_node.md) — PATH prefix for Bash, .npmrc legacy-peer-deps

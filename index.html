@@ -1,10 +1,21 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>edureact</title>
+    <meta name="description" content="오늘의 할 일을 공책처럼 적고 지우는 작은 앱" />
+    <meta name="theme-color" content="#f7f7f3" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1b1d21" media="(prefers-color-scheme: dark)" />
+    <title>할 일</title>
+    <script>
+      // React가 뜨기 전에 저장된 테마/스킨을 적용해서 첫 화면이 깜빡이지 않게 한다
+      try {
+        var t = localStorage.getItem('theme'), s = localStorage.getItem('skin');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+        if (s === 'neo') document.documentElement.dataset.skin = s;
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

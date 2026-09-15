@@ -1,11 +1,19 @@
+const FILTERS = [['all', '전체'], ['active', '진행중'], ['completed', '완료']];
 
-function TodoFilter({ currentFilter, onFilterChange, search, setSearch }) {
+function TodoFilter({ currentFilter, onFilterChange, search, setSearch, allDone, onToggleAll, hasTodos }) {
     return (
         <div className="todo-filter">
-            <input className="todo-search" type="text" placeholder="검색..." value={search} onChange={(e) => setSearch(e.target.value)} />
-            <button className={`filter-btn${currentFilter === 'all' ? ' active' : ''}`} onClick={() => onFilterChange('all')} disabled={currentFilter === 'all'}>전체</button>
-            <button className={`filter-btn${currentFilter === 'active' ? ' active' : ''}`} onClick={() => onFilterChange('active')} disabled={currentFilter === 'active'}>진행중</button>
-            <button className={`filter-btn${currentFilter === 'completed' ? ' active' : ''}`} onClick={() => onFilterChange('completed')} disabled={currentFilter === 'completed'}>완료</button>
+            <input type="checkbox" className="todo-item-checkbox toggle-all" checked={allDone}
+                onChange={onToggleAll} disabled={!hasTodos} aria-label="전체 완료 / 해제" title="전체 완료 / 해제" />
+            <div className="filter-tabs" role="tablist" aria-label="보기">
+                {FILTERS.map(([key, label]) => (
+                    <button key={key} type="button" role="tab" aria-selected={currentFilter === key}
+                        className={`filter-btn${currentFilter === key ? ' active' : ''}`}
+                        onClick={() => onFilterChange(key)}>{label}</button>
+                ))}
+            </div>
+            <input className="todo-search" type="search" placeholder="검색" aria-label="할 일 검색"
+                value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
     );
 }

@@ -1,60 +1,72 @@
 import { useState } from 'react';
+import { PRIORITY_LABEL, priorityOf } from '../../reducers/todoReducer';
+import { formatDay } from '../../lib/stats';
 
-function TodoItem({ todo, onToggleTodo, onRemoveTodo, onEditTodo }) {
-    console.log(`TodoItem rendered: ${todo.text}`);
+// 클릭할 때마다 보통 → 높음 → 낮음 → 보통
+const NEXT_PRIORITY = { normal: 'high', high: 'low', low: 'normal' };
+
+function TodoItem({ todo, todayKey, onToggleTodo, onRemoveTodo, onEditTodo, onSetPriority, onOpenTodo }) {
     const [isEditing, setIsEditing] = useState(false);
     const [editText, setEditText] = useState(todo.text);
-    function handleEdit() {
+    const [editDue, setEditDue] = useState(todo.dueDate ?? '');
+    const priority = priorityOf(todo);
+    const overdue = todo.dueDate && !todo.completed && todo.dueDate < todayKey;
+    const noteCount = todo.notes?.length ?? 0;
+
+    function save() {
         const trimmed = editText.trim();
-        if (trimmed === '') {
-            setIsEditing(false);
-            return;
-        }
-        onEditTodo(todo.id, trimmed);
+        if (trimmed !== '') onEditTodo(todo.id, trimmed, editDue);
         setIsEditing(false);
     }
     function startEditing() {
         setEditText(todo.text);
+        setEditDue(todo.dueDate ?? '');
         setIsEditing(true);
     }
+    // 포커스가 편집 폼 밖으로 나갈 때만 저장 (글자 칸 → 날짜 칸 이동은 무시)
+    function handleBlur(e) {
+        if (!e.currentTarget.contains(e.relatedTarget)) save();
+    }
     function handleKeyDown(e) {
-        if (e.key === 'Enter') {
-            handleEdit();
-        }
-        else if (e.key === 'Escape') {
-            setIsEditing(false);
-        }
-    }   
+        if (e.key === 'Escape') setIsEditing(false);
+    }
+
     return (
-            <li className={`todo-item${todo.completed ? ' completed' : ''}`}>
-                {isEditing ? (
-                    <input
-                        className="todo-item-edit-input"
-                        type="text"
-                        value={editText}
-                        autoFocus
-                        onChange={(e) => setEditText(e.target.value)}
-                        onBlur={() => {
-                            handleEdit();
-                        }}
-                        onKeyDown={handleKeyDown}
-                    />
-                ) : (
-                    <>
-                        <input
-                            type="checkbox"
-                            className="todo-item-checkbox"
-                            checked={todo.completed}
-                            onChange={() => onToggleTodo(todo.id)}
-                        />
-                        <span className="todo-item-text">{todo.text}</span>
-                        <div className="todo-item-actions">
-                            <button className="todo-item-btn" onClick={startEditing}>수정</button>
-                            <button className="todo-item-btn danger" onClick={() => onRemoveTodo(todo.id)}>삭제</button>
-                        </div>
-                    </>
-                )}
-            </li>
+        <li className={`todo-item priority-${priority}${todo.completed ? ' completed' : ''}`}>
+            {isEditing ? (
+                <form className="todo-edit-form" onSubmit={(e) => { e.preventDefault(); save(); }}
+                    onBlur={handleBlur} onKeyDown={handleKeyDown}>
+                    <input className="todo-item-edit-input" type="text" value={editText} autoFocus
+                        aria-label="제목 수정" onChange={(e) => setEditText(e.target.value)} />
+                    <input type="date" className="due-input" aria-label="마감일" value={editDue}
+                        onChange={(e) => setEditDue(e.target.value)} />
+                    <button type="submit" className="todo-item-btn">저장</button>
+                </form>
+            ) : (
+                <>
+                    <input type="checkbox" className="todo-item-checkbox" checked={todo.completed}
+                        onChange={() => onToggleTodo(todo.id)} aria-label={`${todo.text} 완료`} />
+                    <button type="button" className="todo-item-text" onClick={() => onOpenTodo(todo.id)} title="상세 보기">
+                        {todo.text}
+                        {noteCount > 0 && <span className="note-count" aria-label={`노트 ${noteCount}개`}>≡ {noteCount}</span>}
+                    </button>
+                    {todo.dueDate && (
+                        <span className={`due-chip${overdue ? ' overdue' : ''}`}
+                            title={overdue ? '마감 지남' : '마감일'}>{formatDay(todo.dueDate, todayKey)}</span>
+                    )}
+                    <button type="button" className="priority-btn"
+                        onClick={() => onSetPriority(todo.id, NEXT_PRIORITY[priority])}
+                        title={`우선순위: ${PRIORITY_LABEL[priority]} (눌러서 바꾸기)`}
+                        aria-label={`우선순위 ${PRIORITY_LABEL[priority]}, 눌러서 ${PRIORITY_LABEL[NEXT_PRIORITY[priority]]}으로`}>
+                        {PRIORITY_LABEL[priority]}
+                    </button>
+                    <div className="todo-item-actions">
+                        <button type="button" className="todo-item-btn" onClick={startEditing}>이름 수정</button>
+                        <button type="button" className="todo-item-btn" onClick={() => onRemoveTodo(todo.id)}>삭제</button>
+                    </div>
+                </>
+            )}
+        </li>
     );
 }
 

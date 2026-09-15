@@ -1,16 +1,18 @@
-
-function TodoFooter({ count, totCount, onClearCompleted}) {
+function TodoFooter({ total, done, onClearCompleted }) {
+    const percent = total === 0 ? 0 : Math.round((done / total) * 100);
     return (
-        <div className="todo-footer">
-            <p className="todo-total">전체 {totCount}개</p>
-            <div className="todo-stamp" aria-label={`남은 할 일 ${count}개`}>
-                <span className="stamp-count">{count}</span>
-                <span className="stamp-label">남음</span>
+        <footer className="todo-footer">
+            <div className="todo-progress" role="progressbar" aria-label="완료 진행률"
+                aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
+                <div className="todo-progress-bar" style={{ width: `${percent}%` }} />
             </div>
-            <button className="clear-completed" onClick={onClearCompleted} disabled={count === totCount}>
-                완료된 할 일 삭제
-            </button>
-        </div>
+            <div className="todo-footer-row">
+                <span className="todo-count">{done} / {total} 완료</span>
+                <button type="button" className="link-btn" onClick={onClearCompleted} disabled={done === 0}>
+                    완료 항목 지우기
+                </button>
+            </div>
+        </footer>
     );
 }
 

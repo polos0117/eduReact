@@ -1,111 +1,141 @@
+/* 라이트(기본) — 옅은 회색 바탕 위에 흰 시트. 구조는 그림자가 아니라 헤어라인이 만든다 */
 :root {
-  --text: #6b6459;
-  --text-h: #211d1a;
-  --bg: #f7f3ec;
-  --border: #d9d2c4;
-  --code-bg: #efe9dc;
-  --accent: #b5432b;
-  --accent-bg: rgba(181, 67, 43, 0.08);
-  --accent-border: rgba(181, 67, 43, 0.45);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(33, 29, 26, 0.08) 0 10px 15px -3px, rgba(33, 29, 26, 0.04) 0 4px 6px -2px;
+  --canvas: #f3f4f6;
+  --sheet: #ffffff;
+  --sheet-2: #f7f8fa; /* 시트 안의 살짝 가라앉은 면 (hover, 선택) */
+  --ink: #15171c;
+  --ink-2: #5c6270;
+  --ink-3: #9aa0ab;
+  --line: #e6e8ec;
+  --line-2: #d3d6dc;
+  --accent: #2f5bd6;
+  --accent-ink: #ffffff;
+  --accent-soft: #e9eefb;
+  --high: #d2463b; /* 우선순위 높음, 지난 마감 */
+  --high-soft: #fbe9e7;
+  --chart-1: #1f3f9e; /* 우선순위 램프: 높음 → 낮음 = 진함 → 연함 */
+  --chart-2: #5b82e6;
+  --chart-3: #a9bdec;
+  --toast-bg: #15171c;
+  --toast-fg: #ffffff;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: 'Iowan Old Style', 'Palatino Linotype', Georgia, 'Times New Roman', serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --font: Pretendard, "Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui,
+    "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --row: 52px;
+  --radius: 14px;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
+  color-scheme: light;
+  font: 15px/1.5 var(--font);
+  color: var(--ink);
+  background: var(--canvas);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
+/* 다크 — 시스템이 다크이고 사용자가 라이트를 고르지 않았을 때 */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --text: #b3a99a;
-    --text-h: #f1ece1;
-    --bg: #1c1815;
-    --border: #3a332c;
-    --code-bg: #24201b;
-    --accent: #e2694f;
-    --accent-bg: rgba(226, 105, 79, 0.12);
-    --accent-border: rgba(226, 105, 79, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.45) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+  :root:not([data-theme="light"]) {
+    --canvas: #111317;
+    --sheet: #1a1d23;
+    --sheet-2: #21252c;
+    --ink: #eceef2;
+    --ink-2: #a3a9b5;
+    --ink-3: #6d7380;
+    --line: #2a2e37;
+    --line-2: #3a3f4a;
+    --accent: #7c9cf0;
+    --accent-ink: #0f1320;
+    --accent-soft: #23304f;
+    --high: #f0867a;
+    --high-soft: #3d2320;
+    --chart-1: #9db8ff;
+    --chart-2: #5f86e0;
+    --chart-3: #34497f;
+    --toast-bg: #eceef2;
+    --toast-fg: #111317;
+    color-scheme: dark;
   }
 }
+/* 사용자가 명시적으로 다크를 골랐을 때 */
+:root[data-theme="dark"] {
+  --canvas: #111317;
+  --sheet: #1a1d23;
+  --sheet-2: #21252c;
+  --ink: #eceef2;
+  --ink-2: #a3a9b5;
+  --ink-3: #6d7380;
+  --line: #2a2e37;
+  --line-2: #3a3f4a;
+  --accent: #7c9cf0;
+  --accent-ink: #0f1320;
+  --accent-soft: #23304f;
+  --high: #f0867a;
+  --high-soft: #3d2320;
+  --chart-1: #9db8ff;
+  --chart-2: #5f86e0;
+  --chart-3: #34497f;
+  --toast-bg: #eceef2;
+  --toast-fg: #111317;
+  color-scheme: dark;
+}
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  min-height: 100svh;
+  background: var(--canvas);
 }
 
 h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
-}
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
+h2,
+h3,
+p,
+dl,
+dd {
   margin: 0;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* 화면에는 안 보이지만 스크린리더는 읽는 레이블 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

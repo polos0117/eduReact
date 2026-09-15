@@ -1,0 +1,323 @@
+/* ===== 네오 스킨 — 어두운 우주 배경 위의 유리 패널, 시안 네온, 살짝 솟은 3D =====
+   DOM과 레이아웃은 App.css 그대로. 여기서는 토큰을 덮어쓰고 재질만 바꾼다.
+   어두운 톤 전용이라 테마 버튼은 숨긴다. */
+
+:root[data-skin="neo"] {
+  --canvas: #060913;
+  --sheet: rgba(16, 22, 44, 0.72);
+  --sheet-2: rgba(255, 255, 255, 0.05);
+  --ink: #e6ecff;
+  --ink-2: #9aa7d4;
+  --ink-3: #5f6b96;
+  --line: rgba(130, 150, 255, 0.16);
+  --line-2: rgba(130, 150, 255, 0.34);
+  --accent: #4de1ff;
+  --accent-ink: #04111a;
+  --accent-soft: rgba(77, 225, 255, 0.14);
+  --high: #ff5d8f;
+  --high-soft: rgba(255, 93, 143, 0.16);
+  --chart-1: #4de1ff;
+  --chart-2: #6f8dff;
+  --chart-3: #3a4a8f;
+  --toast-bg: #e6ecff;
+  --toast-fg: #060913;
+  --radius: 18px;
+
+  /* 이 스킨에서만 쓰는 재질 토큰 */
+  --neo-violet: #8b7bff;
+  --neo-glow: 0 0 18px rgba(77, 225, 255, 0.45);
+  --neo-raise: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.45);
+  --neo-face: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.02));
+  color-scheme: dark;
+}
+
+/* 배경: 두 개의 성운 + 원근 그리드 */
+[data-skin="neo"] body {
+  background:
+    radial-gradient(1100px 600px at 15% -10%, rgba(139, 123, 255, 0.28), transparent 60%),
+    radial-gradient(900px 520px at 100% 100%, rgba(77, 225, 255, 0.14), transparent 55%),
+    var(--canvas);
+  background-attachment: fixed;
+}
+
+[data-skin="neo"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(130, 150, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(130, 150, 255, 0.08) 1px, transparent 1px);
+  background-size: 48px 48px;
+  transform: perspective(600px) rotateX(60deg) translateY(-20%) scale(2);
+  transform-origin: 50% 100%;
+  mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent 70%);
+  pointer-events: none;
+}
+
+[data-skin="neo"] .theme-btn {
+  display: none;
+}
+
+/* 머리글: 제목에 은은한 빛 */
+[data-skin="neo"] .brand h1 {
+  letter-spacing: -0.01em;
+  text-shadow: 0 0 24px rgba(77, 225, 255, 0.35);
+}
+
+/* 유리 시트 — 그라데이션 테두리, 블러, 깊은 그림자, 아주 약한 원근 */
+[data-skin="neo"] .sheet {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--sheet), var(--sheet)) padding-box,
+    linear-gradient(135deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.04) 35%, rgba(77, 225, 255, 0.35) 100%) border-box;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow:
+    0 40px 80px -30px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+    0 1px 0 rgba(255, 255, 255, 0.08) inset;
+  transform: perspective(1600px) rotateX(0.8deg);
+  transform-origin: 50% 0;
+}
+
+/* 솟은 버튼과 입력 컨트롤 */
+[data-skin="neo"] .ghost-btn,
+[data-skin="neo"] .skin-btn,
+[data-skin="neo"] .icon-btn,
+[data-skin="neo"] .due-input,
+[data-skin="neo"] .priority-select,
+[data-skin="neo"] .filter-btn.active,
+[data-skin="neo"] .todo-item-btn:hover {
+  background: var(--neo-face);
+  border: 1px solid var(--line);
+  box-shadow: var(--neo-raise);
+}
+
+/* 드롭다운 목록: 브라우저가 흰 바탕으로 그리므로 색을 직접 지정 */
+[data-skin="neo"] select {
+  color-scheme: dark;
+}
+
+[data-skin="neo"] option {
+  background: #0e1328;
+  color: var(--ink);
+}
+
+[data-skin="neo"] .skin-btn {
+  color: var(--accent);
+  border-color: rgba(77, 225, 255, 0.4);
+}
+
+[data-skin="neo"] .ghost-btn:hover:not(:disabled),
+[data-skin="neo"] .icon-btn:hover {
+  border-color: var(--line-2);
+}
+
+[data-skin="neo"] .ghost-btn:active,
+[data-skin="neo"] .icon-btn:active,
+[data-skin="neo"] .todo-add-btn:active {
+  transform: translateY(1px);
+}
+
+[data-skin="neo"] .filter-btn.active {
+  color: var(--accent);
+}
+
+/* 주 버튼: 시안→바이올렛, 글로우 */
+[data-skin="neo"] .todo-add-btn {
+  background: linear-gradient(135deg, var(--accent), var(--neo-violet));
+  color: #060913;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 6px 18px -4px rgba(77, 225, 255, 0.55);
+}
+
+[data-skin="neo"] .todo-add-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 8px 24px -4px rgba(77, 225, 255, 0.75);
+}
+
+/* 탭 인디케이터 발광 */
+[data-skin="neo"] .tab.active::after {
+  box-shadow: var(--neo-glow);
+}
+
+/* 입력 칸: 유리 위에서는 투명 칸이 안 보이므로 움푹 들어간 필드로 */
+[data-skin="neo"] .todo-input,
+[data-skin="neo"] .todo-search,
+[data-skin="neo"] .todo-item-edit-input,
+[data-skin="neo"] .note-textarea {
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.28);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+[data-skin="neo"] .note-textarea {
+  padding: 10px 12px;
+}
+
+[data-skin="neo"] .todo-input::placeholder,
+[data-skin="neo"] .todo-search::placeholder,
+[data-skin="neo"] .note-textarea::placeholder {
+  color: var(--ink-2);
+}
+
+[data-skin="neo"] .todo-input:focus,
+[data-skin="neo"] .todo-search:focus,
+[data-skin="neo"] .todo-item-edit-input:focus,
+[data-skin="neo"] .note-textarea:focus {
+  border-color: rgba(77, 225, 255, 0.6);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 0 3px rgba(77, 225, 255, 0.15);
+  outline: none;
+}
+
+[data-skin="neo"] .todo-search:not(:placeholder-shown) {
+  background: rgba(0, 0, 0, 0.28);
+}
+
+/* 상세 화면: 유리 패널, 배경은 더 어둡고 흐리게 */
+[data-skin="neo"] .detail {
+  border: 1px solid rgba(130, 150, 255, 0.3);
+  background: rgba(14, 19, 40, 0.92);
+  box-shadow: 0 50px 100px -30px rgba(0, 0, 0, 0.9), 0 0 40px rgba(77, 225, 255, 0.08);
+}
+
+[data-skin="neo"] .detail::backdrop {
+  background: rgba(3, 5, 12, 0.7);
+  backdrop-filter: blur(6px);
+}
+
+[data-skin="neo"] .detail-head,
+[data-skin="neo"] .note-form {
+  background: rgba(14, 19, 40, 0.96);
+}
+
+[data-skin="neo"] .note {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+[data-skin="neo"] .note-count {
+  background: rgba(77, 225, 255, 0.12);
+  color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(77, 225, 255, 0.3);
+}
+
+/* 필터 줄은 살짝 가라앉게 */
+[data-skin="neo"] .todo-filter {
+  background: rgba(0, 0, 0, 0.18);
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* 체크박스: 켜지면 빛나는 구슬 */
+[data-skin="neo"] .todo-item-checkbox {
+  border-color: var(--line-2);
+  background: rgba(0, 0, 0, 0.25);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+[data-skin="neo"] .todo-item-checkbox:checked {
+  background: linear-gradient(135deg, var(--accent), var(--neo-violet));
+  border-color: transparent;
+  box-shadow: var(--neo-glow);
+}
+
+[data-skin="neo"] .todo-item.priority-high .priority-btn {
+  box-shadow: 0 0 12px rgba(255, 93, 143, 0.35);
+}
+
+[data-skin="neo"] .todo-item.completed .todo-item-text {
+  text-decoration-color: rgba(77, 225, 255, 0.5);
+}
+
+/* 진행률과 링, 차트 마크에 글로우 */
+[data-skin="neo"] .todo-progress {
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+[data-skin="neo"] .todo-progress-bar,
+[data-skin="neo"] .stack {
+  box-shadow: var(--neo-glow);
+}
+
+[data-skin="neo"] .todo-progress-bar {
+  background: linear-gradient(90deg, var(--accent), var(--neo-violet));
+}
+
+[data-skin="neo"] .ring-value {
+  filter: drop-shadow(0 0 6px rgba(77, 225, 255, 0.7));
+}
+
+[data-skin="neo"] .chart .bar {
+  filter: drop-shadow(0 0 6px rgba(77, 225, 255, 0.55));
+}
+
+[data-skin="neo"] .chart .bar-group:hover .bar {
+  fill: #ffffff;
+}
+
+/* 통계 타일: 호버하면 살짝 떠오른다 */
+[data-skin="neo"] .stat {
+  transition: transform 0.2s, background 0.2s;
+}
+
+[data-skin="neo"] .stat:hover {
+  transform: translateY(-2px);
+  background: var(--sheet-2);
+}
+
+[data-skin="neo"] .stat-value {
+  text-shadow: 0 0 20px rgba(77, 225, 255, 0.25);
+}
+
+[data-skin="neo"] .stat-value.is-high,
+[data-skin="neo"] .due-rows .is-high dd {
+  text-shadow: 0 0 16px rgba(255, 93, 143, 0.5);
+}
+
+[data-skin="neo"] .due-rows > div {
+  background: var(--neo-face);
+  box-shadow: var(--neo-raise);
+}
+
+/* 누적 막대: 낮음 세그먼트 글자는 밝게 */
+[data-skin="neo"] .seg-high {
+  color: #060913;
+}
+
+[data-skin="neo"] .seg-low {
+  color: var(--ink);
+}
+
+/* 캘린더: 오늘은 발광, 선택은 유리 */
+[data-skin="neo"] .cal-cell.today .cal-date {
+  background: linear-gradient(135deg, var(--accent), var(--neo-violet));
+  color: #060913;
+  box-shadow: var(--neo-glow);
+}
+
+[data-skin="neo"] .cal-cell.selected {
+  background: rgba(77, 225, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(77, 225, 255, 0.35);
+}
+
+[data-skin="neo"] .cal-chip {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 토스트: 밝은 유리 */
+[data-skin="neo"] .toast {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), var(--neo-glow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-skin="neo"] .sheet {
+    transform: none;
+  }
+}
