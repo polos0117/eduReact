@@ -20,9 +20,9 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onOpenTodo }) {
     const now = useNow();
     const todayKey = dayKey(now); // 마감 지남 판정 기준
 
-    function addTodo(text, priority, dueDate) {
+    function addTodo(text, priority, dueDate, tags) {
         const at = Date.now();
-        dispatch({ type: 'ADD', todo: { id: at, text, completed: false, priority, createdAt: at, dueDate: dueDate || undefined } });
+        dispatch({ type: 'ADD', todo: { id: at, text, completed: false, priority, createdAt: at, dueDate: dueDate || undefined, tags: tags?.length ? tags : undefined } });
     }
     function toggleTodo(id) {
         dispatch({ type: 'TOGGLE', id, at: Date.now() });
@@ -41,12 +41,15 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onOpenTodo }) {
     const due = params.get('due');           // overdue|today|week|later|none|YYYY-MM-DD
     const priority = params.get('priority'); // high|normal|low
     const done = params.get('done');         // 7d (최근 n일) | YYYY-MM-DD (그날 완료)
+    const tag = params.get('tag');
     const scope = [];
+    if (tag) scope.push(`#${tag}`);
     if (due) scope.push(DUE_LABEL[due] ?? `${formatDay(due, todayKey)} 마감`);
     if (priority && PRIORITY_LABEL[priority]) scope.push(`우선순위 ${PRIORITY_LABEL[priority]}`);
     if (done) scope.push(/^\d+d$/.test(done) ? `최근 ${parseInt(done)}일 완료` : `${formatDay(done, todayKey)} 완료`);
 
     function matchesScope(todo) {
+        if (tag && !(todo.tags ?? []).includes(tag)) return false;
         if (due && !(DUE_LABEL[due] ? dueBucketOf(todo, todayKey) === due : todo.dueDate === due)) return false;
         if (priority && (todo.priority ?? 'normal') !== priority) return false;
         if (done) {

@@ -6,9 +6,6 @@ const DAYS = 14;
 const WEEK_MS = 7 * 24 * 3600 * 1000;
 const DUE_SHORT = { overdue: '지난 마감', today: '오늘', week: '이번 주', later: '그 이후', none: '마감 없음' };
 
-// 목록 탭으로 가는 링크. 조건은 해시 쿼리로 (TodoPage가 읽는다)
-const listHref = (query) => `#todos?${new URLSearchParams(query)}`;
-
 // 완료율 링. 값이 텍스트로도 나오므로 그림은 보조다.
 function Ring({ percent }) {
     const r = 22;
@@ -23,7 +20,7 @@ function Ring({ percent }) {
 }
 
 // 최근 14일 완료 막대. 한 계열이라 범례 없음, 최대값과 오늘만 직접 라벨. 막대를 누르면 그날 완료 목록.
-function CompletedChart({ rows, todayKey }) {
+function CompletedChart({ rows, todayKey, listHref }) {
     const W = 560, H = 120, PAD_B = 22, PAD_T = 14;
     const gap = 6;
     const barW = (W - gap * (rows.length - 1)) / rows.length;
@@ -61,9 +58,17 @@ function CompletedChart({ rows, todayKey }) {
     );
 }
 
-function Dashboard({ todos }) {
+// params: 해시 쿼리 — tag=x 면 그 태그의 할 일만 집계하고, 목록 링크에도 태그를 실어 보낸다
+function Dashboard({ todos: allTodos, params }) {
     const now = useNow();
     const todayKey = dayKey(now);
+    const tag = params.get('tag');
+    const allTags = [...new Set(allTodos.flatMap(todo => todo.tags ?? []))].sort();
+    const todos = tag ? allTodos.filter(todo => todo.tags?.includes(tag)) : allTodos;
+
+    // 목록 탭으로 가는 링크. 조건은 해시 쿼리로 (TodoPage가 읽는다)
+    const listHref = (query) => `#todos?${new URLSearchParams(tag ? { ...query, tag } : query)}`;
+
     const total = todos.length;
     const done = todos.filter(todo => todo.completed).length;
     const left = total - done;
@@ -78,6 +83,15 @@ function Dashboard({ todos }) {
 
     return (
         <div className="dashboard">
+            {allTags.length > 0 && (
+                <nav className="tag-row" aria-label="태그별 보기">
+                    <a href="#dashboard" className={`tag-chip${tag ? '' : ' active'}`}>전체</a>
+                    {allTags.map(t => (
+                        <a key={t} href={`#dashboard?tag=${encodeURIComponent(t)}`} className={`tag-chip${tag === t ? ' active' : ''}`}>#{t}</a>
+                    ))}
+                </nav>
+            )}
+
             <div className="stats">
                 <a className="stat" href={listHref({ filter: 'active' })}>
                     <span className="stat-value">{left}</span>
@@ -104,7 +118,7 @@ function Dashboard({ todos }) {
                 <h2 id="chart-title" className="section-title">최근 {DAYS}일 완료</h2>
                 {done === 0
                     ? <p className="section-note">완료한 할 일이 생기면 여기에 날짜별로 쌓여요.</p>
-                    : <CompletedChart rows={rows} todayKey={todayKey} />}
+                    : <CompletedChart rows={rows} todayKey={todayKey} listHref={listHref} />}
             </section>
 
             <section className="section" aria-labelledby="prio-title">

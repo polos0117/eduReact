@@ -8,6 +8,8 @@ import TodoPage from './components/Todo/TodoPage';
 import Dashboard from './components/Dashboard';
 import Calendar from './components/Calendar';
 import TodoDetail from './components/TodoDetail';
+import Settings from './components/Settings';
+import { useLocalState } from './hooks/useLocalState';
 import './App.css';
 import './skin-neo.css';
 
@@ -49,6 +51,8 @@ function App() {
     const { tab, params, hash } = useHash();
     const [toast, setToast] = useState(null); // { text, actionLabel?, onAction? }
     const [detailId, setDetailId] = useState(null); // 상세 화면에 열린 todo
+    const [settingsOpen, setSettingsOpen] = useState(false);
+    const [revTemplate, setRevTemplate] = useLocalState('revUrl', ''); // 노트의 r번호 → 커밋 링크 형식
     const fileRef = useRef(null);
     const detailTodo = todos.find(todo => todo.id === detailId); // 삭제되면 자연히 닫힌다
 
@@ -111,6 +115,7 @@ function App() {
                     <button type="button" className="ghost-btn" onClick={() => fileRef.current.click()}>가져오기</button>
                     <input ref={fileRef} type="file" accept="application/json,.json" hidden
                         onChange={(e) => { const f = e.target.files[0]; if (f) importJson(f); e.target.value = ''; }} />
+                    <button type="button" className="ghost-btn" onClick={() => setSettingsOpen(true)}>설정</button>
                     <button type="button" className="skin-btn" onClick={cycleSkin}
                         title={`스킨: ${SKIN_LABEL[skin]} (눌러서 바꾸기)`}
                         aria-label={`스킨: ${SKIN_LABEL[skin]}, 눌러서 바꾸기`}>
@@ -135,11 +140,12 @@ function App() {
                 {/* key=hash: 조건이 바뀌면 목록 페이지를 새로 그려 필터 상태를 해시에서 다시 읽는다 */}
                 {tab === 'todos' && <TodoPage key={hash} todos={todos} dispatch={dispatch} params={params}
                     onRemoveTodo={removeTodo} onOpenTodo={setDetailId} />}
-                {tab === 'dashboard' && <Dashboard todos={todos} />}
+                {tab === 'dashboard' && <Dashboard todos={todos} params={params} />}
                 {tab === 'calendar' && <Calendar todos={todos} dispatch={dispatch} onOpenTodo={setDetailId} />}
             </main>
 
-            {detailTodo && <TodoDetail todo={detailTodo} dispatch={dispatch} onClose={() => setDetailId(null)} />}
+            {detailTodo && <TodoDetail todo={detailTodo} dispatch={dispatch} revTemplate={revTemplate} onClose={() => setDetailId(null)} />}
+            {settingsOpen && <Settings revTemplate={revTemplate} onChangeRevTemplate={setRevTemplate} onClose={() => setSettingsOpen(false)} />}
 
             {toast && (
                 <div className="toast" role="status">

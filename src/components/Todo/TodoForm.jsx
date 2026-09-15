@@ -1,17 +1,18 @@
 import { useState, useRef } from "react";
-import { PRIORITIES, PRIORITY_LABEL } from "../../reducers/todoReducer";
+import { PRIORITIES, PRIORITY_LABEL, parseTags } from "../../reducers/todoReducer";
 
 // fixedDue가 있으면(캘린더에서 날짜를 고른 경우) 날짜 입력을 숨기고 그 날짜로 추가한다
-function TodoForm({ onAddTodo, fixedDue, placeholder = '새 할 일 — 제목을 입력하고 Enter' }) {
+// 제목 끝에 "#태그"를 붙이면 태그로 떼어낸다: "배포 준비 #kipa"
+function TodoForm({ onAddTodo, fixedDue, placeholder = '새 할 일 — 제목을 입력하고 Enter (끝에 #태그 가능)' }) {
     const [text, setText] = useState('');
     const [priority, setPriority] = useState('normal');
     const [dueDate, setDueDate] = useState('');
     const inputRef = useRef(null);
     function handleSubmit(e) {
         e.preventDefault();
-        const trimmedText = text.trim();
-        if (trimmedText === '') return;
-        onAddTodo(trimmedText, priority, fixedDue ?? dueDate);
+        if (text.trim() === '') return;
+        const parsed = parseTags(text);
+        onAddTodo(parsed.text, priority, fixedDue ?? dueDate, parsed.tags);
         setText('');
         setPriority('normal');
         setDueDate('');

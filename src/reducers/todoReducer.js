@@ -45,7 +45,36 @@ export function normalizeTodo(raw, now = Date.now()) {
         const notes = raw.notes.map((n, i) => normalizeNote(n, now + i + 1)).filter(Boolean);
         if (notes.length > 0) todo.notes = notes;
     }
+    if (Array.isArray(raw.subtasks)) {
+        const subtasks = raw.subtasks.map((s, i) => normalizeSubtask(s, now + 500 + i)).filter(Boolean);
+        if (subtasks.length > 0) todo.subtasks = subtasks;
+    }
+    const tags = normalizeTags(raw.tags);
+    if (tags.length > 0) todo.tags = tags;
     return todo;
+}
+
+// 제목 끝의 "#태그"를 떼어낸다: "우유 사기 #개인 #장보기" → { text: "우유 사기", tags: ["개인","장보기"] }
+export function parseTags(raw) {
+    const tags = [];
+    const text = raw.replace(/(^|\s)#([^\s#]+)/g, (_, __, tag) => { tags.push(tag); return ''; }).trim();
+    return { text: text || raw.trim(), tags: normalizeTags(tags) };
+}
+
+export function normalizeTags(list) {
+    if (!Array.isArray(list)) return [];
+    return [...new Set(list.filter(t => typeof t === 'string').map(t => t.trim().replace(/^#/, '')).filter(Boolean))];
+}
+
+function normalizeSubtask(raw, now) {
+    if (!raw || typeof raw !== 'object' || typeof raw.text !== 'string' || raw.text.trim() === '') return null;
+    return { id: Number.isFinite(raw.id) ? raw.id : now, text: raw.text.trim(), done: raw.done === true };
+}
+
+// 하위 항목 진행: { done, total } — 없으면 total 0
+export function subtaskProgress(todo) {
+    const list = todo.subtasks ?? [];
+    return { done: list.filter(s => s.done).length, total: list.length };
 }
 
 // 특정 todo만 바꾸는 공통 패턴
@@ -99,6 +128,23 @@ export function todoReducer(state, action) {
         case 'REMOVE_NOTE': return updateTodo(state, action.id, todo =>
             ({ ...todo, notes: (todo.notes ?? []).filter(n => n.id !== action.noteId) })
         );
+        case 'ADD_SUBTASK': return updateTodo(state, action.id, todo =>
+            ({ ...todo, subtasks: [...(todo.subtasks ?? []), action.subtask] })
+        );
+        case 'TOGGLE_SUBTASK': return updateTodo(state, action.id, todo => ({
+            ...todo, subtasks: (todo.subtasks ?? []).map(s => s.id === action.subtaskId ? { ...s, done: !s.done } : s),
+        }));
+        case 'EDIT_SUBTASK': return updateTodo(state, action.id, todo => ({
+            ...todo, subtasks: (todo.subtasks ?? []).map(s => s.id === action.subtaskId ? { ...s, text: action.text } : s),
+        }));
+        case 'REMOVE_SUBTASK': return updateTodo(state, action.id, todo =>
+            ({ ...todo, subtasks: (todo.subtasks ?? []).filter(s => s.id !== action.subtaskId) })
+        );
+        // 태그: 빈 배열이면 필드를 지운다 (JSON에 [] 안 남게)
+        case 'SET_TAGS': return updateTodo(state, action.id, todo => {
+            const tags = normalizeTags(action.tags);
+            return { ...todo, tags: tags.length > 0 ? tags : undefined };
+        });
         // 가져오기: 이미 있는 id는 건너뛰고 새 것만 뒤에 붙인다 — 기존 데이터를 잃지 않는다
         case 'IMPORT': {
             const known = new Set(state.map(todo => todo.id));

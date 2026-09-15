@@ -14,7 +14,10 @@
 - 우선순위 높음 · 보통 · 낮음 — 추가할 때 고르거나 항목의 표시를 눌러 순환, 높은 것부터 정렬
 - 마감일 — 지나면 빨갛게
 - 전체 / 진행중 / 완료 보기, 검색(제목과 노트 본문), 전체 완료 토글, 완료 진행률
-- **상세 화면** — 제목을 누르면 열림. 제목·우선순위·마감일 편집, 그리고 **백엔드 / 프론트엔드 / 메모**로 나뉜 노트 목록. 코드·경로·링크를 붙여 넣으면 줄바꿈과 들여쓰기가 그대로 보존되고(고정폭), 노트마다 복사·수정·삭제. Ctrl+Enter로 추가, Esc로 닫기
+- **태그** — 제목 끝에 `#kipa #개인`처럼 붙이면 태그로 분리. 상세에서 편집, 목록의 태그 칩을 누르면 그 태그만, 대시보드도 태그별로
+- **하위 체크리스트** — 상세에서 항목을 추가·체크·수정·삭제. 목록에 `☑ 2/3` 진행 표시
+- **상세 화면** — 제목을 누르면 열림. 제목·우선순위·마감일·태그 편집, 하위 항목, 그리고 **백엔드 / 프론트엔드 / 메모**로 나뉜 노트 목록. 코드·경로·링크를 붙여 넣으면 줄바꿈과 들여쓰기가 그대로 보존되고(고정폭), 노트마다 복사·수정·삭제. Ctrl+Enter로 추가, Esc로 닫기
+- **노트 자동 링크** — `https://…`는 항상 링크, `r5074` 같은 커밋 번호는 설정(헤더 "설정")에 링크 형식(`https://svn.example.com/rev/{n}`)을 넣으면 링크
 
 ![상세 화면](docs/detail.png)
 
@@ -72,14 +75,17 @@ src/
     usePersistedReducer.js  useReducer + localStorage (읽을 때 sanitize, 다른 탭 변경은 storage 이벤트로 반영)
     useNow.js               1분마다 갱신되는 현재 시각 — 자정 넘겨도 "오늘"이 맞게
     useTheme.js             useRootAttr — <html data-*> 속성을 localStorage와 묶어 순환 (useTheme, useSkin)
+    useLocalState.js        작은 설정값용 useState + localStorage
   reducers/
-    todoReducer.js          ADD · TOGGLE · TOGGLE_ALL · REMOVE · RESTORE · CLEAR_COMPLETED · EDIT · SET_PRIORITY · SET_DUE
-                            · ADD_NOTE · EDIT_NOTE · REMOVE_NOTE · IMPORT
-                            + 우선순위 정렬, 가져온 JSON 정규화(normalizeTodo)
+    todoReducer.js          ADD · TOGGLE · TOGGLE_ALL · REMOVE · RESTORE · CLEAR_COMPLETED · EDIT · SET_PRIORITY · SET_DUE · SET_TAGS
+                            · ADD/EDIT/REMOVE_NOTE · ADD/TOGGLE/EDIT/REMOVE_SUBTASK · IMPORT
+                            + 우선순위 정렬, 가져온 JSON 정규화(normalizeTodo), parseTags, subtaskProgress
     todoReducer.test.js
   lib/
     stats.js                날짜 키, 날짜별 완료 수, 우선순위 집계, 마감 분류, 달력 칸 생성
     stats.test.js
+    linkify.js              노트의 URL·r번호를 링크 조각으로, 태그 링크 주소
+    linkify.test.js
   components/
     Todo/
       TodoPage.jsx          "할 일" 탭 — 필터·검색 상태, 액션 dispatch
@@ -87,7 +93,8 @@ src/
       TodoFilter.jsx        전체 완료 · 보기 탭 · 검색
       TodoList.jsx / TodoItem.jsx
       TodoFooter.jsx        진행률, 완료 항목 지우기
-    TodoDetail.jsx          상세 <dialog> — 제목/우선순위/마감일, 분류별 노트 목록과 추가 폼
+    TodoDetail.jsx          상세 <dialog> — 제목/우선순위/마감일/태그, 하위 항목, 분류별 노트 목록과 추가 폼
+    Settings.jsx            설정 <dialog> — 커밋 번호 링크 형식
     Dashboard.jsx           통계 타일, SVG 막대 차트, 우선순위 누적 막대, 마감 현황
     Calendar.jsx            월 달력, 선택한 날 목록과 추가
 drills/                     학습용 순수 JS 연습 문제 (node drills/01-destructuring.js)
@@ -101,12 +108,14 @@ drills/                     학습용 순수 JS 연습 문제 (node drills/01-de
 { "id": 1757900000000, "text": "로그인 API 연동", "completed": false,
   "priority": "high", "dueDate": "2026-09-18",
   "createdAt": 1757900000000, "completedAt": 1757950000000,
+  "tags": ["kipa"],
+  "subtasks": [{ "id": 1757900000002, "text": "JWT 발급", "done": true }],
   "notes": [
     { "id": 1757900000001, "category": "backend", "text": "POST /api/auth/login", "createdAt": 1757900000001 }
   ] }
 ```
 
-`priority`·`dueDate`·`completedAt`·`notes`는 없을 수 있습니다(예전 데이터). 없으면 보통 / 마감 없음 / 시각 모름 / 노트 없음으로 봅니다. `notes[].category`는 `backend` · `frontend` · `memo`.
+`priority`·`dueDate`·`completedAt`·`tags`·`subtasks`·`notes`는 없을 수 있습니다(예전 데이터). 없으면 보통 / 마감 없음 / 시각 모름 / 없음으로 봅니다. `notes[].category`는 `backend` · `frontend` · `memo`.
 
 ## 배운 것
 

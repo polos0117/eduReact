@@ -1,5 +1,6 @@
-import { PRIORITY_LABEL, priorityOf } from '../../reducers/todoReducer';
+import { PRIORITY_LABEL, priorityOf, subtaskProgress } from '../../reducers/todoReducer';
 import { formatDay } from '../../lib/stats';
+import { tagHref } from '../../lib/linkify';
 
 // 클릭할 때마다 보통 → 높음 → 낮음 → 보통
 const NEXT_PRIORITY = { normal: 'high', high: 'low', low: 'normal' };
@@ -9,6 +10,7 @@ function TodoItem({ todo, todayKey, onToggleTodo, onRemoveTodo, onSetPriority, o
     const priority = priorityOf(todo);
     const overdue = todo.dueDate && !todo.completed && todo.dueDate < todayKey;
     const noteCount = todo.notes?.length ?? 0;
+    const sub = subtaskProgress(todo);
 
     return (
         <li className={`todo-item priority-${priority}${todo.completed ? ' completed' : ''}`}>
@@ -17,7 +19,14 @@ function TodoItem({ todo, todayKey, onToggleTodo, onRemoveTodo, onSetPriority, o
             <button type="button" className="todo-item-text" onClick={() => onOpenTodo(todo.id)} title="상세 보기">
                 {todo.text}
                 {noteCount > 0 && <span className="note-count" aria-label={`노트 ${noteCount}개`}>≡ {noteCount}</span>}
+                {sub.total > 0 && (
+                    <span className={`note-count sub-count${sub.done === sub.total ? ' all-done' : ''}`}
+                        aria-label={`하위 항목 ${sub.total}개 중 ${sub.done}개 완료`}>☑ {sub.done}/{sub.total}</span>
+                )}
             </button>
+            {todo.tags?.map(tag => (
+                <a key={tag} className="tag-chip" href={tagHref(tag)} title={`#${tag} 항목만 보기`}>#{tag}</a>
+            ))}
             {todo.dueDate && (
                 <span className={`due-chip${overdue ? ' overdue' : ''}`}
                     title={overdue ? '마감 지남' : '마감일'}>{formatDay(todo.dueDate, todayKey)}</span>

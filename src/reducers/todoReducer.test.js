@@ -1,5 +1,5 @@
 import {test, expect} from 'vitest';
-import {todoReducer, sortByPriority, normalizeTodo} from './todoReducer';
+import {todoReducer, sortByPriority, normalizeTodo, parseTags, subtaskProgress} from './todoReducer';
 
     test('addTest', () => {
         const state = [];
@@ -129,4 +129,34 @@ import {todoReducer, sortByPriority, normalizeTodo} from './todoReducer';
     test('normalizeTodo는 createdAt이 없으면 id(초기 버전의 Date.now())를 생성 시각으로 쓴다', () => {
         expect(normalizeTodo({ id: 1700000000000, text: 'a' }, 5).createdAt).toBe(1700000000000);
         expect(normalizeTodo({ text: 'a' }, 5).createdAt).toBe(5);
+    });
+
+    test('하위 항목: ADD / TOGGLE / EDIT / REMOVE_SUBTASK 와 진행률', () => {
+        const state = [{ id: 1, text: 'a' }];
+        let s = todoReducer(state, { type: 'ADD_SUBTASK', id: 1, subtask: { id: 10, text: '라디오', done: false } });
+        s = todoReducer(s, { type: 'ADD_SUBTASK', id: 1, subtask: { id: 11, text: '엑셀', done: false } });
+        s = todoReducer(s, { type: 'TOGGLE_SUBTASK', id: 1, subtaskId: 10 });
+        expect(subtaskProgress(s[0])).toEqual({ done: 1, total: 2 });
+        s = todoReducer(s, { type: 'EDIT_SUBTASK', id: 1, subtaskId: 11, text: '엑셀 다운로드' });
+        expect(s[0].subtasks[1].text).toBe('엑셀 다운로드');
+        s = todoReducer(s, { type: 'REMOVE_SUBTASK', id: 1, subtaskId: 10 });
+        expect(s[0].subtasks.map(x => x.id)).toEqual([11]);
+        expect(subtaskProgress({})).toEqual({ done: 0, total: 0 });
+    });
+    test('SET_TAGS는 정리해서 넣고 비면 필드를 지운다', () => {
+        const state = [{ id: 1, text: 'a' }];
+        const tagged = todoReducer(state, { type: 'SET_TAGS', id: 1, tags: [' #kipa ', 'kipa', '', '개인'] });
+        expect(tagged[0].tags).toEqual(['kipa', '개인']);
+        expect(todoReducer(tagged, { type: 'SET_TAGS', id: 1, tags: [] })[0].tags).toBeUndefined();
+    });
+    test('parseTags는 제목 끝의 #태그를 떼어내고, 태그만 있으면 제목을 남긴다', () => {
+        expect(parseTags('우유 사기 #개인 #장보기')).toEqual({ text: '우유 사기', tags: ['개인', '장보기'] });
+        expect(parseTags('C#으로 작성')).toEqual({ text: 'C#으로 작성', tags: [] });
+        expect(parseTags('#kipa')).toEqual({ text: '#kipa', tags: ['kipa'] });
+    });
+    test('normalizeTodo는 subtasks와 tags도 검증한다', () => {
+        const t = normalizeTodo({ id: 1, text: 'a', subtasks: [{ id: 5, text: ' x ', done: 'yes' }, { text: '' }], tags: ['a', 'a', 3] }, 100);
+        expect(t.subtasks).toEqual([{ id: 5, text: 'x', done: false }]);
+        expect(t.tags).toEqual(['a']);
+        expect(normalizeTodo({ id: 1, text: 'a', tags: [] }).tags).toBeUndefined();
     });

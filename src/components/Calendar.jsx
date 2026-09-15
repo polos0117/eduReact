@@ -38,9 +38,9 @@ function Calendar({ todos, dispatch, onOpenTodo }) {
     const [sy, sm, sd] = selected.split('-').map(Number);
     const noDueCount = todos.filter(todo => !todo.completed && !todo.dueDate).length;
 
-    function addTodo(text, priority, dueDate) {
+    function addTodo(text, priority, dueDate, tags) {
         const now = Date.now();
-        dispatch({ type: 'ADD', todo: { id: now, text, completed: false, priority, createdAt: now, dueDate } });
+        dispatch({ type: 'ADD', todo: { id: now, text, completed: false, priority, createdAt: now, dueDate, tags: tags?.length ? tags : undefined } });
     }
 
     return (

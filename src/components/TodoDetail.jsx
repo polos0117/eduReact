@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { PRIORITIES, PRIORITY_LABEL, priorityOf, NOTE_CATEGORIES, NOTE_LABEL } from '../reducers/todoReducer';
+import { PRIORITIES, PRIORITY_LABEL, priorityOf, NOTE_CATEGORIES, NOTE_LABEL, subtaskProgress } from '../reducers/todoReducer';
+import { linkify, revUrl } from '../lib/linkify';
 
 // 클립보드 복사 버튼. 결과를 1.5초간 보여준다. (clipboard API는 https/localhost에서만 동작)
 function CopyButton({ text }) {
@@ -20,7 +21,22 @@ function CopyButton({ text }) {
     );
 }
 
-function Note({ note, onEdit, onRemove }) {
+// 노트 본문: URL과 r번호(설정이 있을 때)를 링크로. 나머지는 붙여 넣은 그대로.
+function NoteText({ text, revTemplate }) {
+    return (
+        <pre className="note-text">
+            {linkify(text).map((part, i) => {
+                if (part.type === 'url') return <a key={i} href={part.value} target="_blank" rel="noreferrer">{part.value}</a>;
+                if (part.type === 'rev' && revTemplate) {
+                    return <a key={i} href={revUrl(revTemplate, part.value)} target="_blank" rel="noreferrer" title={`커밋 ${part.raw} 열기`}>{part.raw}</a>;
+                }
+                return part.type === 'rev' ? part.raw : part.value;
+            })}
+        </pre>
+    );
+}
+
+function Note({ note, revTemplate, onEdit, onRemove }) {
     const [editing, setEditing] = useState(false);
     const [text, setText] = useState(note.text);
     function save() {
@@ -45,7 +61,7 @@ function Note({ note, onEdit, onRemove }) {
     }
     return (
         <li className="note">
-            <pre className="note-text">{note.text}</pre>
+            <NoteText text={note.text} revTemplate={revTemplate} />
             <div className="note-actions">
                 <CopyButton text={note.text} />
                 <button type="button" className="todo-item-btn" onClick={() => { setText(note.text); setEditing(true); }}>수정</button>
@@ -55,11 +71,38 @@ function Note({ note, onEdit, onRemove }) {
     );
 }
 
+// 태그 편집: 칩 + 입력. Enter/쉼표로 추가, 빈 칸에서 Backspace면 마지막 태그 제거
+function TagEditor({ tags, onChange }) {
+    const [draft, setDraft] = useState('');
+    function commit() {
+        const value = draft.trim().replace(/^#/, '');
+        if (value) onChange([...tags, value]);
+        setDraft('');
+    }
+    return (
+        <span className="tag-editor">
+            {tags.map(tag => (
+                <span key={tag} className="tag-chip">
+                    #{tag}
+                    <button type="button" className="tag-remove" onClick={() => onChange(tags.filter(t => t !== tag))} aria-label={`태그 ${tag} 제거`}>×</button>
+                </span>
+            ))}
+            <input className="tag-input" value={draft} placeholder={tags.length === 0 ? '태그 추가' : ''} aria-label="태그 추가"
+                onChange={(e) => setDraft(e.target.value)} onBlur={commit}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); commit(); }
+                    if (e.key === 'Backspace' && draft === '' && tags.length > 0) onChange(tags.slice(0, -1));
+                }} />
+        </span>
+    );
+}
+
 // 할 일 하나의 상세 화면. 네이티브 <dialog> — Esc와 배경 클릭으로 닫힌다.
-function TodoDetail({ todo, dispatch, onClose }) {
+function TodoDetail({ todo, dispatch, revTemplate, onClose }) {
     const ref = useRef(null);
     const [title, setTitle] = useState(todo.text);
     const [draft, setDraft] = useState({ category: 'backend', text: '' });
+    const [subDraft, setSubDraft] = useState('');
 
     useEffect(() => {
         const dialog = ref.current;
@@ -78,8 +121,17 @@ function TodoDetail({ todo, dispatch, onClose }) {
         dispatch({ type: 'ADD_NOTE', id: todo.id, note: { id: now, category: draft.category, text: draft.text, createdAt: now } });
         setDraft(d => ({ ...d, text: '' }));
     }
+    function addSubtask() {
+        const text = subDraft.trim();
+        if (text === '') return;
+        dispatch({ type: 'ADD_SUBTASK', id: todo.id, subtask: { id: Date.now(), text, done: false } });
+        setSubDraft('');
+    }
 
     const notes = todo.notes ?? [];
+    const subtasks = todo.subtasks ?? [];
+    const sub = subtaskProgress(todo);
+    const tags = todo.tags ?? [];
 
     return (
         <dialog ref={ref} className="detail" onClose={onClose}
@@ -106,7 +158,40 @@ function TodoDetail({ todo, dispatch, onClose }) {
                         <input type="date" className="due-input" value={todo.dueDate ?? ''}
                             onChange={(e) => dispatch({ type: 'SET_DUE', id: todo.id, dueDate: e.target.value })} />
                     </label>
+                    <span className="detail-tags">태그
+                        <TagEditor tags={tags} onChange={(next) => dispatch({ type: 'SET_TAGS', id: todo.id, tags: next })} />
+                    </span>
                 </div>
+
+                <section className="subtasks" aria-label="하위 항목">
+                    <h3 className="section-title">
+                        하위 항목 {sub.total > 0 && <span className="note-group-count">{sub.done} / {sub.total}</span>}
+                    </h3>
+                    {subtasks.length > 0 && (
+                        <ul className="subtask-list">
+                            {subtasks.map(s => (
+                                <li key={s.id} className={`subtask${s.done ? ' done' : ''}`}>
+                                    <input type="checkbox" className="todo-item-checkbox" checked={s.done}
+                                        onChange={() => dispatch({ type: 'TOGGLE_SUBTASK', id: todo.id, subtaskId: s.id })}
+                                        aria-label={`${s.text} 완료`} />
+                                    <input className="subtask-text" defaultValue={s.text} aria-label="하위 항목 내용"
+                                        onBlur={(e) => {
+                                            const text = e.target.value.trim();
+                                            if (text && text !== s.text) dispatch({ type: 'EDIT_SUBTASK', id: todo.id, subtaskId: s.id, text });
+                                            else e.target.value = s.text;
+                                        }}
+                                        onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }} />
+                                    <button type="button" className="todo-item-btn" aria-label="하위 항목 삭제"
+                                        onClick={() => dispatch({ type: 'REMOVE_SUBTASK', id: todo.id, subtaskId: s.id })}>×</button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                    <form className="subtask-form" onSubmit={(e) => { e.preventDefault(); addSubtask(); }}>
+                        <input className="subtask-input" value={subDraft} placeholder="하위 항목을 적고 Enter" aria-label="새 하위 항목"
+                            onChange={(e) => setSubDraft(e.target.value)} />
+                    </form>
+                </section>
 
                 <div className="notes">
                     {NOTE_CATEGORIES.map(cat => {
@@ -121,7 +206,7 @@ function TodoDetail({ todo, dispatch, onClose }) {
                                     : (
                                         <ul className="note-list">
                                             {list.map(note => (
-                                                <Note key={note.id} note={note}
+                                                <Note key={note.id} note={note} revTemplate={revTemplate}
                                                     onEdit={(text) => dispatch({ type: 'EDIT_NOTE', id: todo.id, noteId: note.id, text })}
                                                     onRemove={() => dispatch({ type: 'REMOVE_NOTE', id: todo.id, noteId: note.id })} />
                                             ))}
@@ -151,5 +236,4 @@ function TodoDetail({ todo, dispatch, onClose }) {
         </dialog>
     );
 }
-
 export default TodoDetail;
