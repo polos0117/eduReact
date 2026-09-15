@@ -1,4 +1,4 @@
-import { dayKey, addDays } from './stats';
+import { addDays } from './stats';
 
 // 한국 공휴일(관공서의 공휴일에 관한 규정 기준).
 // 양력 고정일은 계산하고, 음력 기반(설날·추석·부처님오신날)만 표로 둔다.
@@ -14,8 +14,6 @@ const LUNAR = {
     2029: { seollal: '2029-02-13', chuseok: '2029-09-22', buddha: '2029-05-20' },
     2030: { seollal: '2030-02-03', chuseok: '2030-09-12', buddha: '2030-05-09' },
 };
-
-export const LUNAR_YEARS = Object.keys(LUNAR).map(Number);
 
 // 양력 고정 공휴일. sub = 대체공휴일 대상인가.
 // 신정·현충일은 국경일이 아니라 대체공휴일 대상이 아니다.
@@ -110,5 +108,3 @@ export function holidaysForRange(startKey, endKey) {
     }
     return map;
 }
-
-export const todayHoliday = (now = Date.now()) => holidaysFor(new Date(now).getFullYear()).get(dayKey(now));

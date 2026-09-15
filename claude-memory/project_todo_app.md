@@ -96,3 +96,9 @@ Building a Todo List app in `c:\eduReact` (Vite + React 19 + JS) as a React lear
 - 테스트 49개.
 
 **날짜 같은 사실은 검색으로 확인할 것:** 음력 공휴일은 기억이 틀린다. 실제로 한 출처가 2028 부처님오신날을 5/5 로 줬는데 음력 계산상 5/2 가 맞았고, 다른 출처로 5/2 확인됨. 두 출처 이상 대조할 것.
+
+**2026-09-15 밤 12: 모바일 붕괴 수정 + 죽은 코드 정리.**
+- 390px 에서 머리글이 무너져 제목이 한 글자씩 세로로 쌓이고 가로로 잘렸다. 원인은 `.header-actions { flex-shrink: 0 }` — 세션 내내 버튼을 5개까지 늘리면서 그대로 뒀다. `.app-header{flex-wrap:wrap}` + `.brand{min-width:0}` + `.header-actions{flex-wrap:wrap}` 로 해결. 스크린샷을 720px 이상으로만 찍어서 못 봤다 — **좁은 폭도 같이 찍을 것**.
+- 할 일 줄도 제목 칸이 ~96px 밖에 안 남아 한 단어씩 끊겼다. `.todo-item-main`(체크·완료·제목) / `.todo-item-meta`(태그·마감·우선순위) 로 묶고, ≤560px 에서 main 을 `flex: 1 0 100%` 로.
+- **CSS 함정 둘**: ① `flex: 1 1 100%` 는 줄바꿈 대신 **줄어든다** — 줄을 넘기려면 `flex: 1 0 100%`(shrink 0). ② 미디어 쿼리를 파일 앞쪽에 두면 **뒤에 오는 같은 특이도의 기본 규칙에 진다**. `.todo-item-main{flex:1}` 이 뒤에 있어서 무시됐다 → 좁은 화면 블록은 **파일 끝**에 둘 것(App.css 에 주석으로 적어 둠).
+- 죽은 export 제거: `LUNAR_YEARS`, `todayHoliday`, `useTagColorIndex`, `normalizeTags`(내부 함수로).

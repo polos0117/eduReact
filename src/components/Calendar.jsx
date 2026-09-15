@@ -120,12 +120,15 @@ function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
                         <ul className="cal-day-list">
                             {dayTodos.map(todo => (
                                 <li key={todo.id} className={`todo-item priority-${priorityOf(todo)}${todo.completed ? ' completed' : ''}`}>
-                                    <DoneButton completed={todo.completed} label={todo.text}
-                                        onToggle={() => dispatch({ type: 'TOGGLE', id: todo.id, at: Date.now() })} />
-                                    <button type="button" className="todo-item-text" onClick={() => onOpenTodo(todo.id)} title="상세 보기">
-                                        {todo.text}
-                                        {todo.notes?.length > 0 && <span className="note-count">≡ {todo.notes.length}</span>}
-                                    </button>
+                                    <div className="todo-item-main">
+                                        <DoneButton completed={todo.completed} label={todo.text}
+                                            onToggle={() => dispatch({ type: 'TOGGLE', id: todo.id, at: Date.now() })} />
+                                        <button type="button" className="todo-item-text" onClick={() => onOpenTodo(todo.id)} title="상세 보기">
+                                            {todo.text}
+                                            {todo.notes?.length > 0 && <span className="note-count">≡ {todo.notes.length}</span>}
+                                        </button>
+                                    </div>
+                                    <div className="todo-item-meta">
                                     {todo.tags?.map(tag => (
                                         <a key={tag} className={`tag-chip ${tagClass(tag)}`} href={tagHref(tag)}
                                             title={`#${tag} 항목만 보기`}>#{tag}</a>
@@ -135,6 +138,7 @@ function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
                                         aria-label={`${todo.text} 우선순위`} title="우선순위">
                                         {PRIORITIES.map(p => <option key={p} value={p}>{PRIORITY_LABEL[p]}</option>)}
                                     </select>
+                                    </div>
                                 </li>
                             ))}
                         </ul>

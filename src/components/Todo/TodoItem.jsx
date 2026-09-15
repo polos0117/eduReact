@@ -15,29 +15,34 @@ function TodoItem({ todo, todayKey, selected, onSelect, onToggleTodo, onRemoveTo
 
     return (
         <li className={`todo-item priority-${priority}${todo.completed ? ' completed' : ''}${selected ? ' selected' : ''}`}>
-            <input type="checkbox" className="todo-item-checkbox" checked={selected}
-                onChange={() => onSelect(todo.id)} aria-label={`${todo.text} 선택`} title="선택" />
-            <DoneButton completed={todo.completed} label={todo.text} onToggle={() => onToggleTodo(todo.id)} />
-            <button type="button" className="todo-item-text" onClick={() => onOpenTodo(todo.id)} title="상세 보기">
-                {todo.text}
-                {noteCount > 0 && <span className="note-count" aria-label={`노트 ${noteCount}개`}>≡ {noteCount}</span>}
-                {sub.total > 0 && (
-                    <span className={`note-count sub-count${sub.done === sub.total ? ' all-done' : ''}`}
-                        aria-label={`하위 항목 ${sub.total}개 중 ${sub.done}개 완료`}>☑ {sub.done}/{sub.total}</span>
+            {/* 좁은 화면에서는 main 이 한 줄을 다 쓰고 meta 가 아래로 내려간다 */}
+            <div className="todo-item-main">
+                <input type="checkbox" className="todo-item-checkbox" checked={selected}
+                    onChange={() => onSelect(todo.id)} aria-label={`${todo.text} 선택`} title="선택" />
+                <DoneButton completed={todo.completed} label={todo.text} onToggle={() => onToggleTodo(todo.id)} />
+                <button type="button" className="todo-item-text" onClick={() => onOpenTodo(todo.id)} title="상세 보기">
+                    {todo.text}
+                    {noteCount > 0 && <span className="note-count" aria-label={`노트 ${noteCount}개`}>≡ {noteCount}</span>}
+                    {sub.total > 0 && (
+                        <span className={`note-count sub-count${sub.done === sub.total ? ' all-done' : ''}`}
+                            aria-label={`하위 항목 ${sub.total}개 중 ${sub.done}개 완료`}>☑ {sub.done}/{sub.total}</span>
+                    )}
+                </button>
+            </div>
+            <div className="todo-item-meta">
+                {todo.tags?.map(tag => (
+                    <a key={tag} className={`tag-chip ${tagClass(tag)}`} href={tagHref(tag)} title={`#${tag} 항목만 보기`}>#{tag}</a>
+                ))}
+                {todo.dueDate && (
+                    <span className={`due-chip${overdue ? ' overdue' : ''}`}
+                        title={overdue ? '마감 지남' : '마감일'}>{formatDay(todo.dueDate, todayKey)}</span>
                 )}
-            </button>
-            {todo.tags?.map(tag => (
-                <a key={tag} className={`tag-chip ${tagClass(tag)}`} href={tagHref(tag)} title={`#${tag} 항목만 보기`}>#{tag}</a>
-            ))}
-            {todo.dueDate && (
-                <span className={`due-chip${overdue ? ' overdue' : ''}`}
-                    title={overdue ? '마감 지남' : '마감일'}>{formatDay(todo.dueDate, todayKey)}</span>
-            )}
-            <select className={`priority-select priority-${priority}`} value={priority}
-                onChange={(e) => onSetPriority(todo.id, e.target.value)}
-                aria-label={`${todo.text} 우선순위`} title="우선순위">
-                {PRIORITIES.map(p => <option key={p} value={p}>{PRIORITY_LABEL[p]}</option>)}
-            </select>
+                <select className={`priority-select priority-${priority}`} value={priority}
+                    onChange={(e) => onSetPriority(todo.id, e.target.value)}
+                    aria-label={`${todo.text} 우선순위`} title="우선순위">
+                    {PRIORITIES.map(p => <option key={p} value={p}>{PRIORITY_LABEL[p]}</option>)}
+                </select>
+            </div>
             <div className="todo-item-actions">
                 <button type="button" className="todo-item-btn" onClick={() => onRemoveTodo(todo.id)}>삭제</button>
             </div>

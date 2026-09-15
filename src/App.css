@@ -11,12 +11,24 @@
   }
 }
 
+/* 좁아지면 버튼 줄이 아래로 내려간다. 예전엔 버튼 줄이 안 줄어들어
+   제목 칸을 0 에 가깝게 밀어 글자가 한 자씩 세로로 쌓였다 */
 .app-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 8px 16px;
+  flex-wrap: wrap;
   padding: 0 4px;
+}
+
+.brand {
+  min-width: 0; /* flex 자식 기본값(auto)이면 내용보다 작아지지 않는다 */
+}
+
+.brand h1,
+.subline {
+  word-break: keep-all; /* 한글은 어절 단위로 끊는다 */
 }
 
 .brand h1 {
@@ -36,13 +48,15 @@
 .header-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 4px;
-  flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 /* 조용한 텍스트 버튼 — 내보내기/가져오기/오늘 */
 .ghost-btn {
   padding: 6px 10px;
+  white-space: nowrap;
   border: none;
   border-radius: 8px;
   background: transparent;
@@ -166,6 +180,7 @@
     padding: 0 14px;
   }
 }
+
 
 /* ===== 입력 줄 ===== */
 .todo-form {
@@ -313,6 +328,23 @@
 .todo-item {
   gap: 12px;
   transition: background 0.15s;
+}
+
+/* 한 줄은 main(체크·완료·제목) + meta(태그·마감·우선순위) + actions 로 나뉜다.
+   좁은 화면에서 meta 가 통째로 다음 줄로 내려갈 수 있게 묶어 둔 것이다 */
+.todo-item-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.todo-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .todo-item:hover {
@@ -991,6 +1023,8 @@ button.todo-item-text:hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   padding: 14px 20px;
   border-bottom: 1px solid var(--line);
 }
@@ -998,6 +1032,7 @@ button.todo-item-text:hover {
 .cal-title {
   font-size: 16px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .cal-nav {
@@ -1870,5 +1905,38 @@ a.tag-chip:hover {
 
   option::checkmark {
     display: none;
+  }
+}
+
+/* ===== 좁은 화면: 할 일 줄 접기 =====
+   제목이 한 줄을 다 쓰고 태그·마감·우선순위는 그 아래로.
+   이 블록은 파일 끝에 있어야 한다 — 위쪽에 두면 뒤에 오는 .todo-item-* 기본 규칙에 진다 */
+@media (max-width: 560px) {
+  .todo-item {
+    flex-wrap: wrap;
+    row-gap: 6px;
+    padding-block: 8px;
+  }
+
+  /* shrink 를 0 으로 둬야 줄바꿈이 일어난다 — 1 이면 줄을 넘기는 대신 제 폭을 줄인다 */
+  .todo-item-main {
+    flex: 1 0 100%;
+  }
+
+  .todo-item-text {
+    padding: 0;
+  }
+
+  .todo-item-meta {
+    flex-wrap: wrap;
+    margin-left: 52px; /* 체크박스 18 + 간격 12 + 완료 22 — 제목 시작선에 맞춘다 */
+  }
+
+  .cal-day-list .todo-item-meta {
+    margin-left: 34px; /* 캘린더 줄에는 선택 체크박스가 없다 */
+  }
+
+  .todo-item-actions {
+    margin-left: auto;
   }
 }

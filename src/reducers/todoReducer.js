@@ -66,7 +66,7 @@ export function parseTags(raw) {
     return { text: text || raw.trim(), tags: normalizeTags(tags) };
 }
 
-export function normalizeTags(list) {
+function normalizeTags(list) {
     if (!Array.isArray(list)) return [];
     return [...new Set(list.filter(t => typeof t === 'string').map(t => t.trim().replace(/^#/, '')).filter(Boolean))];
 }
