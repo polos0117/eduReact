@@ -374,3 +374,26 @@
     transform: none;
   }
 }
+
+/* 드롭다운 목록 — 네오의 --sheet 는 반투명이라 목록 칸은 불투명한 면으로 */
+@supports (appearance: base-select) {
+  [data-skin="neo"] ::picker(select) {
+    border-color: rgba(130, 150, 255, 0.3);
+    background: #101628;
+    box-shadow: 0 20px 50px -16px rgba(0, 0, 0, 0.8), 0 0 24px rgba(77, 225, 255, 0.08);
+  }
+
+  /* 폴백용 option 배경이 칸마다 덩어리로 보이지 않게 */
+  [data-skin="neo"] option {
+    background: transparent;
+  }
+
+  [data-skin="neo"] option:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  [data-skin="neo"] option:checked {
+    background: rgba(77, 225, 255, 0.16);
+    color: var(--accent);
+  }
+}

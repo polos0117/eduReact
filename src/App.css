@@ -1773,3 +1773,75 @@ a.tag-chip:hover {
     transform: translate(-50%, 0);
   }
 }
+
+/* ===== 드롭다운 목록 칸 =====
+   네이티브 목록은 각진 사각형이라 앱의 둥근 결과 안 맞는다. 표준 기능(customizable select)으로
+   직접 그린다 — <select> 의 키보드 동작과 접근성은 그대로 두고 모양만 바꾼다.
+   이 기능이 없는 브라우저(현재 Firefox·Safari)에는 기본 목록이 그대로 나온다.
+   주의: 빌드의 CSS 최소화 도구가 아직 '::picker(select) option' 형태를 못 읽어서
+   option 은 그냥 option 으로 쓴다. 닫힌 버튼은 <selectedcontent> 라 영향받지 않는다. */
+@supports (appearance: base-select) {
+  select,
+  ::picker(select) {
+    appearance: base-select;
+  }
+
+  /* 위에서 appearance:none 으로 화살표를 지웠던 것들은 여기서도 계속 숨긴다 */
+  .todo-item .priority-select,
+  .header-select {
+    appearance: base-select;
+  }
+
+  .todo-item .priority-select::picker-icon,
+  .header-select::picker-icon {
+    display: none;
+  }
+
+  select::picker-icon {
+    color: var(--ink-3);
+    transition: transform 0.15s ease;
+  }
+
+  select:open::picker-icon {
+    transform: rotate(180deg);
+  }
+
+  ::picker(select) {
+    margin-block-start: 6px;
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--sheet);
+    box-shadow: 0 18px 44px -14px rgba(0, 0, 0, 0.3);
+  }
+
+  option {
+    display: flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ink);
+    font-size: 13px;
+  }
+
+  option:hover {
+    background: var(--sheet-2);
+  }
+
+  /* 지금 값은 배경으로만 알린다 (기본 체크 표시는 뺀다) */
+  option:checked {
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  option:disabled {
+    color: var(--ink-3);
+  }
+
+  option::checkmark {
+    display: none;
+  }
+}

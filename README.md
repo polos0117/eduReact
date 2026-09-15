@@ -47,6 +47,8 @@
 
 차트는 라이브러리 없이 SVG로 그립니다. 의존성은 `react`, `react-dom` 둘뿐입니다.
 
+드롭다운 목록 칸도 앱 색과 둥근 모서리에 맞춰 직접 그립니다 — 표준 기능(customizable select, `appearance: base-select`)이라 `<select>`의 키보드 동작과 접근성은 그대로입니다. 이 기능이 없는 브라우저(현재 Firefox·Safari)에서는 브라우저 기본 목록이 나옵니다.
+
 ## 실행
 
 Node 20 이상이 필요합니다. 프로젝트에 `.node-version`이 있어서 [fnm](https://github.com/Schniz/fnm)이나 nvm이 자동으로 버전을 맞춥니다.
