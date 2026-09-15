@@ -1,10 +1,13 @@
 const FILTERS = [['all', '전체'], ['active', '진행중'], ['completed', '완료']];
 
-function TodoFilter({ currentFilter, onFilterChange, search, setSearch, allDone, onToggleAll, hasTodos }) {
+function TodoFilter({ currentFilter, onFilterChange, search, setSearch, allSelected, someSelected, onToggleSelectAll, hasVisible }) {
     return (
         <div className="todo-filter">
-            <input type="checkbox" className="todo-item-checkbox toggle-all" checked={allDone}
-                onChange={onToggleAll} disabled={!hasTodos} aria-label="전체 완료 / 해제" title="전체 완료 / 해제" />
+            {/* 보이는 항목 전체 선택. 일부만 골랐으면 중간 상태로 */}
+            <input type="checkbox" className="todo-item-checkbox toggle-all" checked={allSelected}
+                ref={(el) => { if (el) el.indeterminate = someSelected; }}
+                onChange={onToggleSelectAll} disabled={!hasVisible}
+                aria-label="보이는 항목 전체 선택" title="보이는 항목 전체 선택" />
             <div className="filter-tabs" role="group" aria-label="보기">
                 {FILTERS.map(([key, label]) => (
                     <button key={key} type="button" aria-pressed={currentFilter === key}

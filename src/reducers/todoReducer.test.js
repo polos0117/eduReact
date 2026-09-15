@@ -49,16 +49,6 @@ import {todoReducer, sortByPriority, normalizeTodo, parseTags, subtaskProgress} 
         expect(result).toBe(state);
     });
 
-    test('TOGGLE_ALL은 하나라도 미완료면 전부 완료로 만든다', () => {
-        const state = [{ id: 1, text: 'a', completed: true }, { id: 2, text: 'b', completed: false }];
-        const result = todoReducer(state, { type: 'TOGGLE_ALL' });
-        expect(result.every(todo => todo.completed)).toBe(true);
-    });
-    test('TOGGLE_ALL은 전부 완료면 전부 해제한다', () => {
-        const state = [{ id: 1, text: 'a', completed: true }, { id: 2, text: 'b', completed: true }];
-        const result = todoReducer(state, { type: 'TOGGLE_ALL' });
-        expect(result.every(todo => !todo.completed)).toBe(true);
-    });
     test('RESTORE는 지정한 index에 todo를 되돌려 넣는다', () => {
         const state = [{ id: 1, text: 'a' }, { id: 3, text: 'c' }];
         const result = todoReducer(state, { type: 'RESTORE', todo: { id: 2, text: 'b' }, index: 1 });
@@ -169,4 +159,27 @@ import {todoReducer, sortByPriority, normalizeTodo, parseTags, subtaskProgress} 
             { id: 4, priority: 'low', completed: true },
         ];
         expect(sortByPriority(state).map(t => t.id)).toEqual([1, 3, 2, 4]);
+    });
+
+    test('SET_COMPLETED_MANY는 고른 것만 그 상태로 맞추고 completedAt을 관리한다', () => {
+        const state = [{ id: 1, text: 'a' }, { id: 2, text: 'b' }, { id: 3, text: 'c', completed: true, completedAt: 5 }];
+        const done = todoReducer(state, { type: 'SET_COMPLETED_MANY', ids: [1, 3], completed: true, at: 99 });
+        expect(done[0]).toMatchObject({ completed: true, completedAt: 99 });
+        expect(done[1].completed).toBeUndefined();          // 안 고른 것은 그대로
+        expect(done[2].completedAt).toBe(5);                 // 이미 완료면 시각 유지
+        const undone = todoReducer(done, { type: 'SET_COMPLETED_MANY', ids: [1], completed: false, at: 100 });
+        expect(undone[0]).toMatchObject({ completed: false, completedAt: undefined });
+    });
+    test('SET_PRIORITY_MANY는 고른 것들의 우선순위만 바꾼다', () => {
+        const state = [{ id: 1, priority: 'normal' }, { id: 2, priority: 'low' }];
+        const result = todoReducer(state, { type: 'SET_PRIORITY_MANY', ids: [2], priority: 'high' });
+        expect(result.map(t => t.priority)).toEqual(['normal', 'high']);
+    });
+    test('REMOVE_MANY / RESTORE_MANY는 여러 건을 지우고 원래 자리로 되돌린다', () => {
+        const state = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }];
+        const removed = todoReducer(state, { type: 'REMOVE_MANY', ids: [2, 4] });
+        expect(removed.map(t => t.id)).toEqual([1, 3]);
+        // 일부러 index 역순으로 넘겨도 제자리를 찾아야 한다
+        const back = todoReducer(removed, { type: 'RESTORE_MANY', entries: [{ todo: { id: 4 }, index: 3 }, { todo: { id: 2 }, index: 1 }] });
+        expect(back.map(t => t.id)).toEqual([1, 2, 3, 4]);
     });

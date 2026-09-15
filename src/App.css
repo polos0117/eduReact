@@ -60,7 +60,6 @@
   opacity: 0.4;
 }
 
-.theme-btn,
 .icon-btn {
   width: 34px;
   height: 34px;
@@ -73,32 +72,25 @@
   transition: border-color 0.15s, color 0.15s;
 }
 
-.theme-btn:hover,
 .icon-btn:hover {
   border-color: var(--line-2);
   color: var(--ink);
 }
 
-.theme-btn {
-  margin-left: 6px;
-}
-
-/* 스킨 토글 — 알약 모양, 클래식에서는 조용하게 */
-.skin-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+/* 머리글의 스킨·테마 고르기 — 목록에서 직접 선택 */
+.header-select {
   height: 30px;
-  padding: 0 10px 0 8px;
+  padding: 0 6px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--sheet);
   color: var(--ink-2);
   font-size: 13px;
+  cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
 
-.skin-btn:hover {
+.header-select:hover {
   border-color: var(--line-2);
   color: var(--ink);
 }
@@ -358,9 +350,127 @@
   transform: rotate(40deg);
 }
 
+/* 일부만 고른 상태 — 가로줄 */
+.todo-item-checkbox:indeterminate {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.todo-item-checkbox:indeterminate::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  top: 6.5px;
+  height: 2px;
+  border: none;
+  background: var(--accent-ink);
+  transform: none;
+}
+
 .todo-item-checkbox:disabled {
   opacity: 0.35;
   cursor: default;
+}
+
+/* 완료 처리 — 동그란 ✓. 네모 체크박스(선택)와 모양으로 구분한다 */
+.done-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1.5px solid var(--line-2);
+  border-radius: 50%;
+  background: transparent;
+  color: transparent;
+  font-size: 12px;
+  line-height: 1;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.done-btn:hover {
+  border-color: var(--accent);
+  color: var(--ink-3);
+}
+
+.done-btn.is-done {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* 선택된 줄 */
+.todo-item.selected {
+  background: var(--accent-soft);
+}
+
+/* ===== 선택 항목 일괄 작업 막대 ===== */
+.bulk-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  flex-wrap: wrap;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--accent-soft);
+  font-size: 13px;
+}
+
+@media (max-width: 640px) {
+  .bulk-bar {
+    padding-inline: 14px;
+  }
+}
+
+.bulk-count {
+  font-weight: 600;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bulk-btn {
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--sheet);
+  color: var(--ink);
+  font-size: 13px;
+  transition: border-color 0.15s, color 0.15s, filter 0.15s;
+}
+
+.bulk-btn:hover {
+  border-color: var(--line-2);
+}
+
+.bulk-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.bulk-btn.primary:hover {
+  filter: brightness(1.08);
+}
+
+.bulk-btn.danger:hover {
+  border-color: var(--high);
+  color: var(--high);
+}
+
+.bulk-select {
+  display: inline-flex;
 }
 
 /* 제목은 버튼 — 누르면 상세. 글자처럼 보이게 */
@@ -428,35 +538,22 @@ button.todo-item-text:hover {
   font-weight: 400;
 }
 
-/* 우선순위 칩 — 누르면 순환. 높음만 눈에 띄게 */
-.priority-btn {
+/* 줄 안의 우선순위 선택은 조용하게 — 값이 "높음"일 때만 눈에 띈다(.priority-select.priority-high) */
+.todo-item .priority-select {
   flex-shrink: 0;
-  padding: 2px 8px;
-  border: 1px solid transparent;
-  border-radius: 999px;
+  height: 26px;
+  border-color: transparent;
   background: transparent;
-  color: var(--ink-3);
-  font-size: 12px;
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
-.priority-btn.as-text {
-  cursor: default;
-}
-
-button.priority-btn:hover {
-  color: var(--ink);
+.todo-item .priority-select:hover {
   border-color: var(--line);
+  background: var(--sheet);
 }
 
-.todo-item.priority-high .priority-btn {
-  color: var(--high);
-  background: var(--high-soft);
-  font-weight: 600;
-}
-
-.todo-item.completed .priority-btn {
+.todo-item.completed .priority-select {
   color: var(--ink-3);
+  border-color: transparent;
   background: transparent;
   font-weight: 400;
 }

@@ -63,3 +63,12 @@ Building a Todo List app in `c:\eduReact` (Vite + React 19 + JS) as a React lear
 **헤드리스 캡처 함정 2개 (다음에 시간 낭비 말 것):** ① `public/`에 프로브·시드 HTML을 만들면 **Vite가 전체 새로고침**을 걸어 React 상태(열린 다이얼로그 등)가 지워진다 → 파일 만든 뒤 `sleep 4` 하고 실행할 것. ② 그래도 `<dialog>.showModal()`은 iframe 안에서 `--screenshot`에 안 잡힌다(top layer). 다이얼로그는 스크린샷 대신 `--dump-dom` 으로 검증할 것.
 
 **2026-09-15 밤 6:** 캘린더 하단 선택일 목록에도 태그 칩 표시(`tagHref` + `useTagClass`, 목록 화면과 동일한 칩). 테스트 38개 유지.
+
+**2026-09-15 밤 7: 체크박스 의미 분리 + 일괄 작업 + 순환→드롭다운.**
+- 네모 체크박스 = **선택**(화면 상태, 저장 안 함), 동그란 ✓ `DoneButton` = 완료. 캘린더 날짜 목록·상세 화면의 완료 체크박스도 전부 `DoneButton` 으로 교체 — 체크박스가 완료를 뜻하는 곳을 없앴다.
+- `BulkBar.jsx`: 완료 처리/취소 · 우선순위 일괄 · 삭제(되돌리기) · 선택 해제. 리듀서 `SET_COMPLETED_MANY`(토글 아닌 지정) · `SET_PRIORITY_MANY` · `REMOVE_MANY` · `RESTORE_MANY`(index 오름차순 삽입). `TOGGLE_ALL` 은 "전체 선택 + 일괄 완료"로 대체되어 제거.
+- 필터 줄 체크박스 = 보이는 항목 전체 선택, 일부만 고르면 `indeterminate`(ref 로 설정).
+- 클릭 순환 UI를 전부 드롭다운으로: 항목 우선순위(목록·캘린더), 머리글 테마·스킨(`useTheme` 이 `[value, setValue]` 반환, `THEMES`/`SKINS` export). `.priority-btn`·`.skin-btn`·`.theme-btn` CSS 삭제.
+- 테스트 39개.
+
+**oxlint react(purity) 함정:** 컴포넌트 본문 함수 안의 `Date.now()` 는 그 함수가 **props 로 직접 전달될 때만** 핸들러로 인정된다. `onX={() => fn(true)}` 처럼 화살표로 감싸면 "렌더 중 호출"로 오탐한다 → JSX 안에 인라인 화살표로 dispatch 하면 깨끗해진다.

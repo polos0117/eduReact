@@ -96,16 +96,30 @@ export function todoReducer(state, action) {
                 ? { ...todo, completed: !todo.completed, completedAt: todo.completed ? undefined : action.at }
                 : todo
         );
-        // 하나라도 안 끝났으면 전부 완료, 전부 끝났으면 전부 해제
-        case 'TOGGLE_ALL': {
-            const completed = state.some(todo => !todo.completed);
-            return state.map(todo => ({
-                ...todo,
-                completed,
-                completedAt: completed ? (todo.completedAt ?? action.at) : undefined,
-            }));
+        // 일괄: 고른 것들을 한 상태로 맞춘다 (토글이 아니라 지정 — 결과가 예측 가능하다)
+        case 'SET_COMPLETED_MANY': {
+            const ids = new Set(action.ids);
+            return state.map(todo => ids.has(todo.id)
+                ? { ...todo, completed: action.completed, completedAt: action.completed ? (todo.completedAt ?? action.at) : undefined }
+                : todo);
+        }
+        case 'SET_PRIORITY_MANY': {
+            const ids = new Set(action.ids);
+            return state.map(todo => ids.has(todo.id) ? { ...todo, priority: action.priority } : todo);
         }
         case 'REMOVE': return state.filter(todo => todo.id !== action.id);
+        case 'REMOVE_MANY': {
+            const ids = new Set(action.ids);
+            return state.filter(todo => !ids.has(todo.id));
+        }
+        // 일괄 삭제 취소: 작은 index 부터 끼워 넣어야 뒤 index 가 밀리지 않는다
+        case 'RESTORE_MANY': {
+            const next = [...state];
+            for (const { todo, index } of [...action.entries].sort((a, b) => a.index - b.index)) {
+                next.splice(index, 0, todo);
+            }
+            return next;
+        }
         // 삭제 취소: 원래 있던 자리(index)에 되돌려 넣기
         case 'RESTORE': {
             const next = [...state];

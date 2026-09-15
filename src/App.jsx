@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { todoReducer, normalizeTodo } from './reducers/todoReducer';
 import { usePersistedReducer } from './hooks/usePersistedReducer';
-import { useTheme, useSkin } from './hooks/useTheme';
+import { useTheme, useSkin, THEMES, SKINS } from './hooks/useTheme';
 import { useNow } from './hooks/useNow';
 import { useLocalState } from './hooks/useLocalState';
 import { TagColorProvider } from './hooks/useTagColors';
@@ -15,9 +15,6 @@ import './App.css';
 import './skin-neo.css';
 
 const TABS = [['todos', '할 일'], ['dashboard', '대시보드'], ['calendar', '캘린더']];
-const THEME_LABEL = { system: '시스템', light: '라이트', dark: '다크' };
-const THEME_ICON = { system: '◐', light: '☀', dark: '☾' };
-const SKIN_LABEL = { classic: '클래식', neo: '네오' };
 const DATE_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' });
 
 // localStorage에서 읽은 값은 믿지 않는다 — 가져오기와 같은 검증을 거친다
@@ -47,8 +44,8 @@ function useHash() {
 function App() {
     const [todos, dispatch] = usePersistedReducer(todoReducer, 'todos', [], sanitizeTodos);
     const today = DATE_FORMAT.format(useNow());
-    const [theme, cycleTheme] = useTheme();
-    const [skin, cycleSkin] = useSkin();
+    const [theme, setTheme] = useTheme();
+    const [skin, setSkin] = useSkin();
     const { tab, params, hash } = useHash();
     const [toast, setToast] = useState(null); // { text, actionLabel?, onAction? }
     const [detailId, setDetailId] = useState(null); // 상세 화면에 열린 todo
@@ -75,6 +72,19 @@ function App() {
             text: `“${todo.text}” 삭제됨`,
             actionLabel: '되돌리기',
             onAction: () => dispatch({ type: 'RESTORE', todo, index }),
+        });
+    }
+
+    function removeManyTodos(ids) {
+        const entries = ids
+            .map(id => ({ todo: todos.find(t => t.id === id), index: todos.findIndex(t => t.id === id) }))
+            .filter(e => e.todo);
+        if (entries.length === 0) return;
+        dispatch({ type: 'REMOVE_MANY', ids });
+        setToast({
+            text: `${entries.length}개 삭제됨`,
+            actionLabel: '되돌리기',
+            onAction: () => dispatch({ type: 'RESTORE_MANY', entries }),
         });
     }
 
@@ -121,16 +131,14 @@ function App() {
                         <input ref={fileRef} type="file" accept="application/json,.json" hidden
                             onChange={(e) => { const f = e.target.files[0]; if (f) importJson(f); e.target.value = ''; }} />
                         <button type="button" className="ghost-btn" onClick={() => setSettingsOpen(true)}>설정</button>
-                        <button type="button" className="skin-btn" onClick={cycleSkin}
-                            title={`스킨: ${SKIN_LABEL[skin]} (눌러서 바꾸기)`}
-                            aria-label={`스킨: ${SKIN_LABEL[skin]}, 눌러서 바꾸기`}>
-                            <span aria-hidden="true">◈</span> {SKIN_LABEL[skin]}
-                        </button>
-                        <button type="button" className="theme-btn" onClick={cycleTheme}
-                            title={`테마: ${THEME_LABEL[theme]} (눌러서 바꾸기)`}
-                            aria-label={`테마: ${THEME_LABEL[theme]}, 눌러서 바꾸기`}>
-                            <span aria-hidden="true">{THEME_ICON[theme]}</span>
-                        </button>
+                        <select className="header-select skin-select" value={skin} onChange={(e) => setSkin(e.target.value)}
+                            aria-label="스킨" title="스킨">
+                            {SKINS.map(([key, label]) => <option key={key} value={key}>◈ {label}</option>)}
+                        </select>
+                        <select className="header-select theme-select" value={theme} onChange={(e) => setTheme(e.target.value)}
+                            aria-label="테마" title="테마">
+                            {THEMES.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+                        </select>
                     </div>
                 </header>
 
@@ -144,7 +152,7 @@ function App() {
                 <main className="sheet">
                     {/* key=hash: 조건이 바뀌면 목록 페이지를 새로 그려 필터 상태를 해시에서 다시 읽는다 */}
                     {tab === 'todos' && <TodoPage key={hash} todos={todos} dispatch={dispatch} params={params}
-                        onRemoveTodo={removeTodo} onOpenTodo={setDetailId} />}
+                        onRemoveTodo={removeTodo} onRemoveMany={removeManyTodos} onOpenTodo={setDetailId} />}
                     {tab === 'dashboard' && <Dashboard todos={todos} params={params} colorBy={colorBy} onColorByChange={setColorBy} />}
                     {tab === 'calendar' && <Calendar todos={todos} dispatch={dispatch} onOpenTodo={setDetailId}
                         colorBy={colorBy} onColorByChange={setColorBy} />}

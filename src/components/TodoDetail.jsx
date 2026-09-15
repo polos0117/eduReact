@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { PRIORITIES, PRIORITY_LABEL, priorityOf, NOTE_CATEGORIES, NOTE_LABEL, subtaskProgress } from '../reducers/todoReducer';
 import { linkify, revUrl } from '../lib/linkify';
 import { useTagClass } from '../hooks/useTagColors';
+import DoneButton from './Todo/DoneButton';
 
 // 클립보드 복사 버튼. 결과를 1.5초간 보여준다. (clipboard API는 https/localhost에서만 동작)
 function CopyButton({ text }) {
@@ -141,8 +142,8 @@ function TodoDetail({ todo, dispatch, revTemplate, onClose }) {
             aria-labelledby="detail-title">
             <div className="detail-body">
                 <header className="detail-head">
-                    <input type="checkbox" className="todo-item-checkbox" checked={todo.completed}
-                        onChange={() => dispatch({ type: 'TOGGLE', id: todo.id, at: Date.now() })} aria-label="완료" />
+                    <DoneButton completed={todo.completed} label={todo.text}
+                        onToggle={() => dispatch({ type: 'TOGGLE', id: todo.id, at: Date.now() })} />
                     <input id="detail-title" className="detail-title" value={title} aria-label="제목"
                         onChange={(e) => setTitle(e.target.value)} onBlur={saveTitle}
                         onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }} />

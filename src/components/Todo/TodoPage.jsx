@@ -6,17 +6,20 @@ import TodoList from "./TodoList";
 import TodoForm from "./TodoForm";
 import TodoFooter from "./TodoFooter";
 import TodoFilter from "./TodoFilter";
+import BulkBar from "./BulkBar";
 
 const DAY_MS = 24 * 3600 * 1000;
 
 // "할 일" 탭. 상태는 App이 갖고, 여기서는 액션을 만들어 dispatch만 한다.
-// params: 해시의 추가 조건 (대시보드·캘린더에서 넘어올 때) — filter / due / priority / done
-function TodoPage({ todos, dispatch, params, onRemoveTodo, onOpenTodo }) {
+// params: 해시의 추가 조건 (대시보드·캘린더에서 넘어올 때) — filter / due / priority / done / tag
+function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onOpenTodo }) {
     const [filter, setFilter] = useState(() => {
         const f = params.get('filter');
         return f === 'active' || f === 'completed' ? f : 'all';
     });
     const [search, setSearch] = useState('');
+    // 선택은 화면에만 있는 상태다 — 저장하지 않고, 조건이 바뀌면(App이 key로 재마운트) 비워진다
+    const [selectedIds, setSelectedIds] = useState(() => new Set());
     const now = useNow();
     const todayKey = dayKey(now); // 마감 지남 판정 기준
 
@@ -26,9 +29,6 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onOpenTodo }) {
     }
     function toggleTodo(id) {
         dispatch({ type: 'TOGGLE', id, at: Date.now() });
-    }
-    function toggleAll() {
-        dispatch({ type: 'TOGGLE_ALL', at: Date.now() });
     }
     function clearCompletedTodos() {
         dispatch({ type: 'CLEAR_COMPLETED' });
@@ -73,14 +73,46 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onOpenTodo }) {
         return true;
     }).filter(matchesScope).filter(matchesSearch));
 
+    // 화면에서 사라진 항목은 선택에서도 빼고 센다 (지웠거나 조건에서 빠졌을 때)
+    const visibleIds = visibleTodos.map(todo => todo.id);
+    const selected = visibleIds.filter(id => selectedIds.has(id));
+    const allSelected = visibleIds.length > 0 && selected.length === visibleIds.length;
+
+    function toggleSelect(id) {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id); else next.add(id);
+            return next;
+        });
+    }
+    function toggleSelectAll() {
+        setSelectedIds(allSelected ? new Set() : new Set(visibleIds));
+    }
+    const clearSelection = () => setSelectedIds(new Set());
+
+    function bulkPriority(value) {
+        dispatch({ type: 'SET_PRIORITY_MANY', ids: selected, priority: value });
+    }
+    function bulkRemove() {
+        onRemoveMany(selected);
+        clearSelection();
+    }
+
     const doneCount = todos.filter(todo => todo.completed).length;
-    const leftCount = todos.length - doneCount;
+    const selectedAllDone = selected.length > 0 && selected.every(id => todos.find(todo => todo.id === id)?.completed);
 
     return (
         <>
             <TodoForm onAddTodo={addTodo} />
             <TodoFilter currentFilter={filter} onFilterChange={setFilter} search={search} setSearch={setSearch}
-                allDone={todos.length > 0 && leftCount === 0} onToggleAll={toggleAll} hasTodos={todos.length > 0} />
+                allSelected={allSelected} someSelected={selected.length > 0 && !allSelected}
+                onToggleSelectAll={toggleSelectAll} hasVisible={visibleIds.length > 0} />
+            {selected.length > 0 && (
+                <BulkBar count={selected.length} allDone={selectedAllDone}
+                    onSetCompleted={(completed) => dispatch({ type: 'SET_COMPLETED_MANY', ids: selected, completed, at: Date.now() })}
+                    onSetPriority={bulkPriority}
+                    onRemove={bulkRemove} onClear={clearSelection} />
+            )}
             {scope.length > 0 && (
                 <div className="todo-scope" role="status">
                     {scope.map(label => <span key={label} className="scope-chip">{label}</span>)}
@@ -89,6 +121,7 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onOpenTodo }) {
                 </div>
             )}
             <TodoList todos={visibleTodos} total={todos.length} todayKey={todayKey}
+                selectedIds={selectedIds} onSelect={toggleSelect}
                 onToggleTodo={toggleTodo} onRemoveTodo={onRemoveTodo} onSetPriority={setPriority} onOpenTodo={onOpenTodo} />
             <TodoFooter total={todos.length} done={doneCount} onClearCompleted={clearCompletedTodos} />
         </>

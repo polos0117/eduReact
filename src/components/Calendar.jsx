@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { PRIORITY_LABEL, priorityOf, sortByPriority } from '../reducers/todoReducer';
+import { PRIORITIES, PRIORITY_LABEL, priorityOf, sortByPriority } from '../reducers/todoReducer';
 import { dayKey, monthCells } from '../lib/stats';
 import { useNow } from '../hooks/useNow';
 import { tagHref } from '../lib/tags';
 import { useTagClass } from '../hooks/useTagColors';
 import ColorByToggle from './ColorByToggle';
 import TodoForm from './Todo/TodoForm';
+import DoneButton from './Todo/DoneButton';
 
 const DOW = ['일', '월', '화', '수', '목', '금', '토'];
 const MAX_CHIPS = 2;
@@ -113,9 +114,8 @@ function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
                         <ul className="cal-day-list">
                             {dayTodos.map(todo => (
                                 <li key={todo.id} className={`todo-item priority-${priorityOf(todo)}${todo.completed ? ' completed' : ''}`}>
-                                    <input type="checkbox" className="todo-item-checkbox" checked={todo.completed}
-                                        onChange={() => dispatch({ type: 'TOGGLE', id: todo.id, at: Date.now() })}
-                                        aria-label={`${todo.text} 완료`} />
+                                    <DoneButton completed={todo.completed} label={todo.text}
+                                        onToggle={() => dispatch({ type: 'TOGGLE', id: todo.id, at: Date.now() })} />
                                     <button type="button" className="todo-item-text" onClick={() => onOpenTodo(todo.id)} title="상세 보기">
                                         {todo.text}
                                         {todo.notes?.length > 0 && <span className="note-count">≡ {todo.notes.length}</span>}
@@ -124,7 +124,11 @@ function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
                                         <a key={tag} className={`tag-chip ${tagClass(tag)}`} href={tagHref(tag)}
                                             title={`#${tag} 항목만 보기`}>#{tag}</a>
                                     ))}
-                                    <span className="priority-btn as-text">{PRIORITY_LABEL[priorityOf(todo)]}</span>
+                                    <select className={`priority-select priority-${priorityOf(todo)}`} value={priorityOf(todo)}
+                                        onChange={(e) => dispatch({ type: 'SET_PRIORITY', id: todo.id, priority: e.target.value })}
+                                        aria-label={`${todo.text} 우선순위`} title="우선순위">
+                                        {PRIORITIES.map(p => <option key={p} value={p}>{PRIORITY_LABEL[p]}</option>)}
+                                    </select>
                                 </li>
                             ))}
                         </ul>
