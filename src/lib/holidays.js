@@ -108,3 +108,12 @@ export function holidaysForRange(startKey, endKey) {
     }
     return map;
 }
+
+// 날짜 하나가 공휴일인지. 공휴일은 변하지 않으니 연도별로 한 번만 만들어 둔다.
+const cache = new Map();
+export function holidayOn(dateKey) {
+    if (!dateKey) return undefined;
+    const year = Number(dateKey.slice(0, 4));
+    if (!cache.has(year)) cache.set(year, holidaysFor(year));
+    return cache.get(year).get(dateKey);
+}

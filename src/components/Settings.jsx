@@ -27,9 +27,11 @@ function TagColorRow({ tag, picked, onPick }) {
 // 설정 — 커밋 번호 링크 형식, 태그 색. 값은 localStorage(useLocalState)에 있다.
 function Settings({ revTemplate, onChangeRevTemplate, allTags, tagColors, onChangeTagColors, onClose }) {
     const ref = useRef(null);
+    // StrictMode 는 효과를 두 번 돌린다(정리 → 재실행). 정리의 close() 도 close 이벤트를 내므로
+    // <dialog onClose> 를 쓰면 스스로 닫혀 버린다. 사용자가 닫는 경로(Esc)는 cancel 로 받는다.
     useEffect(() => {
         const dialog = ref.current;
-        dialog.showModal();
+        if (!dialog.open) dialog.showModal();
         return () => dialog.close();
     }, []);
 
@@ -41,7 +43,7 @@ function Settings({ revTemplate, onChangeRevTemplate, allTags, tagColors, onChan
     }
 
     return (
-        <dialog ref={ref} className="detail settings" onClose={onClose}
+        <dialog ref={ref} className="detail settings" onCancel={onClose}
             onClick={(e) => { if (e.target === e.currentTarget) onClose(); }} aria-labelledby="settings-title">
             <div className="detail-body">
                 <header className="detail-head">

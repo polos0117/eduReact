@@ -578,6 +578,17 @@ button.todo-item-text:hover {
   font-weight: 600;
 }
 
+/* 마감일이 공휴일 — 색은 '지남'이 이미 쓰고 있으니 점선 밑줄로 알린다 (이름은 툴팁에) */
+.due-chip.on-holiday {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.due-holiday {
+  color: var(--high);
+  font-size: 12px;
+}
+
 .todo-item.completed .due-chip {
   color: var(--ink-3);
   font-weight: 400;

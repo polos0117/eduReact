@@ -1,7 +1,8 @@
 {
-  "name": "edureact",
+  "name": "todo-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "오늘의 할 일을 적고, 지우고, 한눈에 보는 작은 앱",
   "type": "module",
   "scripts": {
     "dev": "vite",

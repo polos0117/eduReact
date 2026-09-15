@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { PRIORITIES, PRIORITY_LABEL, priorityOf, NOTE_CATEGORIES, NOTE_LABEL, subtaskProgress } from '../reducers/todoReducer';
 import { linkify, revUrl } from '../lib/linkify';
+import { holidayOn } from '../lib/holidays';
 import { useTagClass } from '../hooks/useTagColors';
 import DoneButton from './Todo/DoneButton';
 
@@ -107,9 +108,11 @@ function TodoDetail({ todo, dispatch, revTemplate, onClose }) {
     const [draft, setDraft] = useState({ category: 'backend', text: '' });
     const [subDraft, setSubDraft] = useState('');
 
+    // StrictMode 는 효과를 두 번 돌린다(정리 → 재실행). 정리의 close() 도 close 이벤트를 내므로
+    // <dialog onClose> 를 쓰면 스스로 닫혀 버린다. 사용자가 닫는 경로(Esc)는 cancel 로 받는다.
     useEffect(() => {
         const dialog = ref.current;
-        dialog.showModal();
+        if (!dialog.open) dialog.showModal();
         return () => dialog.close();
     }, []);
 
@@ -137,7 +140,7 @@ function TodoDetail({ todo, dispatch, revTemplate, onClose }) {
     const tags = todo.tags ?? [];
 
     return (
-        <dialog ref={ref} className="detail" onClose={onClose}
+        <dialog ref={ref} className="detail" onCancel={onClose}
             onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
             aria-labelledby="detail-title">
             <div className="detail-body">
@@ -160,6 +163,7 @@ function TodoDetail({ todo, dispatch, revTemplate, onClose }) {
                     <label>마감일
                         <input type="date" className="due-input" value={todo.dueDate ?? ''}
                             onChange={(e) => dispatch({ type: 'SET_DUE', id: todo.id, dueDate: e.target.value })} />
+                        {holidayOn(todo.dueDate) && <span className="due-holiday">{holidayOn(todo.dueDate)} (공휴일)</span>}
                     </label>
                     <span className="detail-tags">태그
                         <TagEditor tags={tags} onChange={(next) => dispatch({ type: 'SET_TAGS', id: todo.id, tags: next })} />

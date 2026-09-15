@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { holidaysFor, holidaysForRange } from './holidays';
+import { holidaysFor, holidaysForRange, holidayOn } from './holidays';
 
 // 실제 공표된 공휴일과 맞는지 — 대체공휴일까지 포함해 연도별로 대조한다.
 const expected = {
@@ -90,4 +90,11 @@ test('holidaysForRange는 해를 넘겨도 모은다', () => {
     const h = holidaysForRange('2026-12-01', '2027-01-31');
     expect(h.get('2026-12-25')).toBe('성탄절');
     expect(h.get('2027-01-01')).toBe('신정');
+});
+
+test('holidayOn은 그 날의 공휴일 이름을 주고, 아니면 undefined', () => {
+    expect(holidayOn('2026-09-25')).toBe('추석');
+    expect(holidayOn('2026-10-05')).toBe('개천절 대체공휴일');
+    expect(holidayOn('2026-09-23')).toBeUndefined();
+    expect(holidayOn(undefined)).toBeUndefined();
 });

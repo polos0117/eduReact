@@ -1,5 +1,6 @@
 import { PRIORITIES, PRIORITY_LABEL, priorityOf, subtaskProgress } from '../../reducers/todoReducer';
 import { formatDay } from '../../lib/stats';
+import { holidayOn } from '../../lib/holidays';
 import { tagHref } from '../../lib/tags';
 import { useTagClass } from '../../hooks/useTagColors';
 import DoneButton from './DoneButton';
@@ -10,6 +11,7 @@ function TodoItem({ todo, todayKey, selected, onSelect, onToggleTodo, onRemoveTo
     const tagClass = useTagClass();
     const priority = priorityOf(todo);
     const overdue = todo.dueDate && !todo.completed && todo.dueDate < todayKey;
+    const dueHoliday = holidayOn(todo.dueDate);
     const noteCount = todo.notes?.length ?? 0;
     const sub = subtaskProgress(todo);
 
@@ -34,8 +36,9 @@ function TodoItem({ todo, todayKey, selected, onSelect, onToggleTodo, onRemoveTo
                     <a key={tag} className={`tag-chip ${tagClass(tag)}`} href={tagHref(tag)} title={`#${tag} 항목만 보기`}>#{tag}</a>
                 ))}
                 {todo.dueDate && (
-                    <span className={`due-chip${overdue ? ' overdue' : ''}`}
-                        title={overdue ? '마감 지남' : '마감일'}>{formatDay(todo.dueDate, todayKey)}</span>
+                    <span className={`due-chip${overdue ? ' overdue' : ''}${dueHoliday ? ' on-holiday' : ''}`}
+                        title={`${overdue ? '마감 지남' : '마감일'}${dueHoliday ? ` · ${dueHoliday} (공휴일)` : ''}`}>
+                        {formatDay(todo.dueDate, todayKey)}</span>
                 )}
                 <select className={`priority-select priority-${priority}`} value={priority}
                     onChange={(e) => onSetPriority(todo.id, e.target.value)}
