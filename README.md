@@ -53,7 +53,8 @@ npm run lint    # oxlint
 ## 배포
 
 `main`에 푸시하면 [deploy.yml](.github/workflows/deploy.yml)이 테스트 → 빌드 → GitHub Pages 배포를 합니다.
-공개 주소: https://polos0117.github.io/eduReact/ (첫 실행 때 Pages를 자동으로 켭니다. 안 되면 저장소 Settings → Pages → Source를 "GitHub Actions"로.)
+공개 주소: https://polos0117.github.io/eduReact/
+처음 한 번은 저장소 **Settings → Pages → Build and deployment → Source**를 "GitHub Actions"로 바꿔야 합니다 (워크플로 토큰은 Pages를 만들 권한이 없음).
 빌드 시 `BASE_PATH=/eduReact/`를 주므로 로컬 개발 주소는 그대로 `/`입니다.
 
 ## 구조
