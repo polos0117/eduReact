@@ -1,6 +1,7 @@
 import { PRIORITIES, PRIORITY_LABEL } from '../reducers/todoReducer';
 import { completedPerDay, countByPriority, dueBuckets, formatDay, dayKey, DUE_BUCKETS } from '../lib/stats';
 import { useNow } from '../hooks/useNow';
+import { tagClass } from '../lib/tags';
 
 const DAYS = 14;
 const WEEK_MS = 7 * 24 * 3600 * 1000;
@@ -87,7 +88,7 @@ function Dashboard({ todos: allTodos, params }) {
                 <nav className="tag-row" aria-label="태그별 보기">
                     <a href="#dashboard" className={`tag-chip${tag ? '' : ' active'}`}>전체</a>
                     {allTags.map(t => (
-                        <a key={t} href={`#dashboard?tag=${encodeURIComponent(t)}`} className={`tag-chip${tag === t ? ' active' : ''}`}>#{t}</a>
+                        <a key={t} href={`#dashboard?tag=${encodeURIComponent(t)}`} className={`tag-chip ${tagClass(t)}${tag === t ? ' active' : ''}`}>#{t}</a>
                     ))}
                 </nav>
             )}

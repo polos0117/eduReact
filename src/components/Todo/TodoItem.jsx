@@ -1,6 +1,6 @@
 import { PRIORITY_LABEL, priorityOf, subtaskProgress } from '../../reducers/todoReducer';
 import { formatDay } from '../../lib/stats';
-import { tagHref } from '../../lib/linkify';
+import { tagHref, tagClass } from '../../lib/tags';
 
 // 클릭할 때마다 보통 → 높음 → 낮음 → 보통
 const NEXT_PRIORITY = { normal: 'high', high: 'low', low: 'normal' };
@@ -25,7 +25,7 @@ function TodoItem({ todo, todayKey, onToggleTodo, onRemoveTodo, onSetPriority, o
                 )}
             </button>
             {todo.tags?.map(tag => (
-                <a key={tag} className="tag-chip" href={tagHref(tag)} title={`#${tag} 항목만 보기`}>#{tag}</a>
+                <a key={tag} className={`tag-chip ${tagClass(tag)}`} href={tagHref(tag)} title={`#${tag} 항목만 보기`}>#{tag}</a>
             ))}
             {todo.dueDate && (
                 <span className={`due-chip${overdue ? ' overdue' : ''}`}

@@ -21,6 +21,3 @@ export function linkify(text) {
 export function revUrl(template, n) {
     return template.includes('{n}') ? template.replace('{n}', n) : template + n;
 }
-
-// 태그 칩이 가리키는 목록 주소
-export const tagHref = (tag) => `#todos?tag=${encodeURIComponent(tag)}`;

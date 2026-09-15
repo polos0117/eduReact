@@ -18,6 +18,11 @@
   --chart-3: #a9bdec;
   --toast-bg: #15171c;
   --toast-fg: #ffffff;
+  /* 태그 색 — 이름 해시로 배정. dataviz 검증기 전체 쌍 통과(CVD·대비) */
+  --tag-0: #2a78d6;
+  --tag-1: #eb6834;
+  --tag-2: #1baf7a;
+  --tag-3: #c2185b;
 
   --font: Pretendard, "Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui,
     "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
@@ -54,6 +59,10 @@
     --chart-3: #34497f;
     --toast-bg: #eceef2;
     --toast-fg: #111317;
+    --tag-0: #3987e5;
+    --tag-1: #e0703a;
+    --tag-2: #2aa87d;
+    --tag-3: #b83a6b;
     color-scheme: dark;
   }
 }
@@ -77,6 +86,10 @@
   --chart-3: #34497f;
   --toast-bg: #eceef2;
   --toast-fg: #111317;
+  --tag-0: #3987e5;
+  --tag-1: #e0703a;
+  --tag-2: #2aa87d;
+  --tag-3: #b83a6b;
   color-scheme: dark;
 }
 

@@ -1258,30 +1258,50 @@ button.priority-btn:hover {
 }
 
 /* ===== 태그 ===== */
+/* 태그 칩 — 색은 이름 해시로 정해진 --tag 하나에서 점·배경·테두리가 파생된다.
+   글자는 잉크색 그대로라 어떤 색이든 읽힌다 (색은 보조, 이름이 신원) */
 .tag-chip {
+  --tag: var(--ink-3); /* 색 없는 칩(대시보드의 "전체") 기본값 */
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 5px;
   flex-shrink: 0;
-  padding: 1px 8px;
+  padding: 1px 9px;
   border-radius: 999px;
-  background: var(--sheet-2);
-  box-shadow: 0 0 0 1px var(--line);
+  background: color-mix(in oklab, var(--tag) 13%, var(--tag-base, var(--sheet)));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--tag) 32%, transparent);
   color: var(--ink-2);
   font-size: 12px;
   text-decoration: none;
-  transition: color 0.15s, box-shadow 0.15s;
+  transition: background 0.15s, box-shadow 0.15s, color 0.15s;
 }
 
-a.tag-chip:hover,
-.tag-chip.active {
-  color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent);
+.tag-c0 { --tag: var(--tag-0); }
+.tag-c1 { --tag: var(--tag-1); }
+.tag-c2 { --tag: var(--tag-2); }
+.tag-c3 { --tag: var(--tag-3); }
+
+/* 색 배정을 받은 칩에만 점을 찍는다 ("전체" 칩은 제외).
+   [class*="tag-c"] 는 tag-chip 자신에도 걸리므로 쓰지 않는다 */
+.tag-chip:is(.tag-c0, .tag-c1, .tag-c2, .tag-c3)::before {
+  content: "";
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--tag);
+}
+
+a.tag-chip:hover {
+  color: var(--ink);
+  background: color-mix(in oklab, var(--tag) 22%, var(--tag-base, var(--sheet)));
 }
 
 .tag-chip.active {
-  background: var(--accent-soft);
+  color: var(--ink);
   font-weight: 600;
+  background: color-mix(in oklab, var(--tag) 22%, var(--tag-base, var(--sheet)));
+  box-shadow: 0 0 0 1px var(--tag);
 }
 
 .tag-remove {

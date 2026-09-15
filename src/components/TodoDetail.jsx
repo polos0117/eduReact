@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { PRIORITIES, PRIORITY_LABEL, priorityOf, NOTE_CATEGORIES, NOTE_LABEL, subtaskProgress } from '../reducers/todoReducer';
 import { linkify, revUrl } from '../lib/linkify';
+import { tagClass } from '../lib/tags';
 
 // 클립보드 복사 버튼. 결과를 1.5초간 보여준다. (clipboard API는 https/localhost에서만 동작)
 function CopyButton({ text }) {
@@ -82,7 +83,7 @@ function TagEditor({ tags, onChange }) {
     return (
         <span className="tag-editor">
             {tags.map(tag => (
-                <span key={tag} className="tag-chip">
+                <span key={tag} className={`tag-chip ${tagClass(tag)}`}>
                     #{tag}
                     <button type="button" className="tag-remove" onClick={() => onChange(tags.filter(t => t !== tag))} aria-label={`태그 ${tag} 제거`}>×</button>
                 </span>
