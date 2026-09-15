@@ -1081,6 +1081,26 @@ button.todo-item-text:hover {
   font-variant-numeric: tabular-nums;
 }
 
+/* 공휴일 — 요일 색(토 파랑)보다 뒤에 와야 이긴다. 오늘 표시가 그보다 더 우선이다 */
+.cal-cell.holiday .cal-date {
+  color: var(--high);
+}
+
+.cal-holiday {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--high);
+}
+
+.cal-day-holiday {
+  margin-left: 8px;
+  color: var(--high);
+  font-weight: 600;
+}
+
 .cal-cell.today .cal-date {
   background: var(--accent);
   color: var(--accent-ink);
@@ -1147,6 +1167,10 @@ button.todo-item-text:hover {
   .cal-chip,
   .cal-more {
     display: none;
+  }
+  /* 좁은 화면에서도 공휴일 이름은 남긴다 — 칸에서 가장 중요한 정보다 */
+  .cal-holiday {
+    font-size: 9px;
   }
   .cal-dot {
     display: inline-flex;

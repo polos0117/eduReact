@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { PRIORITIES, PRIORITY_LABEL, priorityOf, sortByPriority } from '../reducers/todoReducer';
 import { dayKey, monthCells } from '../lib/stats';
+import { holidaysForRange } from '../lib/holidays';
 import { useNow } from '../hooks/useNow';
 import { tagHref } from '../lib/tags';
 import { useTagClass } from '../hooks/useTagColors';
@@ -39,6 +40,7 @@ function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
         (byDay[todo.dueDate] ??= []).push(todo);
     }
     const cells = monthCells(view.year, view.month);
+    const holidays = holidaysForRange(cells[0].key, cells.at(-1).key); // 달력 칸이 해를 넘길 수 있다
     const dayTodos = sortByPriority(byDay[selected] ?? []);
     const [sy, sm, sd] = selected.split('-').map(Number);
     const noDueCount = todos.filter(todo => !todo.completed && !todo.dueDate).length;
@@ -74,15 +76,18 @@ function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
                 {DOW.map((d, i) => <div key={d} className={`cal-dow dow-${i}`} aria-hidden="true">{d}</div>)}
                 {cells.map(cell => {
                     const items = byDay[cell.key] ?? [];
+                    const holiday = holidays.get(cell.key);
                     const cls = ['cal-cell', `dow-${cell.dow}`];
                     if (!cell.inMonth) cls.push('out');
+                    if (holiday) cls.push('holiday');
                     if (cell.key === todayKey) cls.push('today');
                     if (cell.key === selected) cls.push('selected');
                     return (
                         <button type="button" key={cell.key} className={cls.join(' ')}
                             aria-pressed={cell.key === selected} onClick={() => setSelected(cell.key)}
-                            aria-label={`${cell.key} ${DOW[cell.dow]}요일, 할 일 ${items.length}개`}>
+                            aria-label={`${cell.key} ${DOW[cell.dow]}요일${holiday ? `, ${holiday}` : ''}, 할 일 ${items.length}개`}>
                             <span className="cal-date">{cell.date}</span>
+                            {holiday && <span className="cal-holiday" title={holiday}>{holiday}</span>}
                             {items.length > 0 && (
                                 <span className="cal-items">
                                     {items.slice(0, MAX_CHIPS).map(todo => (
@@ -103,6 +108,7 @@ function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
                 <div className="cal-day-head">
                     <h3 id="cal-day-title" className="section-title">
                         {sm}월 {sd}일 {DOW[new Date(sy, sm - 1, sd).getDay()]}요일{selected === todayKey ? ' (오늘)' : ''}
+                        {holidays.get(selected) && <> <span className="cal-day-holiday">{holidays.get(selected)}</span></>}
                     </h3>
                     {dayTodos.length > 0 && (
                         <a href={`#todos?due=${selected}`} className="link-btn">목록에서 보기</a>
