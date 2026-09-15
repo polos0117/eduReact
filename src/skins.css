@@ -1,0 +1,267 @@
+/* ===== 가벼운 스킨들 =====
+   네오처럼 재질을 통째로 바꾸지 않고 색 토큰만 갈아끼우는 스킨은 여기 모은다.
+   (네오는 배경·유리·글로우까지 손대서 분량이 커 skin-neo.css 로 따로 둔다)
+
+   태그 자동 배정 색(--tag-0..3)은 dataviz 검증기를 통과한 값을 그대로 쓴다.
+   스킨마다 새로 고르면 색각 이상에서 구분이 깨지기 쉬워서, 밝은 바탕이면 라이트 세트,
+   어두운 바탕이면 다크 세트를 재사용한다. */
+
+/* ---------- 종이: 크림색 바탕에 잉크, 세리프 제목 ---------- */
+:root[data-skin="paper"] {
+  --canvas: #e9e0cc;
+  --sheet: #fbf7ec;
+  --sheet-2: #f2ebda;
+  --ink: #2a241c;
+  --ink-2: #6b6050;
+  --ink-3: #9a8f7c;
+  --line: #ded3ba;
+  --line-2: #c5b699;
+  --accent: #2d5b8e;
+  --accent-ink: #ffffff;
+  --accent-soft: #e0e9f2;
+  --high: #a83226;
+  --high-soft: #f3e1dd;
+  --chart-1: #1f4a78;
+  --chart-2: #4a7db0;
+  --chart-3: #a6bed6;
+  --toast-bg: #2a241c;
+  --toast-fg: #fbf7ec;
+  --tag-0: #2a78d6;
+  --tag-1: #eb6834;
+  --tag-2: #1baf7a;
+  --tag-3: #c2185b;
+  --radius: 6px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-skin="paper"]:not([data-theme="light"]) {
+    --canvas: #1e1a14;
+    --sheet: #29241c;
+    --sheet-2: #332d23;
+    --ink: #ece3cf;
+    --ink-2: #b3a48a;
+    --ink-3: #82765e;
+    --line: #3d362a;
+    --line-2: #554b3a;
+    --accent: #85b2df;
+    --accent-ink: #191510;
+    --accent-soft: #2b3847;
+    --high: #e08d7a;
+    --high-soft: #3c2a24;
+    --chart-1: #9dc0e6;
+    --chart-2: #5f86b0;
+    --chart-3: #37516d;
+    --toast-bg: #ece3cf;
+    --toast-fg: #1e1a14;
+    --tag-0: #3987e5;
+    --tag-1: #e0703a;
+    --tag-2: #2aa87d;
+    --tag-3: #b83a6b;
+    color-scheme: dark;
+  }
+}
+
+:root[data-skin="paper"][data-theme="dark"] {
+  --canvas: #1e1a14;
+  --sheet: #29241c;
+  --sheet-2: #332d23;
+  --ink: #ece3cf;
+  --ink-2: #b3a48a;
+  --ink-3: #82765e;
+  --line: #3d362a;
+  --line-2: #554b3a;
+  --accent: #85b2df;
+  --accent-ink: #191510;
+  --accent-soft: #2b3847;
+  --high: #e08d7a;
+  --high-soft: #3c2a24;
+  --chart-1: #9dc0e6;
+  --chart-2: #5f86b0;
+  --chart-3: #37516d;
+  --toast-bg: #ece3cf;
+  --toast-fg: #1e1a14;
+  --tag-0: #3987e5;
+  --tag-1: #e0703a;
+  --tag-2: #2aa87d;
+  --tag-3: #b83a6b;
+  color-scheme: dark;
+}
+
+[data-skin="paper"] .brand h1,
+[data-skin="paper"] .cal-title,
+[data-skin="paper"] .detail-title,
+[data-skin="paper"] .settings-title {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  letter-spacing: 0;
+}
+
+[data-skin="paper"] .sheet,
+[data-skin="paper"] .detail {
+  box-shadow: 0 1px 2px rgba(60, 48, 30, 0.08), 0 10px 24px -14px rgba(60, 48, 30, 0.35);
+}
+
+/* ---------- 터미널: 검은 바탕에 초록 인광, 각진 모서리, 고정폭 ---------- */
+:root[data-skin="terminal"] {
+  --canvas: #070a07;
+  --sheet: #0d120d;
+  --sheet-2: #141c14;
+  --ink: #c9f2c9;
+  --ink-2: #7fb37f;
+  --ink-3: #4f704f;
+  --line: #1e2a1e;
+  --line-2: #32482f;
+  --accent: #35d15a;
+  --accent-ink: #061006;
+  --accent-soft: #10240f;
+  --high: #ff6b5e;
+  --high-soft: #2b1512;
+  --chart-1: #35d15a;
+  --chart-2: #1f9440;
+  --chart-3: #145f2a;
+  --toast-bg: #c9f2c9;
+  --toast-fg: #070a07;
+  /* 초록 일색이면 태그가 구분되지 않는다 — 검증 통과한 다크 세트를 그대로 */
+  --tag-0: #3987e5;
+  --tag-1: #e0703a;
+  --tag-2: #2aa87d;
+  --tag-3: #b83a6b;
+  --radius: 0;
+  --font: ui-monospace, "Cascadia Code", Consolas, "D2Coding", "D2Coding ligature", monospace;
+  color-scheme: dark;
+}
+
+/* 어두운 톤 전용이라 테마 선택은 효과가 없다 */
+[data-skin="terminal"] .theme-select {
+  display: none;
+}
+
+/* 둥근 것들을 각지게 — --radius 로 안 덮이는 알약·원형만 따로 */
+[data-skin="terminal"] :is(
+  .tag-chip, .filter-btn, .priority-select, .todo-add-btn, .bulk-btn, .ghost-btn,
+  .header-select, .note, .note-textarea, .settings-input, .due-input, .todo-search,
+  .todo-item-checkbox, .color-input, .tagcolor-auto, .due-rows > a, .stack, .stack-seg,
+  .toast, .note-count, .scope-chip, .swatch, .todo-item-btn, .path-input, .subtask-text,
+  .done-btn, .icon-btn, .cal-date, .cal-chip, .cal-dot, .todo-progress, .tag-editor
+) {
+  border-radius: 0;
+}
+
+[data-skin="terminal"] .sheet,
+[data-skin="terminal"] .detail {
+  box-shadow: none;
+}
+
+[data-skin="terminal"] .brand h1::before {
+  content: "> ";
+  color: var(--accent);
+}
+
+[data-skin="terminal"] :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ---------- 고대비: 순흑백에 굵은 선, 큰 포커스 링 ---------- */
+:root[data-skin="contrast"] {
+  --canvas: #ffffff;
+  --sheet: #ffffff;
+  --sheet-2: #ededed;
+  --ink: #000000;
+  --ink-2: #2b2b2b;
+  --ink-3: #4a4a4a;
+  --line: #000000;
+  --line-2: #000000;
+  --accent: #0b3fd4;
+  --accent-ink: #ffffff;
+  --accent-soft: #dde4fb;
+  --high: #b00000;
+  --high-soft: #ffe2e2;
+  --chart-1: #0b3fd4;
+  --chart-2: #5577e0;
+  --chart-3: #aab6ee;
+  --toast-bg: #000000;
+  --toast-fg: #ffffff;
+  --tag-0: #2a78d6;
+  --tag-1: #eb6834;
+  --tag-2: #1baf7a;
+  --tag-3: #c2185b;
+  --radius: 4px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-skin="contrast"]:not([data-theme="light"]) {
+    --canvas: #000000;
+    --sheet: #000000;
+    --sheet-2: #1c1c1c;
+    --ink: #ffffff;
+    --ink-2: #e0e0e0;
+    --ink-3: #bdbdbd;
+    --line: #ffffff;
+    --line-2: #ffffff;
+    --accent: #8ab4ff;
+    --accent-ink: #000000;
+    --accent-soft: #13233f;
+    --high: #ff8f85;
+    --high-soft: #3a1210;
+    --chart-1: #8ab4ff;
+    --chart-2: #5f86e0;
+    --chart-3: #34497f;
+    --toast-bg: #ffffff;
+    --toast-fg: #000000;
+    --tag-0: #3987e5;
+    --tag-1: #e0703a;
+    --tag-2: #2aa87d;
+    --tag-3: #b83a6b;
+    color-scheme: dark;
+  }
+}
+
+:root[data-skin="contrast"][data-theme="dark"] {
+  --canvas: #000000;
+  --sheet: #000000;
+  --sheet-2: #1c1c1c;
+  --ink: #ffffff;
+  --ink-2: #e0e0e0;
+  --ink-3: #bdbdbd;
+  --line: #ffffff;
+  --line-2: #ffffff;
+  --accent: #8ab4ff;
+  --accent-ink: #000000;
+  --accent-soft: #13233f;
+  --high: #ff8f85;
+  --high-soft: #3a1210;
+  --chart-1: #8ab4ff;
+  --chart-2: #5f86e0;
+  --chart-3: #34497f;
+  --toast-bg: #ffffff;
+  --toast-fg: #000000;
+  --tag-0: #3987e5;
+  --tag-1: #e0703a;
+  --tag-2: #2aa87d;
+  --tag-3: #b83a6b;
+  color-scheme: dark;
+}
+
+[data-skin="contrast"] .sheet,
+[data-skin="contrast"] .detail {
+  border-width: 2px;
+  box-shadow: none;
+}
+
+[data-skin="contrast"] :focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+[data-skin="contrast"] .todo-item-checkbox,
+[data-skin="contrast"] .done-btn {
+  border-width: 2px;
+  border-color: var(--ink);
+}
+
+[data-skin="contrast"] .tag-chip,
+[data-skin="contrast"] .note-count {
+  box-shadow: 0 0 0 1px var(--ink);
+}

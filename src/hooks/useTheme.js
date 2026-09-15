@@ -19,7 +19,7 @@ function useRootAttr(attr, storageKey, options) {
 }
 
 export const THEMES = [['system', '시스템'], ['light', '라이트'], ['dark', '다크']];
-export const SKINS = [['classic', '클래식'], ['neo', '네오']];
+export const SKINS = [['classic', '클래식'], ['paper', '종이'], ['neo', '네오'], ['terminal', '터미널'], ['contrast', '고대비']];
 
 const THEME_KEYS = THEMES.map(([key]) => key);
 const SKIN_KEYS = SKINS.map(([key]) => key);

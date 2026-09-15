@@ -13,6 +13,7 @@ import TodoDetail from './components/TodoDetail';
 import Settings from './components/Settings';
 import './App.css';
 import './skin-neo.css';
+import './skins.css';
 
 const TABS = [['todos', '할 일'], ['dashboard', '대시보드'], ['calendar', '캘린더']];
 const DATE_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' });

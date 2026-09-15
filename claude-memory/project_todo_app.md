@@ -109,3 +109,10 @@ Building a Todo List app in `c:\eduReact` (Vite + React 19 + JS) as a React lear
 - 테스트 55개.
 
 **앞서 헤맨 것 두 가지 (도구 쪽):** ① `Page.navigate` 를 **같은 해시 URL**로 부르면 문서를 다시 읽지 않는다(프래그먼트 이동) → 시드한 localStorage 가 반영 안 돼 "데이터가 안 불러와진다"고 오판했다. `Page.reload({ignoreCache:true})` 를 쓸 것. ② `<dialog onClose>` 는 **프로그램이 close() 해도 불린다** → StrictMode 이중 효과의 정리(close())가 onClose 를 호출해 다이얼로그가 즉시 닫혔다. 사용자 닫기는 `onCancel` 로 받을 것.
+
+**2026-09-15 밤 14: 스킨 3종 추가 + 기기 연동 조사.**
+- 연동: 사용자가 **A안(수동 내보내기/가져오기)** 유지 결정. 조사 결론 — 자동 동기화는 서버가 필요하고, 권한: B(내 GitHub 비공개 저장소 + fine-grained 토큰, Contents R/W 한 저장소만; Gist 는 fine-grained 미지원이라 classic 토큰 필요해서 저장소 쪽이 안전) / C(Supabase 무료 500MB·2프로젝트지만 **1주 미사용 시 일시정지**). 어느 쪽이든 먼저 `updatedAt` + last-write-wins + tombstone 이 필요하다(지금 IMPORT 는 새 id 만 추가하고 기존 항목을 갱신하지 않음). 데이터에 회사 내부 정보가 있어 보안 판단이 선행.
+- `src/skins.css` 신설 — 종이(크림·세리프)·터미널(초록 인광·고정폭·`--radius:0`·제목 앞 `>`)·고대비(순흑백·2px 테두리·3px 포커스). 네오는 재질까지 바꿔 분량이 커서 `skin-neo.css` 유지.
+- **스킨의 태그 색은 새로 만들지 않고 검증 통과한 세트를 재사용**한다(밝은 바탕=라이트 세트, 어두운 바탕=다크 세트). 터미널용 ANSI 초록/주황을 시도했다가 deutan 에서 깨져서 버렸다.
+- `--radius` 로 안 덮이는 알약·원형(`border-radius:999px|50%`)은 터미널에서 `:is(...)` 목록으로 따로 각지게 해야 한다.
+- `index.html` 의 깜빡임 방지 스크립트도 `s !== 'classic'` 으로 일반화(전에는 'neo' 만).
