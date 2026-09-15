@@ -80,3 +80,10 @@ Building a Todo List app in `c:\eduReact` (Vite + React 19 + JS) as a React lear
 **2026-09-15 밤 9: 드롭다운 "목록 칸" 스타일.** 사용자가 원한 건 닫힌 버튼이 아니라 **열렸을 때 나오는 목록**이었다. 네이티브 목록은 CSS가 안 먹으므로 표준 customizable select 사용 — `select, ::picker(select) { appearance: base-select }` + `::picker(select)` 에 둥근 모서리·토큰 색·그림자, `option` 에 라운드/hover/checked, `option::checkmark { display:none }`, `select:open::picker-icon { rotate(180deg) }`. 이 Chrome은 지원 확인함(`CSS.supports('appearance','base-select')===true`). Firefox·Safari 는 `@supports` 밖이라 기본 목록.
 
 **함정 3개:** ① `appearance:none` 이 있는 선택자(`.todo-item .priority-select`, `.header-select`)는 특이도가 높아 `select{base-select}` 를 이기므로, @supports 안에서 같은 선택자로 `base-select` 를 다시 주고 `::picker-icon{display:none}` 으로 화살표만 숨겨야 한다. ② **빌드의 lightningcss 가 `::picker(select) option` 을 파싱 못 한다**("Pseudo-elements can't be followed by selectors") → `option` 을 단독으로 쓸 것(닫힌 버튼은 `<selectedcontent>` 라 영향 없음). ③ `showPicker()` 는 사용자 조작이 필요해서 **헤드리스로 목록을 열어 캡처할 수 없다**(NotAllowedError) — 적용 여부는 `getComputedStyle(sel).appearance === 'base-select'` 와 빌드된 CSS grep 으로 확인할 것.
+
+**2026-09-15 밤 10: 머리글 정렬 + 드롭다운 흔들림.**
+- `.header-select` 가 `height:32px` + `text-align:center` + 1px 투명 테두리라 `.ghost-btn`(padding 으로 33px)과 글자 줄이 안 맞았다 → `padding:6px 10px; border:none; font:inherit; line-height:1.5; align-items:center` 로 맞춤. 측정 결과 머리글 5개 컨트롤 전부 `y=40 h=33 중심=56.5` 일치.
+- 열린 목록이 호버 때 움직이던 것도 같이 해소(셀렉트 박스가 호버로 변하면 앵커가 움직여 팝오버가 따라간다). `::picker(select)` 의 `margin-block-start` 제거(앵커 팝오버에 margin 은 자리 부족 시 튕김 유발) + `min-width: anchor-size(width)`.
+- 줄 안 우선순위 목록은 아래 공간이 150px 남아도 Chrome 이 **위로** 연다. `position-area`/`position-try-fallbacks` 로도 안 바뀜 — 브라우저 배치라 그대로 둠.
+
+**헤드리스로 네이티브 위젯 검증하는 법 (중요):** `showPicker()` 는 사용자 조작이 필요해 JS 로는 못 연다. **CDP 를 쓰면 진짜 클릭을 보낼 수 있다** — Chrome 을 `--remote-debugging-port=9222` 로 띄우고, Node 22 의 내장 `WebSocket` 으로 `/json` → `webSocketDebuggerUrl` 접속 → `Input.dispatchMouseEvent`(mousePressed/mouseReleased) → `Runtime.evaluate` 로 측정 → `Page.captureScreenshot`. 의존성 0. 스크래치패드의 `cdp.mjs`/`cdp3.mjs`/`try.mjs` 참고(세션 끝나면 사라짐). 다음 실행 전 Escape 를 보내 이전 팝오버를 닫을 것 — 안 그러면 클릭이 토글로 먹혀 닫힌다.

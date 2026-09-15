@@ -77,17 +77,19 @@
   color: var(--ink);
 }
 
-/* 머리글의 스킨·테마 고르기 — 옆의 글자 버튼들과 같은 결로 */
+/* 머리글의 스킨·테마 고르기 — .ghost-btn 과 같은 상자여야 글자 줄이 맞는다
+   (높이를 고정하지 말 것: ghost-btn 은 padding 으로 높이가 정해진다) */
 .header-select {
   appearance: none;
-  height: 32px;
-  padding: 0 8px;
-  border: 1px solid transparent;
+  align-items: center;
+  padding: 6px 10px;
+  border: none;
   border-radius: 8px;
   background: transparent;
   color: var(--ink-2);
+  font: inherit;
   font-size: 14px;
-  text-align: center;
+  line-height: 1.5;
   cursor: pointer;
   transition: color 0.15s, background 0.15s;
 }
@@ -1807,7 +1809,8 @@ a.tag-chip:hover {
   }
 
   ::picker(select) {
-    margin-block-start: 6px;
+    /* 앵커 붙은 팝오버에 margin 을 주면 자리가 모자랄 때 위/아래로 튕겨 자리를 바꾼다 — 주지 않는다 */
+    min-width: anchor-size(width);
     padding: 6px;
     border: 1px solid var(--line);
     border-radius: 12px;
