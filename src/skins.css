@@ -499,6 +499,84 @@
 }
 
 /* ======================================================================
+   밤 — 개발자들이 제일 오래 쓰는 종류의 다크. Nord·Catppuccin 계열:
+   순흑이 아니라 남색 기운의 어두운 회색, 강조는 채도 뺀 파스텔, 글로우·유리·재질 없음.
+   처음부터 채도를 낮게 잡았다 (다른 다크 스킨들은 나중에 낮췄다).
+   ====================================================================== */
+:is(:root, .skin-card-canvas)[data-skin="night"] {
+  --canvas: #1f2430;
+  --sheet: #272d3a;
+  --sheet-2: #2f3644;
+  --ink: #d5dae6;
+  --ink-2: #a3acbd;
+  --ink-3: #6f7889;
+  --line: #353c4a;
+  --line-2: #465063;
+  --accent: #8fb3e0;
+  --accent-ink: #1a1f2a;
+  --accent-soft: #2b3a52;
+  --high: #d08a90;
+  --high-soft: #4a3038;
+  /* 우선순위 램프 — 한 색상(파랑) 밝음 → 어두움. 검증기 ordinal 통과 (#272d3a 위) */
+  --chart-1: #c6d6ee;
+  --chart-2: #8fb3e0;
+  --chart-3: #4f6a94;
+  --toast-bg: #d5dae6;
+  --toast-fg: #1f2430;
+  /* 태그는 검증 통과한 다크 세트 그대로 */
+  --tag-0: #3987e5;
+  --tag-1: #e0703a;
+  --tag-2: #2aa87d;
+  --tag-3: #b83a6b;
+  --radius: 12px;
+  color-scheme: dark;
+}
+
+/* 어두운 톤 전용이라 테마 선택은 효과가 없다 */
+[data-skin="night"] .theme-select {
+  display: none;
+}
+
+/* 시트는 그림자 없이 위쪽 1px 만 살짝 밝게 — 면이 겹쳐 있다는 느낌만 */
+[data-skin="night"] .sheet,
+[data-skin="night"] .detail {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* 입력칸은 살짝 가라앉은 면 — 어두운 바탕에서 투명 칸은 어디를 눌러야 할지 모른다 */
+[data-skin="night"] .todo-input,
+[data-skin="night"] .todo-search,
+[data-skin="night"] .note-textarea {
+  padding-inline: 12px;
+  border-radius: 8px;
+  background: var(--canvas);
+}
+
+[data-skin="night"] .todo-input:focus,
+[data-skin="night"] .todo-search:focus,
+[data-skin="night"] .note-textarea:focus {
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+/* 머리글 버튼은 조용한 상자 */
+[data-skin="night"] .ghost-btn,
+[data-skin="night"] .icon-btn {
+  border: 1px solid var(--line);
+  background: var(--sheet);
+}
+
+[data-skin="night"] .ghost-btn:hover:not(:disabled),
+[data-skin="night"] .icon-btn:hover {
+  border-color: var(--line-2);
+  background: var(--sheet-2);
+}
+
+/* 끝낸 일의 취소선은 선 색으로 — 옅은 글자 위에 같은 회색 줄은 묻힌다 */
+[data-skin="night"] .todo-item.completed .todo-item-text {
+  text-decoration-color: var(--line-2);
+}
+
+/* ======================================================================
    터미널 — 검은 유리 위의 초록 인광. 고정폭, 각진 모서리, 주사선, 깜빡이는 커서
    ====================================================================== */
 :is(:root, .skin-card-canvas)[data-skin="terminal"] {
