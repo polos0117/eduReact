@@ -627,7 +627,7 @@
   .todo-item-checkbox, .color-input, .tagcolor-auto, .due-rows > a, .stack, .stack-seg,
   .toast, .note-count, .scope-chip, .swatch, .todo-item-btn, .path-input, .subtask-text,
   .done-btn, .icon-btn, .cal-date, .cal-chip, .cal-dot, .todo-progress, .tag-editor,
-  .skin-card-canvas, .skin-card-sheet, .skin-card-dot, .skin-card-bar, .cal-bar, .range-chip
+  .skin-card-canvas, .skin-card-sheet, .skin-card-dot, .skin-card-bar, .cal-bar, .range-chip, .report-text
 ) {
   border-radius: 0;
 }
@@ -640,6 +640,153 @@
 [data-skin="terminal"] :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
+}
+
+/* ======================================================================
+   청사진 — 설계도. 진한 파란 바탕에 모눈, 흰 선, 제도 연필의 노랑 강조, 기술 서체
+   ====================================================================== */
+:is(:root, .skin-card-canvas)[data-skin="blueprint"] {
+  --canvas: #0f2a58;
+  --sheet: #14336a;
+  --sheet-2: #1a3d7a;
+  --ink: #eaf1ff;
+  --ink-2: #b9cbea;
+  --ink-3: #7f9ac4;
+  --line: rgba(255, 255, 255, 0.18);
+  --line-2: rgba(255, 255, 255, 0.42);
+  --accent: #ffd166;
+  --accent-ink: #1a2540;
+  --accent-soft: rgba(255, 209, 102, 0.16);
+  --high: #ff8f85;
+  --high-soft: rgba(255, 143, 133, 0.18);
+  /* 우선순위 램프 — 한 색상(파랑)으로 밝음 → 어두움. 검증기 ordinal 통과 (#14336a 위) */
+  --chart-1: #e3edff;
+  --chart-2: #93b6ec;
+  --chart-3: #4d78b8;
+  --toast-bg: #eaf1ff;
+  --toast-fg: #0f2a58;
+  /* 태그는 검증 통과한 다크 세트. 자홍만 시트 대비가 3:1 아래인데 칩엔 이름이 있어 허용 범위 */
+  --tag-0: #3987e5;
+  --tag-1: #e0703a;
+  --tag-2: #2aa87d;
+  --tag-3: #b83a6b;
+  --font: "IBM Plex Sans KR", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-display: var(--font);
+  --radius: 2px;
+  --grid: linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px) 0 0 / 24px 24px;
+  color-scheme: dark;
+}
+
+/* 어두운 톤 전용이라 테마 선택은 효과가 없다 */
+[data-skin="blueprint"] .theme-select {
+  display: none;
+}
+
+/* 모눈 — 바탕과 시트 모두 (시트는 더 촘촘한 눈금처럼 보인다) */
+[data-skin="blueprint"] body,
+.skin-card-canvas[data-skin="blueprint"] {
+  background-image: var(--grid);
+  background-color: var(--canvas);
+}
+
+[data-skin="blueprint"] .sheet,
+[data-skin="blueprint"] .detail {
+  border-color: var(--line-2);
+  background-image: var(--grid);
+  box-shadow: 0 0 0 4px var(--canvas), 0 0 0 5px var(--line); /* 도면 테두리처럼 두 겹 */
+}
+
+[data-skin="blueprint"] .brand h1 {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* 표제란 — 제목 아래 흰 이중선 */
+[data-skin="blueprint"] .brand {
+  padding-bottom: 6px;
+  border-bottom: 3px double var(--line-2);
+}
+
+/* 탭 밑줄은 제도 연필로 그은 점선 */
+[data-skin="blueprint"] .tab.active::after {
+  height: 0;
+  border-top: 2px dashed var(--accent);
+  background: none;
+}
+
+/* 입력칸·필드는 흰 실선, 초점은 노랑 */
+[data-skin="blueprint"] .todo-input,
+[data-skin="blueprint"] .todo-search,
+[data-skin="blueprint"] .note-textarea,
+[data-skin="blueprint"] .settings-input,
+[data-skin="blueprint"] .path-input:hover,
+[data-skin="blueprint"] .path-input:focus {
+  padding-inline: 10px;
+  border: 1px solid var(--line-2);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+[data-skin="blueprint"] .todo-input {
+  padding-inline: 12px;
+}
+
+[data-skin="blueprint"] .todo-input:focus,
+[data-skin="blueprint"] .todo-search:focus,
+[data-skin="blueprint"] .note-textarea:focus {
+  border-color: var(--accent);
+}
+
+/* 버튼·컨트롤은 흰 선 상자 */
+[data-skin="blueprint"] .ghost-btn,
+[data-skin="blueprint"] .icon-btn,
+[data-skin="blueprint"] .bulk-btn,
+[data-skin="blueprint"] .due-input,
+[data-skin="blueprint"] .priority-select,
+[data-skin="blueprint"] .filter-btn.active,
+[data-skin="blueprint"] .due-rows > :is(a, div) {
+  border: 1px solid var(--line-2);
+  background: transparent;
+}
+
+[data-skin="blueprint"] .ghost-btn:hover:not(:disabled),
+[data-skin="blueprint"] .icon-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+[data-skin="blueprint"] .todo-add-btn,
+[data-skin="blueprint"] .bulk-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+[data-skin="blueprint"] .done-btn.is-done,
+[data-skin="blueprint"] .todo-item-checkbox:checked,
+[data-skin="blueprint"] .cal-cell.today .cal-date {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+}
+
+[data-skin="blueprint"] .todo-item.completed .todo-item-text {
+  text-decoration-color: var(--accent);
+}
+
+[data-skin="blueprint"] .todo-progress-bar,
+[data-skin="blueprint"] .ring-value {
+  background: var(--accent);
+  stroke: var(--accent);
+}
+
+[data-skin="blueprint"] .chart .bar {
+  fill: var(--chart-1);
+}
+
+/* 태그 칩 배경은 불투명한 시트 색에 섞는다 (rgba 선 위에서 흐려지지 않게) */
+[data-skin="blueprint"] {
+  --tag-base: #14336a;
 }
 
 /* ======================================================================

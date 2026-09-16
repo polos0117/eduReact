@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { completedPerDay, dueBuckets, dueBucketOf, monthCells, addDays, dayKey, countByTag, parseDue, rangeOf, weekLanes } from './stats';
+import { completedPerDay, dueBuckets, dueBucketOf, monthCells, addDays, dayKey, countByTag, parseDue, rangeOf, weekLanes, weekOf, monthOf, daysBetween, periodStats } from './stats';
 
 const NOW = new Date(2026, 8, 15, 12).getTime(); // 2026-09-15 정오
 
@@ -117,4 +117,28 @@ test('weekLanes는 겹치는 막대만 아래 층으로 내리고 주 경계에�
     expect(lanes[0][0]).toMatchObject({ startCol: 0, endCol: 6, openLeft: true, openRight: true });
     expect(lanes[1][0]).toMatchObject({ startCol: 1, endCol: 3, openLeft: false, openRight: false });
     expect(lanes[1][1]).toMatchObject({ startCol: 5, endCol: 5 });
+});
+
+test('weekOf는 월~일, monthOf는 1일~말일', () => {
+    expect(weekOf('2026-09-16')).toEqual({ from: '2026-09-14', to: '2026-09-20' }); // 수요일
+    expect(weekOf('2026-09-20')).toEqual({ from: '2026-09-14', to: '2026-09-20' }); // 일요일은 그 주의 끝
+    expect(weekOf('2026-09-14')).toEqual({ from: '2026-09-14', to: '2026-09-20' }); // 월요일은 시작
+    expect(weekOf('2026-09-16', -1)).toEqual({ from: '2026-09-07', to: '2026-09-13' });
+    expect(monthOf('2026-09-16')).toEqual({ from: '2026-09-01', to: '2026-09-30' });
+    expect(monthOf('2026-01-15', -1)).toEqual({ from: '2025-12-01', to: '2025-12-31' }); // 해를 넘어 지난달
+    expect(daysBetween('2026-09-10', '2026-09-12')).toBe(2);
+});
+
+test('periodStats는 진행 중·이번 주 시작·끝·평균 소요일을 센다', () => {
+    const today = '2026-09-16'; // 수요일, 이번 주 = 9/14~9/20
+    const todos = [
+        { startDate: '2026-09-07', endDate: '2026-09-18', completed: false },         // 진행 중, 이번 주 끝날 예정
+        { startDate: '2026-09-15', completed: false },                                // 진행 중, 이번 주 시작
+        { startDate: '2026-09-21', completed: false },                                // 아직 시작 전 → 진행 중 아님
+        { startDate: '2026-09-09', completed: true, completedAt: new Date(2026, 8, 11).getTime() }, // 3일, 지난주 끝
+        { startDate: '2026-09-14', endDate: '2026-09-16', completed: true, completedAt: new Date(2026, 8, 16).getTime() }, // 3일, 이번 주 시작·끝
+        { text: '기간 없음', completed: true, completedAt: 1 },
+    ];
+    expect(periodStats(todos, today)).toEqual({ ongoing: 2, started: 2, ended: 2, avgDays: 3, samples: 2 });
+    expect(periodStats([], today)).toEqual({ ongoing: 0, started: 0, ended: 0, avgDays: null, samples: 0 });
 });

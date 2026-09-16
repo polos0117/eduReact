@@ -16,7 +16,7 @@ const DAY_MS = 24 * 3600 * 1000;
 function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onOpenTodo }) {
     const [filter, setFilter] = useState(() => {
         const f = params.get('filter');
-        return f === 'active' || f === 'completed' ? f : 'all';
+        return f === 'active' || f === 'completed' || f === 'archived' ? f : 'all';
     });
     const [search, setSearch] = useState('');
     const [sort, setSort] = useLocalState('sort', 'priority');
@@ -43,8 +43,12 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onOpenT
         ];
         samples.forEach((s, i) => dispatch({ type: 'ADD', todo: { id: at + i, completed: false, createdAt: at + i, ...s } }));
     }
-    function clearCompletedTodos() {
-        dispatch({ type: 'CLEAR_COMPLETED' });
+    function archiveCompleted() {
+        dispatch({ type: 'ARCHIVE_COMPLETED' });
+    }
+    // 직접 정렬: 끌어다 놓거나 Alt+↑↓ 로 옮긴다
+    function moveTodo(id, targetId, after) {
+        dispatch({ type: 'MOVE', id, targetId, after });
     }
     function setPriority(id, priority) {
         dispatch({ type: 'SET_PRIORITY', id, priority });
@@ -86,7 +90,9 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onOpenT
         return todo.text.toLowerCase().includes(searchText)
             || (todo.notes ?? []).some(note => note.text.toLowerCase().includes(searchText));
     }
-    const visibleTodos = sortTodos(todos.filter(todo => {
+    // 보관한 건 '보관' 보기에만 나온다. 나머지 보기는 보관 안 한 것만 다룬다 (개수·진행률도)
+    const pool = todos.filter(todo => Boolean(todo.archived) === (filter === 'archived'));
+    const visibleTodos = sortTodos(pool.filter(todo => {
         if (filter === 'active') return !todo.completed;
         if (filter === 'completed') return todo.completed;
         return true;
@@ -117,7 +123,8 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onOpenT
         clearSelection();
     }
 
-    const doneCount = todos.filter(todo => todo.completed).length;
+    const doneCount = pool.filter(todo => todo.completed).length;
+    const archivedCount = todos.filter(todo => todo.archived).length;
     const selectedAllDone = selected.length > 0 && selected.every(id => todos.find(todo => todo.id === id)?.completed);
 
     return (
@@ -140,12 +147,16 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onOpenT
                     <a href="#todos" className="link-btn">조건 지우기</a>
                 </div>
             )}
-            <TodoList todos={visibleTodos} total={todos.length} todayKey={todayKey}
+            <TodoList todos={visibleTodos} total={pool.length} todayKey={todayKey}
+                manual={sort === 'manual'} onMove={moveTodo}
+                onRestore={(id) => dispatch({ type: 'SET_ARCHIVED', id, archived: false })}
                 search={search} onClearSearch={() => setSearch('')} filter={filter} onShowAll={() => setFilter('all')}
                 scoped={scope.length > 0} onAddSamples={handleAddSamples}
                 selectedIds={selectedIds} onSelect={toggleSelect}
                 onToggleTodo={toggleTodo} onRemoveTodo={onRemoveTodo} onSetPriority={setPriority} onOpenTodo={onOpenTodo} />
-            <TodoFooter total={todos.length} done={doneCount} onClearCompleted={clearCompletedTodos} />
+            <TodoFooter total={pool.length} done={doneCount} filter={filter} archivedCount={archivedCount}
+                onArchiveCompleted={archiveCompleted} onShowArchived={() => setFilter('archived')}
+                onClearArchived={() => onRemoveMany(todos.filter(todo => todo.archived).map(todo => todo.id))} />
         </>
     );
 }

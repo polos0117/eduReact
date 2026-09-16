@@ -129,6 +129,47 @@ export function weekLanes(ranges, weekKeys) {
     return lanes;
 }
 
+// ===== 주·달 범위 =====
+// 업무 주는 월요일부터 일요일까지 (캘린더 격자는 일요일부터 시작하지만 보고서·통계엔 업무 주가 맞다)
+export function weekOf(dateKey, offsetWeeks = 0) {
+    const [y, m, d] = dateKey.split('-').map(Number);
+    const dow = new Date(y, m - 1, d).getDay(); // 0 = 일
+    const monday = addDays(dateKey, (dow === 0 ? -6 : 1 - dow) + offsetWeeks * 7);
+    return { from: monday, to: addDays(monday, 6) };
+}
+
+export function monthOf(dateKey, offsetMonths = 0) {
+    const [y, m] = dateKey.split('-').map(Number);
+    const first = new Date(y, m - 1 + offsetMonths, 1);
+    const last = new Date(first.getFullYear(), first.getMonth() + 1, 0);
+    return { from: dayKey(first), to: dayKey(last) };
+}
+
+export function daysBetween(fromKey, toKey) {
+    const [y1, m1, d1] = fromKey.split('-').map(Number);
+    const [y2, m2, d2] = toKey.split('-').map(Number);
+    return Math.round((new Date(y2, m2 - 1, d2) - new Date(y1, m1 - 1, d1)) / 86400000);
+}
+
+// 대시보드의 기간 통계. 진행 중 = 기간이 오늘을 덮는데 아직 안 끝낸 것 (목록의 range=오늘 과 같은 집합).
+// 이번 주에 시작한 것 / 끝난 것(완료했거나 종료일을 적은 것) / 끝낸 일의 평균 소요일(시작~종료, 양끝 포함)
+export function periodStats(todos, todayKey) {
+    const week = weekOf(todayKey);
+    const within = (key) => key >= week.from && key <= week.to;
+    const stats = { ongoing: 0, started: 0, ended: 0, avgDays: null, samples: 0 };
+    let total = 0;
+    for (const todo of todos) {
+        const r = rangeOf(todo, todayKey);
+        if (!r) continue;
+        if (!todo.completed && r.from <= todayKey && r.to >= todayKey) stats.ongoing++;
+        if (within(r.from)) stats.started++;
+        if ((todo.completed || todo.endDate) && within(r.to)) stats.ended++;
+        if (todo.completed) { total += daysBetween(r.from, r.to) + 1; stats.samples++; }
+    }
+    if (stats.samples > 0) stats.avgDays = Math.round((total / stats.samples) * 10) / 10;
+    return stats;
+}
+
 export function monthCells(year, month) {
     const firstDow = new Date(year, month, 1).getDay();
     return Array.from({ length: 42 }, (_, i) => {

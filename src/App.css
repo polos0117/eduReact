@@ -752,6 +752,33 @@ button.todo-item-text:hover {
   font-size: 12px;
 }
 
+/* 직접 정렬 — 손잡이를 끌어 옮긴다. 놓을 자리는 줄 위/아래의 굵은 선으로 */
+.drag-grip {
+  flex-shrink: 0;
+  margin-right: -4px;
+  color: var(--ink-3);
+  font-size: 14px;
+  line-height: 1;
+  cursor: grab;
+  user-select: none;
+}
+
+.drag-grip:active {
+  cursor: grabbing;
+}
+
+.todo-item.dragging {
+  opacity: 0.4;
+}
+
+.todo-item.drop-before {
+  box-shadow: inset 0 3px 0 var(--accent);
+}
+
+.todo-item.drop-after {
+  box-shadow: inset 0 -3px 0 var(--accent);
+}
+
 /* 지난 마감 — 글자색 말고 줄 왼쪽에 붉은 선 하나 더 (훑어볼 때 위치로 잡힌다) */
 .todo-item.overdue {
   box-shadow: inset 3px 0 0 var(--high);
@@ -789,6 +816,11 @@ button.todo-item-text:hover {
   font-size: 13px;
   color: var(--ink-2);
   font-variant-numeric: tabular-nums;
+}
+
+.todo-footer-actions {
+  display: flex;
+  gap: 14px;
 }
 
 /* 텍스트처럼 생긴 버튼 */
@@ -1068,8 +1100,23 @@ button.todo-item-text:hover {
   .due-rows {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  /* .period-rows 기본 규칙이 이 미디어 블록보다 뒤에 있어서 특이도를 올려 이긴다 */
+  .due-rows.period-rows {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
+.period-rows {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.due-sub {
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.due-rows > div,
 .due-rows > a {
   display: flex;
   flex-direction: column;
@@ -1189,6 +1236,11 @@ button.todo-item-text:hover {
 
 /* 선택 표시는 "채움"이라야 한다 — 칸의 inset box-shadow 는 막대(z-index:1)보다 위에 그려져서
    링으로 하면 막대를 가로지르는 세로줄이 생긴다. 배경은 막대 아래에 깔린다. */
+
+/* 주 눈금 — 칸이 높아서 칩 여덟 개, 막대 여러 층이 들어간다 */
+.cal-grid.scale-week .cal-cell {
+  min-height: 220px;
+}
 
 /* ===== 기간 막대 =====
    시작~종료가 여러 칸에 걸치므로 칸 안이 아니라 격자에 직접 놓는다(grid-column: 시작 / 끝+1).
@@ -2083,6 +2135,67 @@ a.tag-chip:hover {
   background: var(--sheet-2);
   font-family: ui-monospace, Consolas, monospace;
   font-size: 12px;
+}
+
+/* ===== 기간 보고서 ===== */
+.report {
+  width: min(680px, calc(100% - 32px));
+}
+
+.report-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.report-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.report-options {
+  display: flex;
+  gap: 14px;
+}
+
+.report-options label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.report-text {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  padding: 14px 20px;
+  border: none;
+  background: var(--sheet-2);
+  color: var(--ink);
+  font: 13px/1.6 ui-monospace, Consolas, "D2Coding", monospace;
+  resize: vertical;
+  outline: none;
+  white-space: pre;
+  overflow: auto;
+}
+
+.report-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--line);
+}
+
+.report-actions .section-note {
+  margin-right: auto;
 }
 
 /* ===== 설정: 스킨 고르기 =====

@@ -18,11 +18,13 @@ export function sortByPriority(todos) {
 //   priority: 높음 → 보통 → 낮음 (기본)
 //   due:      마감 빠른 순, 마감 없는 것은 뒤로
 //   recent:   최근에 추가한 것부터
-export const SORTS = [['priority', '우선순위'], ['due', '마감일'], ['recent', '최근 추가']];
+//   manual:   저장된 순서 그대로 (끌어서 옮긴 순서 — MOVE 액션)
+export const SORTS = [['priority', '우선순위'], ['due', '마감일'], ['recent', '최근 추가'], ['manual', '직접']];
 const SORT_CMP = {
     priority: (a, b) => PRIORITIES.indexOf(priorityOf(a)) - PRIORITIES.indexOf(priorityOf(b)),
     due: (a, b) => (a.dueDate ?? '9999').localeCompare(b.dueDate ?? '9999'),
     recent: (a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0),
+    manual: () => 0, // 안정 정렬이라 배열 순서가 유지된다
 };
 export function sortTodos(todos, by = 'priority') {
     const cmp = SORT_CMP[by] ?? SORT_CMP.priority;
@@ -66,6 +68,7 @@ export function normalizeTodo(raw, now = Date.now()) {
     }
     if (typeof raw.path === 'string' && raw.path.trim() !== '') todo.path = raw.path.trim();
     if (todo.completed && Number.isFinite(raw.completedAt)) todo.completedAt = raw.completedAt;
+    if (todo.completed && raw.archived === true) todo.archived = true; // 보관은 끝낸 것만
     if (Array.isArray(raw.notes)) {
         const notes = raw.notes.map((n, i) => normalizeNote(n, now + i + 1)).filter(Boolean);
         if (notes.length > 0) todo.notes = notes;
@@ -111,16 +114,17 @@ export function todoReducer(state, action) {
     switch (action.type) {
         case 'ADD': return [...state, action.todo];
         // action.at: 완료한 시각. 해제하면 지운다 (undefined는 JSON에 안 남는다)
+        // 완료를 풀면 보관에서도 나온다 (보관은 끝낸 것만 담는다)
         case 'TOGGLE': return state.map(todo =>
             todo.id === action.id
-                ? { ...todo, completed: !todo.completed, completedAt: todo.completed ? undefined : action.at }
+                ? { ...todo, completed: !todo.completed, completedAt: todo.completed ? undefined : action.at, archived: todo.completed ? undefined : todo.archived }
                 : todo
         );
         // 일괄: 고른 것들을 한 상태로 맞춘다 (토글이 아니라 지정 — 결과가 예측 가능하다)
         case 'SET_COMPLETED_MANY': {
             const ids = new Set(action.ids);
             return state.map(todo => ids.has(todo.id)
-                ? { ...todo, completed: action.completed, completedAt: action.completed ? (todo.completedAt ?? action.at) : undefined }
+                ? { ...todo, completed: action.completed, completedAt: action.completed ? (todo.completedAt ?? action.at) : undefined, archived: action.completed ? todo.archived : undefined }
                 : todo);
         }
         case 'SET_PRIORITY_MANY': {
@@ -147,6 +151,19 @@ export function todoReducer(state, action) {
             return next;
         }
         case 'CLEAR_COMPLETED' : return state.filter(todo => !todo.completed);
+        // 보관: 끝낸 것을 목록에서 치우되 지우지는 않는다 (통계엔 남는다)
+        case 'ARCHIVE_COMPLETED': return state.map(todo => todo.completed && !todo.archived ? { ...todo, archived: true } : todo);
+        case 'SET_ARCHIVED': return updateTodo(state, action.id, todo => ({ ...todo, archived: action.archived && todo.completed ? true : undefined }));
+        // 직접 정렬: id 를 targetId 앞(after 면 뒤)으로. 걸러진 목록에서 끌어도 전체 배열의 그 자리로 간다
+        case 'MOVE': {
+            const moving = state.find(todo => todo.id === action.id);
+            if (!moving || action.id === action.targetId) return state;
+            const rest = state.filter(todo => todo.id !== action.id);
+            const at = rest.findIndex(todo => todo.id === action.targetId);
+            if (at < 0) return state;
+            rest.splice(action.after ? at + 1 : at, 0, moving);
+            return rest;
+        }
         case 'EDIT': return state.map(todo =>
             todo.id === action.id ? { ...todo, text: action.newText } : todo
         );

@@ -1,5 +1,5 @@
 import { PRIORITIES, PRIORITY_LABEL } from '../reducers/todoReducer';
-import { completedPerDay, countByPriority, countByTag, dueBuckets, formatDay, dayKey, DUE_BUCKETS } from '../lib/stats';
+import { completedPerDay, countByPriority, countByTag, dueBuckets, formatDay, dayKey, DUE_BUCKETS, periodStats } from '../lib/stats';
 import { useNow } from '../hooks/useNow';
 import { useTagStyle } from '../hooks/useTagColors';
 import ColorByToggle from './ColorByToggle';
@@ -82,6 +82,8 @@ function Dashboard({ todos: allTodos, params, colorBy, onColorByChange }) {
     const buckets = dueBuckets(todos, now);
     const rows = completedPerDay(todos, DAYS, now);
 
+    const period = periodStats(todos, todayKey);
+    const hasPeriod = period.ongoing + period.started + period.ended + period.samples > 0;
     const stackTotal = Math.max(1, active.length);
     const tagRows = countByTag(active);
 
@@ -192,6 +194,34 @@ function Dashboard({ todos: allTodos, params, colorBy, onColorByChange }) {
                         </a>
                     ))}
                 </div>
+            </section>
+
+            {/* 실제 시작~종료 기준. 진행 중은 목록으로 이어진다 (range=오늘) */}
+            <section className="section" aria-labelledby="period-title">
+                <h2 id="period-title" className="section-title">작업 기간</h2>
+                {!hasPeriod
+                    ? <p className="section-note">상세 화면에서 시작일·종료일을 넣으면 여기에 모여요.</p>
+                    : (
+                        <div className="due-rows period-rows">
+                            <a href={listHref({ filter: 'active', range: todayKey })} title="오늘 진행 중인 항목 목록">
+                                <span className="due-k">진행 중</span>
+                                <span className="due-v">{period.ongoing}</span>
+                            </a>
+                            <div>
+                                <span className="due-k">이번 주 시작</span>
+                                <span className="due-v">{period.started}</span>
+                            </div>
+                            <div>
+                                <span className="due-k">이번 주 끝남</span>
+                                <span className="due-v">{period.ended}</span>
+                            </div>
+                            <div>
+                                <span className="due-k">평균 소요</span>
+                                <span className="due-v">{period.avgDays == null ? '–' : `${period.avgDays}일`}</span>
+                                <span className="due-sub">{period.samples > 0 ? `끝낸 ${period.samples}건 기준` : '끝낸 것이 아직 없음'}</span>
+                            </div>
+                        </div>
+                    )}
             </section>
         </div>
     );

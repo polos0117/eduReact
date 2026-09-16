@@ -1,8 +1,21 @@
+import { useState } from "react";
 import TodoItem from "./TodoItem";
 
 // 빈 상태는 세 가지가 다르다: 아무것도 없음(처음) / 검색·조건에 안 걸림 / 이 보기에 없음
 function TodoList({ todos, total, todayKey, selectedIds, onSelect, onToggleTodo, onRemoveTodo, onSetPriority, onOpenTodo,
-    search, onClearSearch, filter, onShowAll, scoped, onAddSamples }) {
+    search, onClearSearch, filter, onShowAll, scoped, onAddSamples, manual, onMove, onRestore }) {
+    // 끌어서 옮기기 — 어느 줄을 끌고 있고, 어느 줄의 앞/뒤에 놓을지. 직접 정렬일 때만 쓴다.
+    const [dragId, setDragId] = useState(null);
+    const [over, setOver] = useState(null); // { id, after }
+    const drag = {
+        onDragStart: (id) => setDragId(id),
+        onDragOver: (id, after) => { if (dragId != null && id !== dragId) setOver({ id, after }); },
+        onDrop: () => { if (dragId != null && over) onMove(dragId, over.id, over.after); setDragId(null); setOver(null); },
+        onDragEnd: () => { setDragId(null); setOver(null); },
+    };
+    if (filter === 'archived' && total === 0) {
+        return <p className="todo-empty">보관한 항목이 없어요. 끝낸 일은 아래 "완료 항목 보관"으로 치울 수 있어요.</p>;
+    }
     if (total === 0) {
         return (
             <div className="todo-empty todo-guide">
@@ -34,6 +47,8 @@ function TodoList({ todos, total, todayKey, selectedIds, onSelect, onToggleTodo,
         <ul className="todo-list">
             {todos.map((todo) => (
                 <TodoItem key={todo.id} todo={todo} todayKey={todayKey}
+                    manual={manual} dragging={dragId === todo.id} onRestore={onRestore}
+                    dropHint={over?.id === todo.id ? (over.after ? 'after' : 'before') : null} {...drag}
                     selected={selectedIds.has(todo.id)} onSelect={onSelect}
                     onToggleTodo={onToggleTodo} onRemoveTodo={onRemoveTodo}
                     onSetPriority={onSetPriority} onOpenTodo={onOpenTodo} />

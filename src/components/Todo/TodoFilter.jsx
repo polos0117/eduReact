@@ -1,6 +1,6 @@
 import { SORTS } from "../../reducers/todoReducer";
 
-const FILTERS = [['all', '전체'], ['active', '진행중'], ['completed', '완료']];
+const FILTERS = [['all', '전체'], ['active', '진행중'], ['completed', '완료'], ['archived', '보관']];
 
 function TodoFilter({ currentFilter, onFilterChange, search, setSearch, sort, onSortChange,
     allSelected, someSelected, onToggleSelectAll, hasVisible }) {

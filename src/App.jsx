@@ -11,6 +11,7 @@ import Dashboard from './components/Dashboard';
 import Calendar from './components/Calendar';
 import TodoDetail from './components/TodoDetail';
 import Settings from './components/Settings';
+import Report from './components/Report';
 import './App.css';
 import './skin-neo.css';
 import './skins.css';
@@ -51,6 +52,7 @@ function App() {
     const [toast, setToast] = useState(null); // { text, actionLabel?, onAction? }
     const [detailId, setDetailId] = useState(null); // 상세 화면에 열린 todo
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [reportOpen, setReportOpen] = useState(false);
     const [revTemplate, setRevTemplate] = useLocalState('revUrl', ''); // 노트의 r번호 → 커밋 링크 형식
     const [tagColors, setTagColors] = useLocalState('tagColors', {}); // { 태그: 0..3 } — 고른 색
     const [colorBy, setColorBy] = useLocalState('colorBy', 'priority'); // 대시보드·캘린더 색 기준
@@ -60,9 +62,24 @@ function App() {
     // 목록 안 이동(j/k/x/Delete)은 DOM 의 초점을 옮기는 것으로 충분해서 상태를 두지 않는다.
     useEffect(() => {
         function onKey(e) {
-            if (e.ctrlKey || e.metaKey || e.altKey) return;
             const el = e.target;
             if (el.closest('input, textarea, select, [contenteditable]') || document.querySelector('dialog[open]')) return;
+            // Alt+↑↓: 직접 정렬에서 초점 둔 줄을 옮긴다 (끌어서 옮기기의 키보드판)
+            if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+                const row = el.closest?.('.todo-item');
+                if (!row) return;
+                e.preventDefault();
+                if (document.querySelector('.sort-select')?.value !== 'manual') {
+                    setToast({ text: '정렬을 "직접"으로 바꾸면 순서를 옮길 수 있어요' });
+                    return;
+                }
+                const rows = [...document.querySelectorAll('.todo-list > .todo-item')];
+                const index = rows.indexOf(row);
+                const target = rows[e.key === 'ArrowUp' ? index - 1 : index + 1];
+                if (target) dispatch({ type: 'MOVE', id: Number(row.dataset.id), targetId: Number(target.dataset.id), after: e.key === 'ArrowDown' });
+                return;
+            }
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
             const focus = (selector) => { const target = document.querySelector(selector); if (target) { target.focus(); e.preventDefault(); } };
             const go = (key) => { location.hash = `#${key}`; e.preventDefault(); };
             const row = el.closest?.('.todo-item');
@@ -78,13 +95,14 @@ function App() {
                 case 'k': case 'ArrowUp': if (rows.length) { rows[Math.max(index - 1, 0)].focus(); e.preventDefault(); } break;
                 case 'x': row?.querySelector('.done-btn')?.click(); break;
                 case 'Delete': case 'Backspace': if (row) { row.querySelector('.todo-item-btn')?.click(); e.preventDefault(); } break;
+                case 'r': setReportOpen(true); break;
                 case '?': setSettingsOpen(true); break;
                 default: return;
             }
         }
         document.addEventListener('keydown', onKey);
         return () => document.removeEventListener('keydown', onKey);
-    }, []);
+    }, [dispatch]); // dispatch 는 useReducer 가 주는 고정 함수 — 실제로는 한 번만 건다
     const detailTodo = todos.find(todo => todo.id === detailId); // 삭제되면 자연히 닫힌다
     const allTags = [...new Set(todos.flatMap(todo => todo.tags ?? []))].sort((a, b) => a.localeCompare(b, 'ko'));
 
@@ -159,6 +177,7 @@ function App() {
                     <div className="header-actions">
                         <button type="button" className="ghost-btn" onClick={exportJson} disabled={todos.length === 0}>내보내기</button>
                         <button type="button" className="ghost-btn" onClick={() => fileRef.current.click()}>가져오기</button>
+                        <button type="button" className="ghost-btn" onClick={() => setReportOpen(true)} disabled={todos.length === 0}>보고서</button>
                         <input ref={fileRef} type="file" accept="application/json,.json" hidden
                             onChange={(e) => { const f = e.target.files[0]; if (f) importJson(f); e.target.value = ''; }} />
                         <button type="button" className="ghost-btn" onClick={() => setSettingsOpen(true)}>설정</button>
@@ -184,6 +203,7 @@ function App() {
                         colorBy={colorBy} onColorByChange={setColorBy} />}
                 </main>
 
+                {reportOpen && <Report todos={todos} onClose={() => setReportOpen(false)} onToast={(text) => setToast({ text })} />}
                 {detailTodo && <TodoDetail todo={detailTodo} dispatch={dispatch} revTemplate={revTemplate} onClose={() => setDetailId(null)} />}
                 {settingsOpen && (
                     <Settings revTemplate={revTemplate} onChangeRevTemplate={setRevTemplate}

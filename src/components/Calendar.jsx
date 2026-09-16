@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react';
 import { PRIORITIES, PRIORITY_LABEL, priorityOf, sortByPriority } from '../reducers/todoReducer';
-import { dayKey, monthCells, rangeOf, weekLanes } from '../lib/stats';
+import { addDays, dayKey, monthCells, rangeOf, weekLanes } from '../lib/stats';
 import { holidaysForRange } from '../lib/holidays';
 import { useNow } from '../hooks/useNow';
 import { useLocalState } from '../hooks/useLocalState';
@@ -11,23 +11,57 @@ import TodoForm from './Todo/TodoForm';
 import DoneButton from './Todo/DoneButton';
 
 const DOW = ['일', '월', '화', '수', '목', '금', '토'];
-const MAX_CHIPS = 2;
 
 // 두 가지 보기: 마감일 하루에 찍는 칩, 실제 시작~종료를 가로지르는 막대
 const VIEWS = [['due', '마감'], ['range', '기간']];
+// 두 가지 눈금: 한 달 격자, 한 주(칸이 커서 막대와 칩이 넉넉하다)
+const SCALES = [['month', '월'], ['week', '주']];
 
-function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
+// 고른 날이 든 주의 일곱 칸 (일요일부터)
+function weekCells(dateKey) {
+    const [y, m, d] = dateKey.split('-').map(Number);
+    const sunday = addDays(dateKey, -new Date(y, m - 1, d).getDay());
+    return Array.from({ length: 7 }, (_, i) => {
+        const key = addDays(sunday, i);
+        return { key, date: Number(key.slice(8)), inMonth: true, dow: i };
+    });
+}
+
+function Seg({ options, value, onChange, label }) {
+    return (
+        <div className="colorby" role="group" aria-label={label}>
+            <span className="colorby-label">{label}</span>
+            {options.map(([key, text]) => (
+                <button key={key} type="button" aria-pressed={value === key}
+                    className={`filter-btn${value === key ? ' active' : ''}`}
+                    onClick={() => onChange(key)}>{text}</button>
+            ))}
+        </div>
+    );
+}
+
+function Calendar({ todos: allTodos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
     const tagStyle = useTagStyle();
     const todayKey = dayKey(useNow());
     const [selected, setSelected] = useState(todayKey);
     const [mode, setMode] = useLocalState('calView', 'due');
+    const [scale, setScale] = useLocalState('calScale', 'month');
     const [view, setView] = useState(() => {
         const d = new Date();
         return { year: d.getFullYear(), month: d.getMonth() };
     });
     const range = mode === 'range';
+    const weekly = scale === 'week';
+    const todos = allTodos.filter(todo => !todo.archived); // 보관한 건 달력에서도 치운다
 
-    function moveMonth(delta) {
+    // 이전/다음: 월 눈금이면 한 달, 주 눈금이면 고른 날을 일주일 옮긴다
+    function move(delta) {
+        if (weekly) {
+            const next = addDays(selected, delta * 7);
+            setSelected(next);
+            setView({ year: Number(next.slice(0, 4)), month: Number(next.slice(5, 7)) - 1 });
+            return;
+        }
         setView(v => {
             const d = new Date(v.year, v.month + delta, 1);
             return { year: d.getFullYear(), month: d.getMonth() };
@@ -50,10 +84,21 @@ function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
         ? todos.map(todo => { const r = rangeOf(todo, todayKey); return r && { todo, ...r }; }).filter(Boolean)
         : [];
 
-    const cells = monthCells(view.year, view.month);
+    const cells = weekly ? weekCells(selected) : monthCells(view.year, view.month);
     const holidays = holidaysForRange(cells[0].key, cells.at(-1).key); // 달력 칸이 해를 넘길 수 있다
     const weeks = Array.from({ length: cells.length / 7 }, (_, i) => cells.slice(i * 7, i * 7 + 7));
+    const maxChips = weekly ? 8 : 2;
     const [sy, sm, sd] = selected.split('-').map(Number);
+
+    // 제목: 월 눈금은 "2026년 9월", 주 눈금은 "2026년 9월 13일 – 19일" (달을 넘으면 뒤에도 달을 쓴다)
+    const title = weekly
+        ? (() => {
+            const a = cells[0].key, b = cells[6].key;
+            const [ay, am, ad] = a.split('-').map(Number);
+            const [by, bm, bd] = b.split('-').map(Number);
+            return am === bm ? `${ay}년 ${am}월 ${ad}일 – ${bd}일` : `${ay}년 ${am}월 ${ad}일 – ${by !== ay ? `${by}년 ` : ''}${bm}월 ${bd}일`;
+        })()
+        : `${view.year}년 ${view.month + 1}월`;
 
     const dayTodos = sortByPriority(range
         ? ranges.filter(r => r.from <= selected && selected <= r.to).map(r => r.todo)
@@ -76,7 +121,7 @@ function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
     return (
         <div className="calendar">
             <div className="cal-head">
-                <h2 className="cal-title">{view.year}년 {view.month + 1}월</h2>
+                <h2 className="cal-title">{title}</h2>
                 <div className="cal-nav">
                     {missing > 0 && (
                         <a href={`#todos?filter=active&${range ? 'range=none' : 'due=none'}`} className="ghost-btn"
@@ -84,23 +129,17 @@ function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
                             {range ? '시작일' : '마감'} 없음 {missing}
                         </a>
                     )}
-                    <div className="colorby" role="group" aria-label="보기 기준">
-                        <span className="colorby-label">보기</span>
-                        {VIEWS.map(([key, label]) => (
-                            <button key={key} type="button" aria-pressed={mode === key}
-                                className={`filter-btn${mode === key ? ' active' : ''}`}
-                                onClick={() => setMode(key)}>{label}</button>
-                        ))}
-                    </div>
+                    <Seg label="눈금" options={SCALES} value={scale} onChange={setScale} />
+                    <Seg label="보기" options={VIEWS} value={mode} onChange={setMode} />
                     <ColorByToggle value={colorBy} onChange={onColorByChange} />
                     <button type="button" className="ghost-btn" onClick={goToday}>오늘</button>
-                    <button type="button" className="icon-btn" onClick={() => moveMonth(-1)} aria-label="이전 달">‹</button>
-                    <button type="button" className="icon-btn" onClick={() => moveMonth(1)} aria-label="다음 달">›</button>
+                    <button type="button" className="icon-btn" onClick={() => move(-1)} aria-label={weekly ? '지난 주' : '이전 달'}>‹</button>
+                    <button type="button" className="icon-btn" onClick={() => move(1)} aria-label={weekly ? '다음 주' : '다음 달'}>›</button>
                 </div>
             </div>
 
             {/* 칸과 막대가 같은 격자에 놓인다 — 막대는 여러 칸을 가로지르므로 자리를 직접 지정한다 */}
-            <div className={`cal-grid mode-${mode}`} role="group" aria-label={`${view.year}년 ${view.month + 1}월`}>
+            <div className={`cal-grid mode-${mode} scale-${scale}`} role="group" aria-label={title}>
                 {DOW.map((d, i) => <div key={d} className={`cal-dow dow-${i}`} aria-hidden="true">{d}</div>)}
                 {weeks.map((week, wi) => {
                     const lanes = range ? weekLanes(ranges, week.map(c => c.key)) : [];
@@ -126,13 +165,13 @@ function Calendar({ todos, dispatch, onOpenTodo, colorBy, onColorByChange }) {
                                         {holiday && <span className="cal-holiday" title={holiday}>{holiday}</span>}
                                         {!range && items.length > 0 && (
                                             <span className="cal-items">
-                                                {items.slice(0, MAX_CHIPS).map(todo => (
+                                                {items.slice(0, maxChips).map(todo => (
                                                     <span key={todo.id} style={chipColor(todo).style}
                                                         className={`cal-chip ${chipColor(todo).className}${todo.completed ? ' completed' : ''}`}>
                                                         {todo.text}
                                                     </span>
                                                 ))}
-                                                {items.length > MAX_CHIPS && <span className="cal-more">+{items.length - MAX_CHIPS}</span>}
+                                                {items.length > maxChips && <span className="cal-more">+{items.length - maxChips}</span>}
                                                 <span className="cal-dot" aria-hidden="true">{items.length}</span>
                                             </span>
                                         )}

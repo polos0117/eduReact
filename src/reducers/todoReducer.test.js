@@ -229,3 +229,27 @@ test('normalizeTodo는 기간을 검사하고 종료일만 있는 것은 버린�
     expect(normalizeTodo({ text: 'a', startDate: '9/10' }).startDate).toBeUndefined();
     expect(normalizeTodo({ text: 'a', startDate: '2026-09-10', endDate: '2026-09-01' }).endDate).toBe('2026-09-10');
 });
+
+test('MOVE는 걸러진 목록에서 끌어도 전체 배열에서 target 앞뒤로 옮긴다', () => {
+    const state = [{ id: 1, text: 'a' }, { id: 2, text: 'b' }, { id: 3, text: 'c' }, { id: 4, text: 'd' }];
+    expect(todoReducer(state, { type: 'MOVE', id: 4, targetId: 2 }).map(t => t.id)).toEqual([1, 4, 2, 3]);
+    expect(todoReducer(state, { type: 'MOVE', id: 1, targetId: 3, after: true }).map(t => t.id)).toEqual([2, 3, 1, 4]);
+    expect(todoReducer(state, { type: 'MOVE', id: 2, targetId: 2 })).toBe(state);   // 제자리
+    expect(todoReducer(state, { type: 'MOVE', id: 2, targetId: 99 })).toBe(state);  // 없는 대상
+    expect(sortTodos(state, 'manual').map(t => t.id)).toEqual([1, 2, 3, 4]);         // 직접 정렬은 배열 순서 그대로
+});
+
+test('보관은 끝낸 것만 담고, 완료를 풀면 보관에서 나온다', () => {
+    const state = [
+        { id: 1, text: 'a', completed: true, completedAt: 1 },
+        { id: 2, text: 'b', completed: false },
+        { id: 3, text: 'c', completed: true, completedAt: 2, archived: true },
+    ];
+    const archived = todoReducer(state, { type: 'ARCHIVE_COMPLETED' });
+    expect(archived.map(t => t.archived)).toEqual([true, undefined, true]);
+    expect(todoReducer(archived, { type: 'TOGGLE', id: 1, at: 3 })[0]).toMatchObject({ completed: false, archived: undefined });
+    expect(todoReducer(state, { type: 'SET_ARCHIVED', id: 2, archived: true })[1].archived).toBeUndefined(); // 안 끝낸 건 보관 불가
+    expect(todoReducer(state, { type: 'SET_ARCHIVED', id: 3, archived: false })[2].archived).toBeUndefined();
+    expect(normalizeTodo({ text: 'x', completed: false, archived: true }).archived).toBeUndefined();
+    expect(normalizeTodo({ text: 'x', completed: true, archived: true }).archived).toBe(true);
+});
