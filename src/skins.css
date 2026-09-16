@@ -407,6 +407,11 @@
   box-shadow: var(--clay-lift);
 }
 
+/* 위의 시트색 배경 규칙이 기본 hover 를 덮으므로 hover 는 여기서 다시 */
+[data-skin="clay"] .due-rows > a:hover {
+  background: color-mix(in oklab, var(--accent) 14%, var(--sheet));
+}
+
 [data-skin="clay"] .todo-add-btn,
 [data-skin="clay"] .bulk-btn.primary {
   height: 34px;
@@ -785,6 +790,10 @@
 
 [data-skin="blueprint"] .chart .bar {
   fill: var(--chart-1);
+}
+
+[data-skin="blueprint"] .chart .bar-group:hover .bar {
+  fill: var(--accent);
 }
 
 /* 태그 칩 배경은 불투명한 시트 색에 섞는다 (rgba 선 위에서 흐려지지 않게) */

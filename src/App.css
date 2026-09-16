@@ -874,11 +874,14 @@ button.todo-item-text:hover {
   border-right: 1px solid var(--line);
   color: inherit;
   text-decoration: none;
-  transition: background 0.15s;
+  transition: background 0.15s, box-shadow 0.15s;
 }
 
+/* hover 는 신호를 겹친다 — 색은 스킨마다 강도가 달라서 색 하나로는 안 보이는 스킨이 생긴다.
+   타일: 강조색 12% 배경 + 강조색 링 + (마감·기간 타일은) 2px 떠오름과 그림자 */
 .stat:hover {
-  background: var(--accent-soft);
+  background: color-mix(in oklab, var(--accent) 12%, var(--sheet));
+  box-shadow: inset 0 0 0 2px var(--accent);
 }
 
 .stat:hover .stat-label {
@@ -992,7 +995,7 @@ button.todo-item-text:hover {
 }
 
 .chart .bar-group:hover .bar {
-  fill: var(--accent);
+  fill: var(--ink); /* 기본 채움이 강조색이라, 강조색으로 바꾸는 건 변화가 없다 */
 }
 
 .chart .bar-label {
@@ -1037,7 +1040,7 @@ button.todo-item-text:hover {
 }
 
 .stack-seg:hover {
-  box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--ink) 70%, transparent);
+  box-shadow: inset 0 0 0 2px var(--ink);
 }
 
 .seg-high {
@@ -1135,12 +1138,14 @@ button.todo-item-text:hover {
   border-radius: 10px;
   color: inherit;
   text-decoration: none;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 
 .due-rows > a:hover {
   border-color: var(--accent);
-  background: var(--accent-soft);
+  background: color-mix(in oklab, var(--accent) 12%, var(--sheet));
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px -10px color-mix(in oklab, var(--ink) 45%, transparent);
 }
 
 .due-k {
