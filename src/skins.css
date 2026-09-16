@@ -280,22 +280,22 @@
    말랑 — 푹신한 클레이. 라벤더 바탕, 둥근 알약, 눌리는 버튼, 둥근 제목 서체
    ====================================================================== */
 :is(:root, .skin-card-canvas)[data-skin="clay"] {
-  --canvas: light-dark(#ece6f7, #1b1826);
-  --sheet: light-dark(#fdfcff, #27223a);
-  --sheet-2: light-dark(#f3eefb, #302a46);
+  --canvas: light-dark(#ebe7f2, #1b1921);
+  --sheet: light-dark(#fdfcff, #272432);
+  --sheet-2: light-dark(#f2eff7, #2f2c3d);
   --ink: light-dark(#2b2440, #f1ecff);
   --ink-2: light-dark(#6a6284, #b8afd2);
   --ink-3: light-dark(#a199b8, #7c7398);
   --line: light-dark(#e7e1f3, #3b3455);
   --line-2: light-dark(#d2c9e6, #4d4468);
-  --accent: light-dark(#6f4ff2, #a99bff);
+  --accent: light-dark(#6e61cd, #a9a1e7);
   --accent-ink: light-dark(#ffffff, #1b1826);
-  --accent-soft: light-dark(#ebe5ff, #362e5c);
-  --high: light-dark(#e8456b, #ff8aa5);
-  --high-soft: light-dark(#ffe5ec, #4a2536);
-  --chart-1: light-dark(#5a3ad6, #c2b7ff);
-  --chart-2: light-dark(#9a86f5, #8a78e0);
-  --chart-3: light-dark(#d5ccf8, #4c4184);
+  --accent-soft: light-dark(#eae7f6, #36324d);
+  --high: light-dark(#d06275, #eb98a9);
+  --high-soft: light-dark(#f6e6ea, #442a33);
+  --chart-1: light-dark(#594eb3, #c2bbed);
+  --chart-2: light-dark(#998edb, #897fc7);
+  --chart-3: light-dark(#b6acda, #5f5893); /* 옅은 끝도 시트 대비 2:1 은 넘게 (검증기 ordinal) */
   --toast-bg: light-dark(#2b2440, #f1ecff);
   --toast-fg: light-dark(#ffffff, #1b1826);
   --tag-0: light-dark(#2a78d6, #3987e5);
@@ -497,24 +497,24 @@
    터미널 — 검은 유리 위의 초록 인광. 고정폭, 각진 모서리, 주사선, 깜빡이는 커서
    ====================================================================== */
 :is(:root, .skin-card-canvas)[data-skin="terminal"] {
-  --canvas: #060806;
-  --sheet: #0c110c;
-  --sheet-2: #131b13;
-  --ink: #c9f2c9;
-  --ink-2: #7fb37f;
-  --ink-3: #4f704f;
-  --line: #1e2a1e;
-  --line-2: #32482f;
-  --accent: #35d15a;
+  --canvas: #0a0c0a;
+  --sheet: #121512;
+  --sheet-2: #1a1e1a;
+  --ink: #c2dcc2;
+  --ink-2: #869f86;
+  --ink-3: #506050;
+  --line: #222a22;
+  --line-2: #364536;
+  --accent: #62c072;
   --accent-ink: #061006;
-  --accent-soft: #10240f;
-  --high: #ff6b5e;
-  --high-soft: #2b1512;
-  --chart-1: #35d15a;
-  --chart-2: #1f9440;
-  --chart-3: #145f2a;
-  --toast-bg: #c9f2c9;
-  --toast-fg: #070a07;
+  --accent-soft: #162216;
+  --high: #de867b;
+  --high-soft: #2a1a18;
+  --chart-1: #62c072;
+  --chart-2: #538b5b;
+  --chart-3: #34593b;
+  --toast-bg: #c2dcc2;
+  --toast-fg: #0a0c0a;
   /* 초록 일색이면 태그가 구분되지 않는다 — 검증 통과한 다크 세트를 그대로 */
   --tag-0: #3987e5;
   --tag-1: #e0703a;
@@ -524,7 +524,7 @@
   /* 한글도 한 칸에 맞는 고정폭 */
   --font: "Nanum Gothic Coding", "D2Coding", "Cascadia Code", Consolas, ui-monospace, monospace;
   --font-display: var(--font);
-  --glow: 0 0 8px color-mix(in oklab, currentColor 55%, transparent);
+  --glow: 0 0 6px color-mix(in oklab, currentColor 30%, transparent);
   color-scheme: dark;
 }
 
@@ -541,8 +541,8 @@
   z-index: 2147483647;
   pointer-events: none;
   background:
-    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px),
-    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.45) 100%);
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.3) 100%);
 }
 
 /* 인광 — 밝은 글자만 살짝 번진다 */
@@ -605,19 +605,19 @@
 }
 
 [data-skin="terminal"] .todo-item:hover {
-  background: rgba(53, 209, 90, 0.06);
+  background: rgba(98, 192, 114, 0.04);
 }
 
 [data-skin="terminal"] .todo-add-btn,
 [data-skin="terminal"] .done-btn.is-done,
 [data-skin="terminal"] .todo-item-checkbox:checked,
 [data-skin="terminal"] .cal-cell.today .cal-date {
-  box-shadow: 0 0 12px rgba(53, 209, 90, 0.45);
+  box-shadow: 0 0 12px rgba(98, 192, 114, 0.27);
 }
 
 [data-skin="terminal"] .todo-progress-bar,
 [data-skin="terminal"] .chart .bar {
-  filter: drop-shadow(0 0 4px rgba(53, 209, 90, 0.6));
+  filter: drop-shadow(0 0 4px rgba(98, 192, 114, 0.36));
 }
 
 /* 둥근 것들을 각지게 — --radius 로 안 덮이는 알약·원형만 따로 */
@@ -643,28 +643,29 @@
 }
 
 /* ======================================================================
-   청사진 — 설계도. 진한 파란 바탕에 모눈, 흰 선, 제도 연필의 노랑 강조, 기술 서체
+   청사진 — 설계도. 바랜 남색 바탕에 모눈, 흰 선, 제도 연필의 호박색 강조, 기술 서체
+   (처음엔 순도 높은 남색이었는데 오래 보기 피로해서 OKLCH 채도를 절반으로 — 진짜 청사진의 바랜 색에 가깝다)
    ====================================================================== */
 :is(:root, .skin-card-canvas)[data-skin="blueprint"] {
-  --canvas: #0f2a58;
-  --sheet: #14336a;
-  --sheet-2: #1a3d7a;
-  --ink: #eaf1ff;
-  --ink-2: #b9cbea;
-  --ink-3: #7f9ac4;
-  --line: rgba(255, 255, 255, 0.18);
-  --line-2: rgba(255, 255, 255, 0.42);
-  --accent: #ffd166;
-  --accent-ink: #1a2540;
-  --accent-soft: rgba(255, 209, 102, 0.16);
-  --high: #ff8f85;
-  --high-soft: rgba(255, 143, 133, 0.18);
-  /* 우선순위 램프 — 한 색상(파랑)으로 밝음 → 어두움. 검증기 ordinal 통과 (#14336a 위) */
-  --chart-1: #e3edff;
-  --chart-2: #93b6ec;
-  --chart-3: #4d78b8;
-  --toast-bg: #eaf1ff;
-  --toast-fg: #0f2a58;
+  --canvas: #283a55;
+  --sheet: #304565;
+  --sheet-2: #395072;
+  --ink: #e3e7ee;
+  --ink-2: #b8c1d0;
+  --ink-3: #8390a5;
+  --line: rgba(255, 255, 255, 0.14);
+  --line-2: rgba(255, 255, 255, 0.32);
+  --accent: #e5cb91;
+  --accent-ink: #1e2a3d;
+  --accent-soft: rgba(229, 203, 145, 0.16);
+  --high: #d9968f;
+  --high-soft: rgba(217, 150, 143, 0.18);
+  /* 우선순위 램프 — 한 색상(파랑)으로 밝음 → 어두움. 검증기 ordinal 통과 (#304565 위) */
+  --chart-1: #e6edf9;
+  --chart-2: #9db6dc;
+  --chart-3: #5b79a5;
+  --toast-bg: #e3e7ee;
+  --toast-fg: #283a55;
   /* 태그는 검증 통과한 다크 세트. 자홍만 시트 대비가 3:1 아래인데 칩엔 이름이 있어 허용 범위 */
   --tag-0: #3987e5;
   --tag-1: #e0703a;
@@ -673,8 +674,8 @@
   --font: "IBM Plex Sans KR", Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   --font-display: var(--font);
   --radius: 2px;
-  --grid: linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px) 0 0 / 24px 24px,
-    linear-gradient(90deg, rgba(255, 255, 255, 0.07) 1px, transparent 1px) 0 0 / 24px 24px;
+  --grid: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px) 0 0 / 24px 24px;
   color-scheme: dark;
 }
 
@@ -786,7 +787,7 @@
 
 /* 태그 칩 배경은 불투명한 시트 색에 섞는다 (rgba 선 위에서 흐려지지 않게) */
 [data-skin="blueprint"] {
-  --tag-base: #14336a;
+  --tag-base: #304565;
 }
 
 /* ======================================================================

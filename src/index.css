@@ -13,10 +13,10 @@
   --ink-3: light-dark(#9aa0ab, #6d7380);
   --line: light-dark(#e6e8ec, #2a2e37);
   --line-2: light-dark(#d3d6dc, #3a3f4a);
-  --accent: light-dark(#2f5bd6, #7c9cf0);
+  --accent: light-dark(#3b61c1, #839ee0);
   --accent-ink: light-dark(#ffffff, #0f1320);
   --accent-soft: light-dark(#e9eefb, #23304f);
-  --high: light-dark(#d2463b, #f0867a); /* 우선순위 높음, 지난 마감 */
+  --high: light-dark(#c3564b, #e38e84); /* 우선순위 높음, 지난 마감 */
   --high-soft: light-dark(#fbe9e7, #3d2320);
   --chart-1: light-dark(#1f3f9e, #9db8ff); /* 우선순위 램프: 높음 → 낮음 = 진함 → 연함 */
   --chart-2: light-dark(#5b82e6, #5f86e0);
