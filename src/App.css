@@ -1185,6 +1185,9 @@ button.todo-item-text:hover {
   background: var(--accent-soft);
 }
 
+/* 선택 표시는 "채움"이라야 한다 — 칸의 inset box-shadow 는 막대(z-index:1)보다 위에 그려져서
+   링으로 하면 막대를 가로지르는 세로줄이 생긴다. 배경은 막대 아래에 깔린다. */
+
 /* ===== 기간 막대 =====
    시작~종료가 여러 칸에 걸치므로 칸 안이 아니라 격자에 직접 놓는다(grid-column: 시작 / 끝+1).
    같은 줄의 칸들보다 DOM 뒤에 있어 위에 그려지고, 칸 경계선을 덮어 하나로 이어져 보인다.
@@ -1198,24 +1201,26 @@ button.todo-item-text:hover {
   margin-inline: 3px;
   min-width: 0;
   height: 18px;
-  padding: 0 8px;
+  padding: 0 9px;
   border: none;
   border-radius: 9px;
-  background: color-mix(in oklab, var(--bar) 18%, var(--tag-base, var(--sheet)));
-  box-shadow: inset 3px 0 0 var(--bar);
-  color: var(--ink-2);
+  /* 칸 배경·선택한 날 색과 확실히 갈리게 진하게 채우고 같은 색 테두리를 두른다.
+     글자는 잉크색 그대로라 어떤 색을 골라도 읽힌다 (태그 칩과 같은 규칙) */
+  background: color-mix(in oklab, var(--bar) 45%, var(--tag-base, var(--sheet)));
+  box-shadow: inset 0 0 0 1px var(--bar), inset 4px 0 0 var(--bar);
+  color: var(--ink);
   font-size: 11px;
+  font-weight: 500;
   line-height: 18px;
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: color 0.15s, background 0.15s;
+  transition: background 0.15s;
 }
 
 .cal-bar:hover {
-  color: var(--ink);
-  background: color-mix(in oklab, var(--bar) 30%, var(--tag-base, var(--sheet)));
+  background: color-mix(in oklab, var(--bar) 64%, var(--tag-base, var(--sheet)));
 }
 
 .cal-bar.priority-high {
@@ -1235,17 +1240,12 @@ button.todo-item-text:hover {
   --bar: var(--line-2);
 }
 
-.cal-bar.completed {
-  color: var(--ink-3);
-  text-decoration: line-through;
-}
-
 /* 주 경계를 넘어가는 쪽은 각지게 붙여서 다음 줄로 이어진다는 걸 보인다 */
 .cal-bar.open-left {
   margin-inline-start: 0;
   border-start-start-radius: 0;
   border-end-start-radius: 0;
-  box-shadow: none;
+  box-shadow: inset 0 0 0 1px var(--bar); /* 이어지는 쪽에는 굵은 시작선을 넣지 않는다 */
 }
 
 .cal-bar.open-right {
@@ -1254,12 +1254,22 @@ button.todo-item-text:hover {
   border-end-end-radius: 0;
 }
 
+/* 끝난 일 — 채우지 않고 테두리만. 진행 중인 막대와 한눈에 갈린다 */
+.cal-bar.completed,
+.cal-bar.completed:hover {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--line-2);
+  color: var(--ink-3);
+  font-weight: 400;
+  text-decoration: line-through;
+}
+
 /* 종료일을 안 적은 것 = 진행 중 — 끝을 흐리게 풀어 둔다 */
 .cal-bar.ongoing:not(.open-right) {
   border-start-end-radius: 0;
   border-end-end-radius: 0;
-  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent);
-  mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent);
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent);
 }
 
 .cal-cell.out .cal-date,
