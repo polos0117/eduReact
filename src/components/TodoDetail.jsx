@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { PRIORITIES, PRIORITY_LABEL, priorityOf, NOTE_CATEGORIES, NOTE_LABEL, subtaskProgress } from '../reducers/todoReducer';
 import { linkify, revUrl } from '../lib/linkify';
 import { holidayOn } from '../lib/holidays';
+import { dayKey } from '../lib/stats';
+import { useNow } from '../hooks/useNow';
 import { useTagStyle } from '../hooks/useTagColors';
 import DoneButton from './Todo/DoneButton';
 
@@ -108,6 +110,13 @@ function TodoDetail({ todo, dispatch, revTemplate, onClose }) {
     const [path, setPath] = useState(todo.path ?? '');
     const [draft, setDraft] = useState({ category: 'backend', text: '' });
     const [subDraft, setSubDraft] = useState('');
+    const todayKey = dayKey(useNow());
+    // 종료일은 지났는데 아직 안 끝낸 상태 — 완료를 그 날짜로 찍어 준다 (통계·보고서가 실제 끝난 날을 쓰게)
+    const endedButOpen = Boolean(todo.endDate) && todo.endDate < todayKey && !todo.completed;
+    function completeAtEnd() {
+        const [y, m, d] = todo.endDate.split('-').map(Number);
+        dispatch({ type: 'TOGGLE', id: todo.id, at: new Date(y, m - 1, d, 18).getTime() });
+    }
 
     // StrictMode 는 효과를 두 번 돌린다(정리 → 재실행). 정리의 close() 도 close 이벤트를 내므로
     // <dialog onClose> 를 쓰면 스스로 닫혀 버린다. 사용자가 닫는 경로(Esc)는 cancel 로 받는다.
@@ -190,6 +199,12 @@ function TodoDetail({ todo, dispatch, revTemplate, onClose }) {
                             min={todo.startDate || undefined} disabled={!todo.startDate}
                             onChange={(e) => dispatch({ type: 'SET_RANGE', id: todo.id, startDate: todo.startDate, endDate: e.target.value })} />
                         {todo.startDate && !todo.endDate && <span className="range-ongoing">진행 중</span>}
+                        {endedButOpen && (
+                            <button type="button" className="bulk-btn range-done" onClick={completeAtEnd}
+                                title={`종료일 ${todo.endDate}에 끝낸 것으로 완료 처리`}>
+                                종료일이 지났어요 — 완료 처리
+                            </button>
+                        )}
                     </span>
                     <span className="detail-tags">태그
                         <TagEditor tags={tags} onChange={(next) => dispatch({ type: 'SET_TAGS', id: todo.id, tags: next })} />

@@ -13,7 +13,7 @@ const DAY_MS = 24 * 3600 * 1000;
 
 // "할 일" 탭. 상태는 App이 갖고, 여기서는 액션을 만들어 dispatch만 한다.
 // params: 해시의 추가 조건 (대시보드·캘린더에서 넘어올 때) — filter / due / priority / done / tag
-function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onOpenTodo }) {
+function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onArchiveCompleted, onOpenTodo }) {
     const [filter, setFilter] = useState(() => {
         const f = params.get('filter');
         return f === 'active' || f === 'completed' || f === 'archived' ? f : 'all';
@@ -43,8 +43,10 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onOpenT
         ];
         samples.forEach((s, i) => dispatch({ type: 'ADD', todo: { id: at + i, completed: false, createdAt: at + i, ...s } }));
     }
-    function archiveCompleted() {
-        dispatch({ type: 'ARCHIVE_COMPLETED' });
+    const archivedIds = todos.filter(todo => todo.archived).map(todo => todo.id);
+    function restoreAll() {
+        dispatch({ type: 'SET_ARCHIVED_MANY', ids: archivedIds, archived: false });
+        setFilter('completed'); // 되돌아간 것들이 있는 보기로
     }
     // 직접 정렬: 끌어다 놓거나 Alt+↑↓ 로 옮긴다
     function moveTodo(id, targetId, after) {
@@ -155,8 +157,8 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onOpenT
                 selectedIds={selectedIds} onSelect={toggleSelect}
                 onToggleTodo={toggleTodo} onRemoveTodo={onRemoveTodo} onSetPriority={setPriority} onOpenTodo={onOpenTodo} />
             <TodoFooter total={pool.length} done={doneCount} filter={filter} archivedCount={archivedCount}
-                onArchiveCompleted={archiveCompleted} onShowArchived={() => setFilter('archived')}
-                onClearArchived={() => onRemoveMany(todos.filter(todo => todo.archived).map(todo => todo.id))} />
+                onArchiveCompleted={onArchiveCompleted} onShowArchived={() => setFilter('archived')}
+                onRestoreAll={restoreAll} onClearArchived={() => onRemoveMany(archivedIds)} />
         </>
     );
 }

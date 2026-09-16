@@ -693,6 +693,11 @@ button.todo-item-text:hover {
   }
 }
 
+/* 보관한 줄에서는 복원이 주된 동작이라 숨기지 않는다 */
+.todo-item.archived .todo-item-actions {
+  opacity: 1;
+}
+
 .todo-item-btn {
   padding: 4px 8px;
   border: none;
@@ -1635,6 +1640,18 @@ button.todo-item-text:hover {
   font-size: 11px;
   line-height: 18px;
   font-weight: 600;
+}
+
+/* 종료일 지남 → 완료 처리. 작은 알약 버튼 */
+.range-done {
+  padding: 3px 10px;
+  border-color: var(--high);
+  color: var(--high);
+  font-size: 12px;
+}
+
+.range-done:hover {
+  background: var(--high-soft);
 }
 
 .detail-range .due-input:disabled {

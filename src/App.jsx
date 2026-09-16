@@ -137,6 +137,18 @@ function App() {
         });
     }
 
+    // 끝낸 것을 보관 — 삭제처럼 토스트로 되돌릴 수 있다
+    function archiveCompleted() {
+        const ids = todos.filter(todo => todo.completed && !todo.archived).map(todo => todo.id);
+        if (ids.length === 0) return;
+        dispatch({ type: 'SET_ARCHIVED_MANY', ids, archived: true });
+        setToast({
+            text: `${ids.length}개 보관됨`,
+            actionLabel: '되돌리기',
+            onAction: () => dispatch({ type: 'SET_ARCHIVED_MANY', ids, archived: false }),
+        });
+    }
+
     function exportJson() {
         const blob = new Blob([JSON.stringify(todos, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -197,7 +209,7 @@ function App() {
                 <main className="sheet">
                     {/* key=hash: 조건이 바뀌면 목록 페이지를 새로 그려 필터 상태를 해시에서 다시 읽는다 */}
                     {tab === 'todos' && <TodoPage key={hash} todos={todos} dispatch={dispatch} params={params}
-                        onRemoveTodo={removeTodo} onRemoveMany={removeManyTodos} onOpenTodo={setDetailId} />}
+                        onRemoveTodo={removeTodo} onRemoveMany={removeManyTodos} onArchiveCompleted={archiveCompleted} onOpenTodo={setDetailId} />}
                     {tab === 'dashboard' && <Dashboard todos={todos} params={params} colorBy={colorBy} onColorByChange={setColorBy} />}
                     {tab === 'calendar' && <Calendar todos={todos} dispatch={dispatch} onOpenTodo={setDetailId}
                         colorBy={colorBy} onColorByChange={setColorBy} />}

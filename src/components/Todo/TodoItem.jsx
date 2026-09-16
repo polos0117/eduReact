@@ -18,7 +18,7 @@ function TodoItem({ todo, todayKey, selected, onSelect, onToggleTodo, onRemoveTo
 
     return (
         <li data-id={todo.id}
-            className={`todo-item priority-${priority}${todo.completed ? ' completed' : ''}${selected ? ' selected' : ''}${overdue ? ' overdue' : ''}${dragging ? ' dragging' : ''}${dropHint ? ` drop-${dropHint}` : ''}`}
+            className={`todo-item priority-${priority}${todo.completed ? ' completed' : ''}${selected ? ' selected' : ''}${overdue ? ' overdue' : ''}${dragging ? ' dragging' : ''}${dropHint ? ` drop-${dropHint}` : ''}${todo.archived ? ' archived' : ''}`}
             onDragOver={manual ? (e) => { e.preventDefault(); const r = e.currentTarget.getBoundingClientRect(); onDragOver(todo.id, e.clientY > r.top + r.height / 2); } : undefined}
             onDrop={manual ? (e) => { e.preventDefault(); onDrop(); } : undefined}>
             {/* 좁은 화면에서는 main 이 한 줄을 다 쓰고 meta 가 아래로 내려간다 */}

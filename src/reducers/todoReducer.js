@@ -152,8 +152,11 @@ export function todoReducer(state, action) {
         }
         case 'CLEAR_COMPLETED' : return state.filter(todo => !todo.completed);
         // 보관: 끝낸 것을 목록에서 치우되 지우지는 않는다 (통계엔 남는다)
-        case 'ARCHIVE_COMPLETED': return state.map(todo => todo.completed && !todo.archived ? { ...todo, archived: true } : todo);
         case 'SET_ARCHIVED': return updateTodo(state, action.id, todo => ({ ...todo, archived: action.archived && todo.completed ? true : undefined }));
+        case 'SET_ARCHIVED_MANY': {
+            const ids = new Set(action.ids);
+            return state.map(todo => ids.has(todo.id) ? { ...todo, archived: action.archived && todo.completed ? true : undefined } : todo);
+        }
         // 직접 정렬: id 를 targetId 앞(after 면 뒤)으로. 걸러진 목록에서 끌어도 전체 배열의 그 자리로 간다
         case 'MOVE': {
             const moving = state.find(todo => todo.id === action.id);

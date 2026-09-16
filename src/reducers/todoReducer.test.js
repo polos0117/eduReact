@@ -245,8 +245,9 @@ test('보관은 끝낸 것만 담고, 완료를 풀면 보관에서 나온다', 
         { id: 2, text: 'b', completed: false },
         { id: 3, text: 'c', completed: true, completedAt: 2, archived: true },
     ];
-    const archived = todoReducer(state, { type: 'ARCHIVE_COMPLETED' });
-    expect(archived.map(t => t.archived)).toEqual([true, undefined, true]);
+    const archived = todoReducer(state, { type: 'SET_ARCHIVED_MANY', ids: [1, 2], archived: true });
+    expect(archived.map(t => t.archived)).toEqual([true, undefined, true]); // 2는 안 끝나서 보관되지 않는다
+    expect(todoReducer(archived, { type: 'SET_ARCHIVED_MANY', ids: [1, 3], archived: false }).map(t => t.archived)).toEqual([undefined, undefined, undefined]);
     expect(todoReducer(archived, { type: 'TOGGLE', id: 1, at: 3 })[0]).toMatchObject({ completed: false, archived: undefined });
     expect(todoReducer(state, { type: 'SET_ARCHIVED', id: 2, archived: true })[1].archived).toBeUndefined(); // 안 끝낸 건 보관 불가
     expect(todoReducer(state, { type: 'SET_ARCHIVED', id: 3, archived: false })[2].archived).toBeUndefined();
