@@ -507,7 +507,7 @@
   --line-2: #364536;
   --accent: #62c072;
   --accent-ink: #061006;
-  --accent-soft: #162216;
+  --accent-soft: #1f3222; /* hover·선택 면 — 시트와 확실히 갈리게 */
   --high: #de867b;
   --high-soft: #2a1a18;
   --chart-1: #62c072;
@@ -750,6 +750,8 @@
   background: transparent;
 }
 
+/* 위의 투명 배경 규칙이 기본 hover 보다 뒤에 있어 이긴다 — hover 는 여기서 다시 */
+[data-skin="blueprint"] .due-rows > a:hover,
 [data-skin="blueprint"] .ghost-btn:hover:not(:disabled),
 [data-skin="blueprint"] .icon-btn:hover {
   border-color: var(--accent);

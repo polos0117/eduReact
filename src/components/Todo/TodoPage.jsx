@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { sortTodos, PRIORITY_LABEL } from "../../reducers/todoReducer";
 import { useLocalState } from "../../hooks/useLocalState";
-import { dayKey, addDays, dueBucketOf, DUE_LABEL, formatDay, rangeOf } from "../../lib/stats";
+import { dayKey, addDays, dueBucketOf, DUE_LABEL, formatDay, rangeOf, weekOf } from "../../lib/stats";
 import { useNow } from "../../hooks/useNow";
 import TodoList from "./TodoList";
 import TodoForm from "./TodoForm";
@@ -61,12 +61,16 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onArchi
     const priority = params.get('priority'); // high|normal|low
     const done = params.get('done');         // 7d (최근 n일) | YYYY-MM-DD (그날 완료)
     const tag = params.get('tag');
-    const range = params.get('range');       // none | YYYY-MM-DD — 실제 작업 기간 기준
+    const range = params.get('range');       // none | any | YYYY-MM-DD — 실제 작업 기간 기준
+    const started = params.get('started');   // week — 이번 주에 시작한 것 (대시보드 작업 기간)
+    const ended = params.get('ended');       // week — 이번 주에 끝난 것
     const scope = [];
     if (tag) scope.push(`#${tag}`);
     if (due) scope.push(DUE_LABEL[due] ?? `${formatDay(due, todayKey)} 마감`);
     if (priority && PRIORITY_LABEL[priority]) scope.push(`우선순위 ${PRIORITY_LABEL[priority]}`);
-    if (range) scope.push(range === 'none' ? '시작일 없음' : `${formatDay(range, todayKey)} 진행`);
+    if (range) scope.push(range === 'none' ? '시작일 없음' : range === 'any' ? '기간 있음' : `${formatDay(range, todayKey)} 진행`);
+    if (started === 'week') scope.push('이번 주 시작');
+    if (ended === 'week') scope.push('이번 주 끝남');
     if (done) scope.push(/^\d+d$/.test(done) ? `최근 ${parseInt(done)}일 완료` : `${formatDay(done, todayKey)} 완료`);
 
     function matchesScope(todo) {
@@ -75,7 +79,17 @@ function TodoPage({ todos, dispatch, params, onRemoveTodo, onRemoveMany, onArchi
         if (priority && (todo.priority ?? 'normal') !== priority) return false;
         if (range) {
             const r = rangeOf(todo, todayKey);
-            if (range === 'none' ? r : !r || range < r.from || range > r.to) return false;
+            if (range === 'none') { if (r) return false; }
+            else if (range === 'any') { if (!r) return false; }
+            else if (!r || range < r.from || range > r.to) return false;
+        }
+        if (started === 'week' || ended === 'week') {
+            const r = rangeOf(todo, todayKey);
+            const week = weekOf(todayKey);
+            const within = (key) => key >= week.from && key <= week.to;
+            if (!r) return false;
+            if (started === 'week' && !within(r.from)) return false;
+            if (ended === 'week' && !((todo.completed || todo.endDate) && within(r.to))) return false;
         }
         if (done) {
             if (!todo.completed || !todo.completedAt) return false;

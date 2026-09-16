@@ -1,40 +1,39 @@
 /* ===== 네오 스킨 — 어두운 우주 배경 위의 유리 패널, 시안 네온, 살짝 솟은 3D =====
-   색은 OKLCH 채도를 60% 로 낮춘 값이고 글로우·성운은 알파를 절반으로 — 오래 봐도 눈이 안 피로하게.
    DOM과 레이아웃은 App.css 그대로. 여기서는 토큰을 덮어쓰고 재질만 바꾼다.
    어두운 톤 전용이라 테마 선택은 숨긴다. */
 
 :is(:root, .skin-card-canvas)[data-skin="neo"] {
-  --canvas: #0b0e18;
-  --sheet: rgba(18, 22, 36, 0.78);
+  --canvas: #060913;
+  --sheet: rgba(16, 22, 44, 0.72);
   --sheet-2: rgba(255, 255, 255, 0.05);
-  --ink: #dfe2ec;
-  --ink-2: #989fb5;
-  --ink-3: #5e6479;
-  --line: rgba(140, 150, 200, 0.14);
-  --line-2: rgba(140, 150, 200, 0.29);
-  --accent: #72cde3;
+  --ink: #e6ecff;
+  --ink-2: #9aa7d4;
+  --ink-3: #5f6b96;
+  --line: rgba(130, 150, 255, 0.16);
+  --line-2: rgba(130, 150, 255, 0.34);
+  --accent: #4de1ff;
   --accent-ink: #04111a;
-  --accent-soft: rgba(114, 205, 227, 0.08);
-  --high: #dd7e95;
-  --high-soft: rgba(221, 126, 149, 0.11);
-  --chart-1: #72cde3;
-  --chart-2: #7e93d6;
-  --chart-3: #424e77;
-  --toast-bg: #dfe2ec;
-  --toast-fg: #0b0e18;
+  --accent-soft: rgba(77, 225, 255, 0.14);
+  --high: #ff5d8f;
+  --high-soft: rgba(255, 93, 143, 0.16);
+  --chart-1: #4de1ff;
+  --chart-2: #6f8dff;
+  --chart-3: #3a4a8f;
+  --toast-bg: #e6ecff;
+  --toast-fg: #060913;
   /* 태그 색 — 검증 통과한 다크 스텝 그대로. 네오는 --sheet 가 반투명이라
      칩 배경은 불투명한 --tag-base 에 섞는다 */
   --tag-0: #3987e5;
   --tag-1: #e0703a;
   --tag-2: #2aa87d;
   --tag-3: #b83a6b;
-  --tag-base: #12161f;
+  --tag-base: #101628;
   --radius: 18px;
   --font-display: Orbit, Pretendard, "Apple SD Gothic Neo", sans-serif; /* 각진 미래풍 — 굵기는 400 하나 */
 
   /* 이 스킨에서만 쓰는 재질 토큰 */
-  --neo-violet: #8a86d4;
-  --neo-glow: 0 0 18px rgba(114, 205, 227, 0.25);
+  --neo-violet: #8b7bff;
+  --neo-glow: 0 0 18px rgba(77, 225, 255, 0.45);
   --neo-raise: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.45);
   --neo-face: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.02));
   color-scheme: dark;
@@ -43,8 +42,8 @@
 /* 배경: 두 개의 성운 + 원근 그리드 */
 [data-skin="neo"] body {
   background:
-    radial-gradient(1100px 600px at 15% -10%, rgba(138, 134, 212, 0.15), transparent 60%),
-    radial-gradient(900px 520px at 100% 100%, rgba(114, 205, 227, 0.08), transparent 55%),
+    radial-gradient(1100px 600px at 15% -10%, rgba(139, 123, 255, 0.28), transparent 60%),
+    radial-gradient(900px 520px at 100% 100%, rgba(77, 225, 255, 0.14), transparent 55%),
     var(--canvas);
   background-attachment: fixed;
 }
@@ -55,8 +54,8 @@
   inset: 0;
   z-index: -1;
   background-image:
-    linear-gradient(rgba(140, 150, 200, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(140, 150, 200, 0.07) 1px, transparent 1px);
+    linear-gradient(rgba(130, 150, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(130, 150, 255, 0.08) 1px, transparent 1px);
   background-size: 48px 48px;
   transform: perspective(600px) rotateX(60deg) translateY(-20%) scale(2);
   transform-origin: 50% 100%;
@@ -73,7 +72,7 @@
 [data-skin="neo"] .brand h1 {
   font-weight: 400;
   letter-spacing: 0.06em;
-  text-shadow: 0 0 24px rgba(114, 205, 227, 0.19);
+  text-shadow: 0 0 24px rgba(77, 225, 255, 0.35);
 }
 
 /* 유리 시트 — 그라데이션 테두리, 블러, 깊은 그림자, 아주 약한 원근 */
@@ -81,7 +80,7 @@
   border: 1px solid transparent;
   background:
     linear-gradient(var(--sheet), var(--sheet)) padding-box,
-    linear-gradient(135deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.04) 35%, rgba(114, 205, 227, 0.19) 100%) border-box;
+    linear-gradient(135deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.04) 35%, rgba(77, 225, 255, 0.35) 100%) border-box;
   backdrop-filter: blur(18px) saturate(140%);
   -webkit-backdrop-filter: blur(18px) saturate(140%);
   box-shadow:
@@ -110,7 +109,7 @@
 }
 
 [data-skin="neo"] option {
-  background: #12161f;
+  background: #0e1328;
   color: var(--ink);
 }
 
@@ -132,17 +131,17 @@
 /* 주 버튼: 시안→바이올렛, 글로우 */
 [data-skin="neo"] .todo-add-btn {
   background: linear-gradient(135deg, var(--accent), var(--neo-violet));
-  color: #0b0e18;
+  color: #060913;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    0 6px 18px -4px rgba(114, 205, 227, 0.3);
+    0 6px 18px -4px rgba(77, 225, 255, 0.55);
 }
 
 [data-skin="neo"] .todo-add-btn:hover:not(:disabled) {
   filter: brightness(1.1);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.45),
-    0 8px 24px -4px rgba(114, 205, 227, 0.41);
+    0 8px 24px -4px rgba(77, 225, 255, 0.75);
 }
 
 /* 탭 인디케이터 발광 */
@@ -175,8 +174,8 @@
 [data-skin="neo"] .todo-input:focus,
 [data-skin="neo"] .todo-search:focus,
 [data-skin="neo"] .note-textarea:focus {
-  border-color: rgba(114, 205, 227, 0.33);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 0 3px rgba(114, 205, 227, 0.08);
+  border-color: rgba(77, 225, 255, 0.6);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 0 3px rgba(77, 225, 255, 0.15);
   outline: none;
 }
 
@@ -186,19 +185,19 @@
 
 /* 상세 화면: 유리 패널, 배경은 더 어둡고 흐리게 */
 [data-skin="neo"] .detail {
-  border: 1px solid rgba(140, 150, 200, 0.26);
-  background: rgba(16, 19, 30, 0.92);
-  box-shadow: 0 50px 100px -30px rgba(0, 0, 0, 0.9), 0 0 40px rgba(114, 205, 227, 0.04);
+  border: 1px solid rgba(130, 150, 255, 0.3);
+  background: rgba(14, 19, 40, 0.92);
+  box-shadow: 0 50px 100px -30px rgba(0, 0, 0, 0.9), 0 0 40px rgba(77, 225, 255, 0.08);
 }
 
 [data-skin="neo"] .detail::backdrop {
-  background: rgba(6, 8, 14, 0.7);
+  background: rgba(3, 5, 12, 0.7);
   backdrop-filter: blur(6px);
 }
 
 [data-skin="neo"] .detail-head,
 [data-skin="neo"] .note-form {
-  background: rgba(16, 19, 30, 0.96);
+  background: rgba(14, 19, 40, 0.96);
 }
 
 [data-skin="neo"] .note {
@@ -217,9 +216,9 @@
 }
 
 [data-skin="neo"] .note-count {
-  background: rgba(114, 205, 227, 0.07);
+  background: rgba(77, 225, 255, 0.12);
   color: var(--accent);
-  box-shadow: 0 0 0 1px rgba(114, 205, 227, 0.17);
+  box-shadow: 0 0 0 1px rgba(77, 225, 255, 0.3);
 }
 
 /* 필터 줄은 살짝 가라앉게 */
@@ -243,12 +242,12 @@
 [data-skin="neo"] .done-btn.is-done {
   background: linear-gradient(135deg, var(--accent), var(--neo-violet));
   border-color: transparent;
-  color: #0b0e18;
+  color: #060913;
   box-shadow: var(--neo-glow);
 }
 
 [data-skin="neo"] .bulk-bar {
-  background: rgba(114, 205, 227, 0.06);
+  background: rgba(77, 225, 255, 0.1);
   box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.3);
 }
 
@@ -260,7 +259,7 @@
 
 [data-skin="neo"] .bulk-btn.primary {
   background: linear-gradient(135deg, var(--accent), var(--neo-violet));
-  color: #0b0e18;
+  color: #060913;
 }
 
 [data-skin="neo"] .todo-item-checkbox:checked {
@@ -282,7 +281,7 @@
 }
 
 [data-skin="neo"] .todo-item.completed .todo-item-text {
-  text-decoration-color: rgba(114, 205, 227, 0.28);
+  text-decoration-color: rgba(77, 225, 255, 0.5);
 }
 
 /* 진행률과 링, 차트 마크에 글로우 */
@@ -301,11 +300,11 @@
 }
 
 [data-skin="neo"] .ring-value {
-  filter: drop-shadow(0 0 6px rgba(114, 205, 227, 0.39));
+  filter: drop-shadow(0 0 6px rgba(77, 225, 255, 0.7));
 }
 
 [data-skin="neo"] .chart .bar {
-  filter: drop-shadow(0 0 6px rgba(114, 205, 227, 0.3));
+  filter: drop-shadow(0 0 6px rgba(77, 225, 255, 0.55));
 }
 
 [data-skin="neo"] .chart .bar-group:hover .bar {
@@ -323,12 +322,12 @@
 }
 
 [data-skin="neo"] .stat-value {
-  text-shadow: 0 0 20px rgba(114, 205, 227, 0.14);
+  text-shadow: 0 0 20px rgba(77, 225, 255, 0.25);
 }
 
 [data-skin="neo"] .stat-value.is-high,
 [data-skin="neo"] .due-rows .is-high .due-v {
-  text-shadow: 0 0 16px rgba(221, 126, 149, 0.35);
+  text-shadow: 0 0 16px rgba(255, 93, 143, 0.5);
 }
 
 [data-skin="neo"] .due-rows > a {
@@ -338,7 +337,7 @@
 
 /* 누적 막대: 낮음 세그먼트 글자는 밝게 */
 [data-skin="neo"] .seg-high {
-  color: #0b0e18;
+  color: #060913;
 }
 
 [data-skin="neo"] .seg-low {
@@ -348,13 +347,13 @@
 /* 캘린더: 오늘은 발광, 선택은 유리 */
 [data-skin="neo"] .cal-cell.today .cal-date {
   background: linear-gradient(135deg, var(--accent), var(--neo-violet));
-  color: #0b0e18;
+  color: #060913;
   box-shadow: var(--neo-glow);
 }
 
 [data-skin="neo"] .cal-cell.selected {
-  background: rgba(114, 205, 227, 0.04);
-  box-shadow: inset 0 0 0 1px rgba(114, 205, 227, 0.19);
+  background: rgba(77, 225, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(77, 225, 255, 0.35);
 }
 
 [data-skin="neo"] .cal-chip {
@@ -375,9 +374,9 @@
 /* 드롭다운 목록 — 네오의 --sheet 는 반투명이라 목록 칸은 불투명한 면으로 */
 @supports (appearance: base-select) {
   [data-skin="neo"] ::picker(select) {
-    border-color: rgba(140, 150, 200, 0.26);
-    background: #12161f;
-    box-shadow: 0 20px 50px -16px rgba(0, 0, 0, 0.8), 0 0 24px rgba(114, 205, 227, 0.04);
+    border-color: rgba(130, 150, 255, 0.3);
+    background: #101628;
+    box-shadow: 0 20px 50px -16px rgba(0, 0, 0, 0.8), 0 0 24px rgba(77, 225, 255, 0.08);
   }
 
   /* 폴백용 option 배경이 칸마다 덩어리로 보이지 않게 */
@@ -390,7 +389,7 @@
   }
 
   [data-skin="neo"] option:checked {
-    background: rgba(114, 205, 227, 0.09);
+    background: rgba(77, 225, 255, 0.16);
     color: var(--accent);
   }
 }
@@ -404,7 +403,7 @@
 /* 설정의 스킨 카드 — body 의 성운은 카드에 안 오므로 작게 다시 그린다 */
 .skin-card-canvas[data-skin="neo"] {
   background:
-    radial-gradient(80px 50px at 20% 0%, rgba(138, 134, 212, 0.25), transparent 70%),
-    radial-gradient(70px 50px at 100% 100%, rgba(114, 205, 227, 0.14), transparent 65%),
+    radial-gradient(80px 50px at 20% 0%, rgba(139, 123, 255, 0.45), transparent 70%),
+    radial-gradient(70px 50px at 100% 100%, rgba(77, 225, 255, 0.25), transparent 65%),
     var(--canvas);
 }

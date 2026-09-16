@@ -196,7 +196,7 @@ function Dashboard({ todos: allTodos, params, colorBy, onColorByChange }) {
                 </div>
             </section>
 
-            {/* 실제 시작~종료 기준. 진행 중은 목록으로 이어진다 (range=오늘) */}
+            {/* 실제 시작~종료 기준. 타일마다 같은 조건의 목록으로 이어진다 (periodStats 와 TodoPage 가 같은 weekOf/rangeOf 를 쓴다) */}
             <section className="section" aria-labelledby="period-title">
                 <h2 id="period-title" className="section-title">작업 기간</h2>
                 {!hasPeriod
@@ -207,19 +207,19 @@ function Dashboard({ todos: allTodos, params, colorBy, onColorByChange }) {
                                 <span className="due-k">진행 중</span>
                                 <span className="due-v">{period.ongoing}</span>
                             </a>
-                            <div>
+                            <a href={listHref({ started: 'week' })} title="이번 주에 시작한 항목 목록">
                                 <span className="due-k">이번 주 시작</span>
                                 <span className="due-v">{period.started}</span>
-                            </div>
-                            <div>
+                            </a>
+                            <a href={listHref({ ended: 'week' })} title="이번 주에 끝난 항목 목록">
                                 <span className="due-k">이번 주 끝남</span>
                                 <span className="due-v">{period.ended}</span>
-                            </div>
-                            <div>
+                            </a>
+                            <a href={listHref({ filter: 'completed', range: 'any' })} title="기간을 적은 끝낸 항목 목록 — 평균의 근거">
                                 <span className="due-k">평균 소요</span>
                                 <span className="due-v">{period.avgDays == null ? '–' : `${period.avgDays}일`}</span>
                                 <span className="due-sub">{period.samples > 0 ? `끝낸 ${period.samples}건 기준` : '끝낸 것이 아직 없음'}</span>
-                            </div>
+                            </a>
                         </div>
                     )}
             </section>
