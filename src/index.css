@@ -32,13 +32,35 @@
   --font: Pretendard, "Pretendard Variable", -apple-system, BlinkMacSystemFont, system-ui,
     "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
   --font-display: var(--font); /* 제목용 서체 — 스킨이 바꾼다 */
-  --row: 52px;
+  /* 데이터 서체 — 날짜·개수·식별자 전용. 글자(한글)는 --font 가 맡는다.
+     숫자가 서체부터 다르면 "읽는 말"과 "세는 값"이 눈에 바로 갈린다 */
+  --font-data: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+
+  /* 타이포 눈금 — 이 여섯 단계 밖의 크기는 쓰지 않는다.
+     예전엔 9~26px 이 열한 가지 섞여 있어서 위계가 크기로 읽히지 않았다 */
+  --t-meta: 12px;    /* 칩, 라벨, 축, 보조 설명 */
+  --t-small: 14px;   /* 버튼, 필터, 표 안의 글 */
+  --t-body: 16px;    /* 줄 제목, 본문, 입력 */
+  --t-title: 18px;   /* 구역 제목, 대화상자 제목, 작은 수치 */
+  --t-figure: 24px;  /* 큰 수치 */
+  /* 예외 하나: 달력 7칸 안의 미세 글자. 12px 면 칸을 넘친다 */
+  --t-micro: 11px;
+
+  /* 여백 눈금 */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 20px;
+  --s6: 32px;
+
+  --row: 44px;
   --radius: 14px;
 }
 
 :root {
   color-scheme: light dark;
-  font: 15px/1.5 var(--font);
+  font: var(--t-body)/1.5 var(--font);
   color: var(--ink);
   background: var(--canvas);
   font-synthesis: none;

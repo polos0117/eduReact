@@ -47,10 +47,13 @@ function TodoItem({ todo, todayKey, selected, onSelect, onToggleTodo, onRemoveTo
                 </button>
             </div>
             <div className="todo-item-meta">
-                {todo.tags?.map(tag => (
-                    <a key={tag} {...tagStyle(tag)} className={`tag-chip ${tagStyle(tag).className}`}
-                        href={tagHref(tag)} title={`#${tag} 항목만 보기`}>#{tag}</a>
-                ))}
+                {/* 태그는 한 칸에 묶는다 — 개수가 달라도 옆 칸(기간·마감)이 밀리지 않게 */}
+                <span className="todo-item-tags">
+                    {todo.tags?.map(tag => (
+                        <a key={tag} {...tagStyle(tag)} className={`tag-chip ${tagStyle(tag).className}`}
+                            href={tagHref(tag)} title={`#${tag} 항목만 보기`}>#{tag}</a>
+                    ))}
+                </span>
                 {todo.startDate && (
                     <span className="range-chip" title={`실제 기간 ${todo.startDate} ~ ${todo.endDate ?? '진행 중'}`}>
                         {formatDay(todo.startDate, todayKey)}~{todo.endDate ? formatDay(todo.endDate, todayKey) : ''}

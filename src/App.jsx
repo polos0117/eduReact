@@ -176,7 +176,10 @@ function App() {
     }
 
     const leftCount = todos.filter(todo => !todo.completed).length;
-    const summary = todos.length === 0 ? '아직 비어 있어요' : leftCount === 0 ? '모두 끝냈어요' : `${leftCount}개 남았어요`;
+    // 개수는 <b> 로 감싸 데이터 서체로 — 문장 속에서도 값으로 읽힌다
+    const summary = todos.length === 0 ? '아직 비어 있어요'
+        : leftCount === 0 ? '모두 끝냈어요'
+            : <><b>{leftCount}</b>개 남았어요</>;
 
     return (
         <TagColorProvider value={tagColors}>

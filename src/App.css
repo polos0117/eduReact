@@ -33,19 +33,27 @@
   word-break: keep-all; /* 한글은 어절 단위로 끊는다 */
 }
 
+/* 이름표는 작게. 이 화면에서 제일 굵게 읽혀야 하는 건 앱 이름이 아니라 목록이다 */
 .brand h1 {
   font-family: var(--font-display);
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: var(--t-title);
+  font-weight: 650;
+  letter-spacing: -0.01em;
   line-height: 1.2;
 }
 
 .subline {
-  margin-top: 4px;
-  font-size: 14px;
+  margin-top: 2px;
+  font-size: var(--t-small);
   color: var(--ink-2);
+}
+
+/* 날짜·개수는 데이터 서체 — 문장 속에서도 값으로 읽힌다 */
+.subline b {
+  font-family: var(--font-data);
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
+  color: var(--ink);
 }
 
 .header-actions {
@@ -64,7 +72,7 @@
   border-radius: 8px;
   background: transparent;
   color: var(--ink-2);
-  font-size: 14px;
+  font-size: var(--t-small);
   transition: color 0.15s, background 0.15s;
 }
 
@@ -84,7 +92,7 @@
   border-radius: 50%;
   background: var(--sheet);
   color: var(--ink-2);
-  font-size: 15px;
+  font-size: var(--t-body);
   line-height: 1;
   transition: border-color 0.15s, color 0.15s;
 }
@@ -107,7 +115,7 @@
   position: relative;
   padding: 8px 12px 10px;
   color: var(--ink-2);
-  font-size: 15px;
+  font-size: var(--t-small);
   text-decoration: none;
   border-radius: 8px 8px 0 0;
   transition: color 0.15s;
@@ -125,6 +133,7 @@
 /* 남은 개수 배지 — 할 일 탭에만 */
 .tab-badge {
   display: inline-block;
+  font-family: var(--font-data);
   min-width: 18px;
   margin-left: 6px;
   padding: 0 5px;
@@ -132,7 +141,7 @@
   background: var(--sheet-2);
   box-shadow: 0 0 0 1px var(--line);
   color: var(--ink-2);
-  font-size: 11px;
+  font-size: var(--t-meta);
   font-weight: 600;
   line-height: 18px;
   text-align: center;
@@ -202,7 +211,7 @@
   border: none;
   background: transparent;
   outline: none;
-  font-size: 16px; /* iOS 자동 확대 방지 */
+  font-size: var(--t-body); /* iOS 자동 확대 방지 */
 }
 
 .todo-input::placeholder {
@@ -217,7 +226,7 @@
   border-radius: 8px;
   background: var(--sheet);
   color: var(--ink-2);
-  font-size: 13px;
+  font-size: var(--t-small);
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
@@ -256,7 +265,7 @@
   border-radius: 8px;
   background: var(--accent);
   color: var(--accent-ink);
-  font-size: 14px;
+  font-size: var(--t-small);
   font-weight: 600;
   transition: opacity 0.15s, filter 0.15s;
 }
@@ -286,7 +295,7 @@
   border-color: transparent;
   border-radius: 999px;
   background: transparent;
-  font-size: 13px;
+  font-size: var(--t-small);
 }
 
 .sort-select:hover {
@@ -308,7 +317,7 @@
   border-radius: 999px;
   background: transparent;
   color: var(--ink-2);
-  font-size: 13px;
+  font-size: var(--t-small);
   transition: color 0.15s, background 0.15s;
 }
 
@@ -333,7 +342,7 @@
   border: 1px solid transparent;
   border-radius: 8px;
   background: transparent;
-  font-size: 13px;
+  font-size: var(--t-small);
   outline: none;
   transition: border-color 0.15s, background 0.15s;
 }
@@ -375,8 +384,40 @@
 .todo-item-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--s3);
   flex-shrink: 0;
+}
+
+/* 목록에서는 메타를 고정 폭 칸에 앉힌다 — 기간·마감·우선순위가 줄마다 같은 x 에 오게.
+   칸을 명시해서, 값이 없는 항목은 그 칸만 비고 나머지가 밀리지 않는다.
+   (캘린더의 날짜별 목록은 태그·우선순위뿐이라 위의 flex 를 그대로 쓴다) */
+.todo-list .todo-item-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 76px 40px 46px;
+  gap: 0 var(--s4);
+}
+
+.todo-item-tags {
+  grid-column: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.todo-list .range-chip {
+  grid-column: 2;
+}
+
+.todo-list .due-chip {
+  grid-column: 3;
+  text-align: right;
+}
+
+.todo-list .priority-select {
+  grid-column: 4;
+  width: 100%;
 }
 
 .todo-item:hover {
@@ -399,6 +440,19 @@
 
 .todo-item-checkbox:hover {
   border-color: var(--accent);
+}
+
+/* 보이는 크기는 그대로, 잡히는 넓이만 넓힌다 — 둘 사이 간격이 12px 이라 6px 까지 겹치지 않는다 */
+.todo-item-checkbox,
+.done-btn {
+  position: relative;
+}
+
+.todo-item-checkbox::before,
+.done-btn::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
 }
 
 .todo-item-checkbox:checked {
@@ -454,7 +508,7 @@
   border-radius: 50%;
   background: transparent;
   color: transparent;
-  font-size: 12px;
+  font-size: var(--t-meta);
   line-height: 1;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
@@ -485,7 +539,7 @@
   padding: 10px 20px;
   border-bottom: 1px solid var(--line);
   background: var(--accent-soft);
-  font-size: 13px;
+  font-size: var(--t-small);
 }
 
 @media (max-width: 640px) {
@@ -513,7 +567,7 @@
   border-radius: 8px;
   background: var(--sheet);
   color: var(--ink);
-  font-size: 13px;
+  font-size: var(--t-small);
   transition: border-color 0.15s, color 0.15s, filter 0.15s;
 }
 
@@ -554,11 +608,11 @@
 .todo-item-text {
   flex: 1;
   min-width: 0;
-  padding: 12px 0;
+  padding: 10px 0;
   border: none;
   background: transparent;
   text-align: left;
-  font-size: 15px;
+  font-size: var(--t-body);
   word-break: keep-all;
   overflow-wrap: anywhere;
   transition: color 0.15s;
@@ -571,13 +625,14 @@ button.todo-item-text:hover {
 /* 노트 개수 칩 */
 .note-count {
   display: inline-block;
+  font-family: var(--font-data);
   margin-left: 8px;
   padding: 0 6px;
   border-radius: 999px;
   background: var(--sheet-2);
   box-shadow: 0 0 0 1px var(--line);
   color: var(--ink-2);
-  font-size: 11px;
+  font-size: var(--t-meta);
   font-weight: 500;
   line-height: 18px;
   vertical-align: 1px;
@@ -600,21 +655,25 @@ button.todo-item-text:hover {
 /* 마감 칩 — 지났으면 빨간 펜 */
 .due-chip {
   flex-shrink: 0;
-  font-size: 12px;
+  font-family: var(--font-data);
+  font-size: var(--t-small);
+  font-weight: 500;
   color: var(--ink-2);
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 /* 실제 작업 기간 — 마감 칩과 헷갈리지 않게 테두리를 두른 알약으로 */
+/* 실제 작업 기간 — 마감과 헷갈리지 않게 한 단계 더 조용하게. 상자는 없앴다(알약 더미가 된다) */
 .range-chip {
   flex-shrink: 0;
-  padding: 0 7px;
-  border-radius: 999px;
-  box-shadow: inset 0 0 0 1px var(--line);
   color: var(--ink-3);
-  font-size: 11px;
-  line-height: 17px;
+  font-family: var(--font-data);
+  font-size: var(--t-meta);
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 .due-chip.overdue {
@@ -630,7 +689,7 @@ button.todo-item-text:hover {
 
 .due-holiday {
   color: var(--high);
-  font-size: 12px;
+  font-size: var(--t-meta);
 }
 
 .todo-item.completed .due-chip {
@@ -649,7 +708,7 @@ button.todo-item-text:hover {
   border-radius: 999px;
   background: transparent;
   color: var(--ink-3);
-  font-size: 12px;
+  font-size: var(--t-meta);
   text-align: center;
   transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
@@ -704,7 +763,7 @@ button.todo-item-text:hover {
   border-radius: 6px;
   background: transparent;
   color: var(--ink-2);
-  font-size: 13px;
+  font-size: var(--t-small);
 }
 
 .todo-item-btn:hover {
@@ -715,7 +774,7 @@ button.todo-item-text:hover {
 
 .todo-empty {
   color: var(--ink-3);
-  font-size: 14px;
+  font-size: var(--t-small);
   min-height: 72px;
   flex-wrap: wrap;
   gap: 4px 8px;
@@ -732,7 +791,7 @@ button.todo-item-text:hover {
 
 .todo-guide-title {
   color: var(--ink);
-  font-size: 15px;
+  font-size: var(--t-body);
   font-weight: 600;
 }
 
@@ -754,7 +813,7 @@ button.todo-item-text:hover {
   box-shadow: 0 0 0 1px var(--line);
   color: var(--ink);
   font-family: ui-monospace, Consolas, monospace;
-  font-size: 12px;
+  font-size: var(--t-meta);
 }
 
 /* 직접 정렬 — 손잡이를 끌어 옮긴다. 놓을 자리는 줄 위/아래의 굵은 선으로 */
@@ -762,7 +821,7 @@ button.todo-item-text:hover {
   flex-shrink: 0;
   margin-right: -4px;
   color: var(--ink-3);
-  font-size: 14px;
+  font-size: var(--t-small);
   line-height: 1;
   cursor: grab;
   user-select: none;
@@ -818,8 +877,12 @@ button.todo-item-text:hover {
   align-items: center;
   justify-content: space-between;
   margin-top: 10px;
-  font-size: 13px;
+  font-size: var(--t-small);
   color: var(--ink-2);
+}
+
+.todo-count {
+  font-family: var(--font-data);
   font-variant-numeric: tabular-nums;
 }
 
@@ -870,7 +933,7 @@ button.todo-item-text:hover {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 18px 20px 16px;
+  padding: var(--s4) var(--s5);
   border-right: 1px solid var(--line);
   color: inherit;
   text-decoration: none;
@@ -918,9 +981,10 @@ button.todo-item-text:hover {
 }
 
 .stat-value {
-  font-size: 26px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-family: var(--font-data);
+  font-size: var(--t-figure);
+  font-weight: 500;
+  letter-spacing: -0.04em;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
@@ -930,7 +994,7 @@ button.todo-item-text:hover {
 }
 
 .stat-label {
-  font-size: 13px;
+  font-size: var(--t-small);
   color: var(--ink-2);
 }
 
@@ -953,7 +1017,7 @@ button.todo-item-text:hover {
 }
 
 .section {
-  padding: 18px 20px 20px;
+  padding: var(--s4) var(--s5) var(--s5);
   border-bottom: 1px solid var(--line);
 }
 
@@ -962,14 +1026,15 @@ button.todo-item-text:hover {
 }
 
 .section-title {
-  margin-bottom: 12px;
-  font-size: 14px;
+  margin-bottom: var(--s3);
+  font-size: var(--t-body);
   font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--ink);
 }
 
 .section-note {
-  font-size: 14px;
+  font-size: var(--t-small);
   color: var(--ink-3);
 }
 
@@ -999,13 +1064,15 @@ button.todo-item-text:hover {
 }
 
 .chart .bar-label {
-  font-size: 12px;
+  font-family: var(--font-data);
+  font-size: var(--t-meta);
   font-weight: 600;
   fill: var(--ink);
 }
 
 .chart .axis-label {
-  font-size: 11px;
+  font-family: var(--font-data);
+  font-size: var(--t-meta);
   fill: var(--ink-3);
 }
 
@@ -1025,7 +1092,7 @@ button.todo-item-text:hover {
   align-items: center;
   justify-content: center;
   min-width: 4px;
-  font-size: 12px;
+  font-size: var(--t-meta);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -1065,7 +1132,7 @@ button.todo-item-text:hover {
   margin: 10px 0 0;
   padding: 0;
   list-style: none;
-  font-size: 13px;
+  font-size: var(--t-small);
   color: var(--ink-2);
 }
 
@@ -1105,7 +1172,10 @@ button.todo-item-text:hover {
 .due-rows {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+  gap: 0;
+  margin-inline: calc(var(--s3) * -1); /* 칸 안쪽 여백만큼 당겨 첫 칸을 제목 선에 맞춘다 */
+  margin-top: var(--s3);
+  border-top: 1px solid var(--line);
 }
 
 @media (max-width: 560px) {
@@ -1124,38 +1194,43 @@ button.todo-item-text:hover {
 }
 
 .due-sub {
-  font-size: 11px;
+  font-size: var(--t-meta);
   color: var(--ink-3);
 }
 
+/* 상자가 아니라 구분선으로 나눈 띠 — 위의 통계 줄과 같은 말투.
+   똑같은 둥근 상자가 아홉 개 늘어서던 자리다 */
 .due-rows > div,
 .due-rows > a {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
+  gap: 1px;
+  padding: var(--s3);
+  border-right: 1px solid var(--line);
   color: inherit;
   text-decoration: none;
-  transition: border-color 0.15s, background 0.15s, transform 0.15s, box-shadow 0.15s;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.due-rows > :last-child {
+  border-right: none;
 }
 
 .due-rows > a:hover {
-  border-color: var(--accent);
   background: color-mix(in oklab, var(--accent) 12%, var(--sheet));
-  transform: translateY(-2px);
-  box-shadow: 0 8px 18px -10px color-mix(in oklab, var(--ink) 45%, transparent);
+  box-shadow: inset 2px 0 0 var(--accent);
 }
 
 .due-k {
-  font-size: 12px;
+  font-size: var(--t-meta);
   color: var(--ink-2);
 }
 
 .due-v {
-  font-size: 20px;
-  font-weight: 600;
+  font-family: var(--font-data);
+  font-size: var(--t-title);
+  font-weight: 500;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1176,7 +1251,7 @@ button.todo-item-text:hover {
 
 .cal-title {
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: var(--t-body);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -1199,7 +1274,7 @@ button.todo-item-text:hover {
 .cal-dow {
   padding: 8px 0 6px;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--t-meta);
   color: var(--ink-3);
   border-bottom: 1px solid var(--line);
 }
@@ -1277,7 +1352,7 @@ button.todo-item-text:hover {
   background: color-mix(in oklab, var(--bar) 45%, var(--tag-base, var(--sheet)));
   box-shadow: inset 0 0 0 1px var(--bar), inset 4px 0 0 var(--bar);
   color: var(--ink);
-  font-size: 11px;
+  font-size: var(--t-meta);
   font-weight: 500;
   line-height: 18px;
   text-align: left;
@@ -1346,6 +1421,7 @@ button.todo-item-text:hover {
 }
 
 .cal-date {
+  font-family: var(--font-data);
   align-self: flex-start;
   width: 24px;
   height: 24px;
@@ -1353,7 +1429,7 @@ button.todo-item-text:hover {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  font-size: 13px;
+  font-size: var(--t-small);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1366,7 +1442,7 @@ button.todo-item-text:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 10px;
+  font-size: var(--t-micro);
   line-height: 1.5;
   color: var(--high);
 }
@@ -1398,7 +1474,7 @@ button.todo-item-text:hover {
   border-radius: 4px;
   background: var(--sheet-2);
   border-left: 2px solid var(--chart-2);
-  font-size: 11px;
+  font-size: var(--t-meta);
   line-height: 1.5;
 }
 
@@ -1425,7 +1501,7 @@ button.todo-item-text:hover {
 }
 
 .cal-more {
-  font-size: 11px;
+  font-size: var(--t-meta);
   color: var(--ink-2);
   padding-left: 5px;
 }
@@ -1449,7 +1525,7 @@ button.todo-item-text:hover {
     height: 15px;
     padding: 0 5px;
     margin-top: calc(var(--bar-base) + var(--holiday-row) * 16px + var(--lane) * 17px);
-    font-size: 10px;
+    font-size: var(--t-micro);
     line-height: 15px;
   }
   .cal-chip,
@@ -1458,7 +1534,7 @@ button.todo-item-text:hover {
   }
   /* 좁은 화면에서도 공휴일 이름은 남긴다 — 칸에서 가장 중요한 정보다 */
   .cal-holiday {
-    font-size: 9px;
+    font-size: var(--t-micro);
   }
   .cal-dot {
     display: inline-flex;
@@ -1471,7 +1547,7 @@ button.todo-item-text:hover {
     border-radius: 999px;
     background: var(--accent-soft);
     color: var(--accent);
-    font-size: 11px;
+    font-size: var(--t-meta);
     font-weight: 600;
   }
 }
@@ -1486,7 +1562,7 @@ button.todo-item-text:hover {
   justify-content: space-between;
   gap: 12px;
   padding: 0 20px;
-  font-size: 13px;
+  font-size: var(--t-small);
 }
 
 .cal-day-head .section-title {
@@ -1501,7 +1577,7 @@ button.todo-item-text:hover {
   gap: 8px;
   padding: 10px 20px;
   border-bottom: 1px solid var(--line);
-  font-size: 13px;
+  font-size: var(--t-small);
   color: var(--ink-2);
 }
 
@@ -1568,7 +1644,7 @@ button.todo-item-text:hover {
   border: none;
   border-bottom: 1px solid transparent;
   background: transparent;
-  font-size: 18px;
+  font-size: var(--t-title);
   font-weight: 600;
   outline: none;
   transition: border-color 0.15s;
@@ -1603,7 +1679,7 @@ button.todo-item-text:hover {
   border-radius: 8px;
   background: transparent;
   color: var(--ink);
-  font-size: 13px;
+  font-size: var(--t-small);
   font-family: ui-monospace, Consolas, monospace;
   outline: none;
   transition: border-color 0.15s, background 0.15s;
@@ -1626,7 +1702,7 @@ button.todo-item-text:hover {
   gap: 16px;
   padding: 14px 20px;
   border-bottom: 1px solid var(--line);
-  font-size: 13px;
+  font-size: var(--t-small);
   color: var(--ink-2);
 }
 
@@ -1646,7 +1722,7 @@ button.todo-item-text:hover {
   border-radius: 999px;
   background: var(--accent-soft);
   color: var(--accent);
-  font-size: 11px;
+  font-size: var(--t-meta);
   line-height: 18px;
   font-weight: 600;
 }
@@ -1656,7 +1732,7 @@ button.todo-item-text:hover {
   padding: 3px 10px;
   border-color: var(--high);
   color: var(--high);
-  font-size: 12px;
+  font-size: var(--t-meta);
 }
 
 .range-done:hover {
@@ -1801,7 +1877,7 @@ button.todo-item-text:hover {
   background: color-mix(in oklab, var(--tag) 13%, var(--tag-base, var(--sheet)));
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--tag) 32%, transparent);
   color: var(--ink-2);
-  font-size: 12px;
+  font-size: var(--t-meta);
   text-decoration: none;
   transition: background 0.15s, box-shadow 0.15s, color 0.15s;
 }
@@ -1840,7 +1916,7 @@ a.tag-chip:hover {
   border: none;
   background: transparent;
   color: var(--ink-3);
-  font-size: 13px;
+  font-size: var(--t-small);
   line-height: 1;
 }
 
@@ -1879,7 +1955,7 @@ a.tag-chip:hover {
   padding: 2px 0;
   border: none;
   background: transparent;
-  font-size: 13px;
+  font-size: var(--t-small);
   outline: none;
 }
 
@@ -1905,7 +1981,7 @@ a.tag-chip:hover {
 
 .colorby-label {
   margin-right: 4px;
-  font-size: 12px;
+  font-size: var(--t-meta);
   color: var(--ink-3);
 }
 
@@ -1958,7 +2034,7 @@ a.tag-chip:hover {
   border-radius: 999px;
   background: transparent;
   color: var(--ink-2);
-  font-size: 12px;
+  font-size: var(--t-meta);
 }
 
 .tagcolor-auto.active {
@@ -2013,7 +2089,7 @@ a.tag-chip:hover {
   border: 1px solid transparent;
   border-radius: 6px;
   background: transparent;
-  font-size: 14px;
+  font-size: var(--t-small);
   outline: none;
   transition: border-color 0.15s, background 0.15s;
 }
@@ -2048,7 +2124,7 @@ a.tag-chip:hover {
   border: none;
   border-bottom: 1px dashed var(--line-2);
   background: transparent;
-  font-size: 14px;
+  font-size: var(--t-small);
   outline: none;
 }
 
@@ -2077,7 +2153,7 @@ a.tag-chip:hover {
 .settings-title {
   flex: 1;
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: var(--t-title);
   font-weight: 600;
 }
 
@@ -2092,7 +2168,7 @@ a.tag-chip:hover {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 14px;
+  font-size: var(--t-small);
 }
 
 /* 접히는 섹션 — 제목이 summary */
@@ -2111,7 +2187,7 @@ a.tag-chip:hover {
   display: inline-block;
   width: 14px;
   color: var(--ink-3);
-  font-size: 11px;
+  font-size: var(--t-meta);
   transition: transform 0.15s;
 }
 
@@ -2124,7 +2200,7 @@ a.tag-chip:hover {
   grid-template-columns: auto 1fr;
   gap: 8px 14px;
   margin: 4px 0 0;
-  font-size: 13px;
+  font-size: var(--t-small);
   color: var(--ink-2);
 }
 
@@ -2147,7 +2223,7 @@ a.tag-chip:hover {
   border: 1px solid var(--line-2);
   border-radius: 8px;
   background: var(--sheet);
-  font-size: 14px;
+  font-size: var(--t-small);
   outline: none;
 }
 
@@ -2160,7 +2236,7 @@ a.tag-chip:hover {
   border-radius: 4px;
   background: var(--sheet-2);
   font-family: ui-monospace, Consolas, monospace;
-  font-size: 12px;
+  font-size: var(--t-meta);
 }
 
 /* ===== 기간 보고서 ===== */
@@ -2175,7 +2251,7 @@ a.tag-chip:hover {
   gap: 10px 16px;
   padding: 14px 20px;
   border-bottom: 1px solid var(--line);
-  font-size: 13px;
+  font-size: var(--t-small);
   color: var(--ink-2);
 }
 
@@ -2297,7 +2373,7 @@ a.tag-chip:hover {
 
 .skin-card-title {
   font-family: var(--font-display);
-  font-size: 13px;
+  font-size: var(--t-small);
   font-weight: 700;
   line-height: 1;
   color: var(--ink);
@@ -2337,13 +2413,13 @@ a.tag-chip:hover {
 .skin-card-label {
   display: block;
   color: var(--ink);
-  font-size: 13px;
+  font-size: var(--t-small);
 }
 
 .skin-card-desc {
   display: block;
   color: var(--ink-3);
-  font-size: 11px;
+  font-size: var(--t-meta);
 }
 
 /* 테마(시스템·라이트·다크) 고르기 — 필터 알약을 그대로 쓴다 */
@@ -2369,7 +2445,7 @@ a.tag-chip:hover {
   border-radius: 10px;
   background: var(--toast-bg);
   color: var(--toast-fg);
-  font-size: 14px;
+  font-size: var(--t-small);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   animation: toast-in 0.2s ease-out;
 }
@@ -2450,7 +2526,7 @@ a.tag-chip:hover {
     border-radius: 8px;
     background: transparent;
     color: var(--ink);
-    font-size: 13px;
+    font-size: var(--t-small);
   }
 
   option:hover {
@@ -2497,9 +2573,22 @@ a.tag-chip:hover {
     max-width: none;
   }
 
+  /* 폭이 좁으면 기간·마감·우선순위 고정 칸(76+40+46)이 안 들어가 마감이 잘린다.
+     격자를 풀어 줄바꿈에 맡긴다 — 날짜 정렬은 넓은 화면의 이점이다 */
+  .todo-list .todo-item-meta,
   .todo-item-meta {
+    display: flex;
     flex-wrap: wrap;
+    gap: var(--s2) var(--s3);
     margin-left: 52px; /* 체크박스 18 + 간격 12 + 완료 22 — 제목 시작선에 맞춘다 */
+  }
+
+  .todo-list .due-chip {
+    text-align: left;
+  }
+
+  .todo-list .priority-select {
+    width: auto;
   }
 
   .cal-day-list .todo-item-meta {
