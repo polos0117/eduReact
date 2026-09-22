@@ -277,6 +277,96 @@
 }
 
 /* ======================================================================
+   전자잉크 — 전자책 단말의 화면. ui-ux-pro-max 의 "E-Ink / Paper" 스타일에서 가져왔다:
+   무광 종이, 먹 하나, 형광펜 하나, 그리고 움직임 없음.
+   종이 스킨은 "쓰는 공책"(크림색·볼펜·괘선), 이건 "읽는 단말"(거의 흰 무광·흑백·형광펜)이다.
+   ====================================================================== */
+:is(:root, .skin-card-canvas)[data-skin="eink"] {
+  --canvas: #e8e5de;
+  --sheet: #fdfbf7;
+  --sheet-2: #f3f0e9;
+  --ink: #1a1a1a;
+  --ink-2: #4a4a4a;
+  --ink-3: #8a8782;
+  --line: #e0ddd6;
+  --line-2: #c2beb5;
+  /* 강조는 색이 아니라 먹이다 — 진행률·완료 표시·초점이 전부 검정 */
+  --accent: #1a1a1a;
+  --accent-ink: #fdfbf7;
+  /* 고른 것·켜진 것은 형광펜을 그은 자리 */
+  --accent-soft: #f4e7a6;
+  /* 지난 마감만 붉은 펜 — 단말에서 손으로 그은 표시 정도의 채도 */
+  --high: #8f3a2f;
+  --high-soft: #f1e3df;
+  /* 우선순위는 색이 아니라 먹 농도. 검증기 ordinal 통과 (#fdfbf7 위) */
+  --chart-1: #1a1a1a;
+  --chart-2: #6b6b6b;
+  --chart-3: #b4b4b4;
+  --toast-bg: #1a1a1a;
+  --toast-fg: #fdfbf7;
+  /* 태그만은 색을 남긴다 — 서로 구분되는 게 태그의 일이고,
+     채도를 낮춘 세트는 검증기의 chroma floor·CVD 에서 떨어졌다 */
+  --tag-0: #2a78d6;
+  --tag-1: #eb6834;
+  --tag-2: #1baf7a;
+  --tag-3: #c2185b;
+  --radius: 2px;
+  color-scheme: light;
+}
+
+/* 종이 결 */
+[data-skin="eink"] body,
+[data-skin="eink"] .sheet,
+[data-skin="eink"] .detail,
+.skin-card-canvas[data-skin="eink"] {
+  background-image: var(--grain);
+  background-blend-mode: multiply;
+}
+
+/* 단말에는 그림자가 없다 — 면은 선으로만 나뉜다 */
+[data-skin="eink"] .sheet,
+[data-skin="eink"] .detail {
+  border-color: var(--line-2);
+  box-shadow: none;
+}
+
+/* 움직이지 않는다. 전자잉크 화면은 새로 그릴 뿐 전환이 없다.
+   (스킨을 바꿀 때의 화면 겹침은 ::view-transition 이라 여기 안 걸린다) */
+[data-skin="eink"] .app,
+[data-skin="eink"] .app *,
+[data-skin="eink"] .detail,
+[data-skin="eink"] .detail * {
+  transition: none;
+  animation: none;
+}
+
+/* 켜진 것은 형광펜을 그은 자리 — 상자나 링이 아니라 */
+[data-skin="eink"] .filter-btn.active,
+[data-skin="eink"] .colorby .filter-btn.active {
+  background: var(--accent-soft);
+  box-shadow: none;
+  color: var(--ink);
+}
+
+[data-skin="eink"] .tab-badge {
+  background: var(--accent-soft);
+  box-shadow: none;
+  color: var(--ink);
+}
+
+[data-skin="eink"] .stat:hover,
+[data-skin="eink"] .due-rows > a:hover,
+[data-skin="eink"] .todo-item:hover {
+  background: var(--accent-soft);
+}
+
+/* 초점은 먹으로 — 형광펜 노랑은 흰 종이 위에서 테두리로 쓰기엔 너무 옅다 */
+[data-skin="eink"] :focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}
+
+/* ======================================================================
    말랑 — 푹신한 클레이. 라벤더 바탕, 둥근 알약, 눌리는 버튼, 둥근 제목 서체
    ====================================================================== */
 :is(:root, .skin-card-canvas)[data-skin="clay"] {
