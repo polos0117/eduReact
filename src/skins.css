@@ -282,45 +282,55 @@
    종이 스킨은 "쓰는 공책"(크림색·볼펜·괘선), 이건 "읽는 단말"(거의 흰 무광·흑백·형광펜)이다.
    ====================================================================== */
 :is(:root, .skin-card-canvas)[data-skin="eink"] {
-  --canvas: #e8e5de;
-  --sheet: #fdfbf7;
-  --sheet-2: #f3f0e9;
-  --ink: #1a1a1a;
-  --ink-2: #4a4a4a;
-  --ink-3: #8a8782;
-  --line: #e0ddd6;
-  --line-2: #c2beb5;
-  /* 강조는 색이 아니라 먹이다 — 진행률·완료 표시·초점이 전부 검정 */
-  --accent: #1a1a1a;
-  --accent-ink: #fdfbf7;
-  /* 고른 것·켜진 것은 형광펜을 그은 자리 */
-  --accent-soft: #f4e7a6;
+  --canvas: light-dark(#e8e5de, #131210);
+  --sheet: light-dark(#fdfbf7, #1e1d1a);
+  --sheet-2: light-dark(#f3f0e9, #272521);
+  --ink: light-dark(#1a1a1a, #e8e4db);
+  --ink-2: light-dark(#4a4a4a, #b0aca3);
+  --ink-3: light-dark(#8a8782, #7a766e);
+  --line: light-dark(#e0ddd6, #33312c);
+  --line-2: light-dark(#c2beb5, #4a4740);
+  /* 강조는 색이 아니라 먹이다 — 진행률·완료 표시·초점이 전부 먹색.
+     다크는 단말의 야간 모드처럼 통째로 뒤집는다 (검은 종이에 흰 먹) */
+  --accent: light-dark(#1a1a1a, #e8e4db);
+  --accent-ink: light-dark(#fdfbf7, #1e1d1a);
+  /* 고른 것·켜진 것은 형광펜을 그은 자리. 다크에서는 형광펜도 어둡게 깔린다 */
+  --accent-soft: light-dark(#f4e7a6, #4a4126);
   /* 지난 마감만 붉은 펜 — 단말에서 손으로 그은 표시 정도의 채도 */
-  --high: #8f3a2f;
-  --high-soft: #f1e3df;
-  /* 우선순위는 색이 아니라 먹 농도. 검증기 ordinal 통과 (#fdfbf7 위) */
-  --chart-1: #1a1a1a;
-  --chart-2: #6b6b6b;
-  --chart-3: #b4b4b4;
-  --toast-bg: #1a1a1a;
-  --toast-fg: #fdfbf7;
+  --high: light-dark(#8f3a2f, #d3948a);
+  --high-soft: light-dark(#f1e3df, #3c2723);
+  /* 우선순위는 색이 아니라 먹 농도. 양쪽 다 검증기 ordinal 통과 */
+  --chart-1: light-dark(#1a1a1a, #e8e4db);
+  --chart-2: light-dark(#6b6b6b, #918d85);
+  --chart-3: light-dark(#b4b4b4, #585550);
+  --toast-bg: light-dark(#1a1a1a, #e8e4db);
+  --toast-fg: light-dark(#fdfbf7, #131210);
   /* 태그만은 색을 남긴다 — 서로 구분되는 게 태그의 일이고,
      채도를 낮춘 세트는 검증기의 chroma floor·CVD 에서 떨어졌다 */
-  --tag-0: #2a78d6;
-  --tag-1: #eb6834;
-  --tag-2: #1baf7a;
-  --tag-3: #c2185b;
+  --tag-0: light-dark(#2a78d6, #3987e5);
+  --tag-1: light-dark(#eb6834, #e0703a);
+  --tag-2: light-dark(#1baf7a, #2aa87d);
+  --tag-3: light-dark(#c2185b, #b83a6b);
   --radius: 2px;
-  color-scheme: light;
 }
 
-/* 종이 결 */
+/* 종이 결 — 밝은 쪽에서만. 검은 노이즈를 어두운 바탕에 곱하면 그냥 더 어두워질 뿐이다 */
 [data-skin="eink"] body,
 [data-skin="eink"] .sheet,
 [data-skin="eink"] .detail,
 .skin-card-canvas[data-skin="eink"] {
   background-image: var(--grain);
   background-blend-mode: multiply;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-skin="eink"]:not([data-theme="light"]) :is(body, .sheet, .detail) {
+    background-image: none;
+  }
+}
+
+:root[data-skin="eink"][data-theme="dark"] :is(body, .sheet, .detail) {
+  background-image: none;
 }
 
 /* 단말에는 그림자가 없다 — 면은 선으로만 나뉜다 */
