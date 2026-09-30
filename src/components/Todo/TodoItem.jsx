@@ -8,7 +8,7 @@ import DoneButton from './DoneButton';
 // 목록의 한 줄. 앞의 네모 체크박스는 "선택"이고, 완료는 동그란 ✓ 버튼이 한다.
 // 제목·마감일 편집은 상세 화면(제목 클릭)에서.
 function TodoItem({ todo, todayKey, selected, onSelect, onToggleTodo, onRemoveTodo, onSetPriority, onOpenTodo,
-    manual, dragging, dropHint, onDragStart, onDragOver, onDrop, onDragEnd, onRestore }) {
+    manual, dragging, dropHint, onDragStart, onDragOver, onDrop, onDragEnd, onRestore, canUp, canDown, onStep }) {
     const tagStyle = useTagStyle();
     const priority = priorityOf(todo);
     const overdue = todo.dueDate && !todo.completed && todo.dueDate < todayKey;
@@ -73,6 +73,14 @@ function TodoItem({ todo, todayKey, selected, onSelect, onToggleTodo, onRemoveTo
                 </select>
             </div>
             <div className="todo-item-actions">
+                {manual && (
+                    <>
+                        <button type="button" className="todo-item-btn move-up" disabled={!canUp}
+                            onClick={() => onStep(todo.id, 'up')} aria-label={`${todo.text} 위로 옮기기`} title="위로 (Alt+↑)">▲</button>
+                        <button type="button" className="todo-item-btn move-down" disabled={!canDown}
+                            onClick={() => onStep(todo.id, 'down')} aria-label={`${todo.text} 아래로 옮기기`} title="아래로 (Alt+↓)">▼</button>
+                    </>
+                )}
                 {todo.archived && <button type="button" className="todo-item-btn" onClick={() => onRestore(todo.id)}>복원</button>}
                 <button type="button" className="todo-item-btn" onClick={() => onRemoveTodo(todo.id)}>삭제</button>
             </div>

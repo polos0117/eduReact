@@ -771,6 +771,10 @@ button.todo-item-text:hover {
   font-size: var(--t-small);
 }
 
+.todo-item-btn:disabled {
+  opacity: 0.35; /* 맨 위의 ▲·맨 아래의 ▼ */
+}
+
 .todo-item-btn:hover {
   color: var(--ink);
   background: var(--sheet);

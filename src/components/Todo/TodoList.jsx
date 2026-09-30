@@ -1,5 +1,6 @@
 import { useState } from "react";
 import TodoItem from "./TodoItem";
+import { moveTarget } from "../../lib/order";
 
 // 빈 상태는 세 가지가 다르다: 아무것도 없음(처음) / 검색·조건에 안 걸림 / 이 보기에 없음
 function TodoList({ todos, total, todayKey, selectedIds, onSelect, onToggleTodo, onRemoveTodo, onSetPriority, onOpenTodo,
@@ -13,6 +14,19 @@ function TodoList({ todos, total, todayKey, selectedIds, onSelect, onToggleTodo,
         onDrop: () => { if (dragId != null && over) onMove(dragId, over.id, over.after); setDragId(null); setOver(null); },
         onDragEnd: () => { setDragId(null); setOver(null); },
     };
+    // ▲▼ 버튼으로 한 칸씩 — 끌기를 못 하는 터치·키보드의 대안. 기준은 지금 보이는 순서
+    const ids = todos.map(todo => todo.id);
+    function step(id, dir) {
+        const target = moveTarget(ids, id, dir);
+        if (!target) return;
+        onMove(id, target.targetId, target.after);
+        // 줄이 옮겨지면 DOM 이 다시 끼워지며 초점이 빠진다 — 같은 버튼(끝에 닿았으면 반대 버튼)으로 되돌려 연달아 옮길 수 있게
+        requestAnimationFrame(() => {
+            const row = document.querySelector(`.todo-list > .todo-item[data-id="${id}"]`);
+            const same = row?.querySelector(`.move-${dir}`);
+            (same && !same.disabled ? same : row?.querySelector(`.move-${dir === 'up' ? 'down' : 'up'}`))?.focus();
+        });
+    }
     if (filter === 'archived' && total === 0) {
         return <p className="todo-empty">보관한 항목이 없어요. 끝낸 일은 아래 "완료 항목 보관"으로 치울 수 있어요.</p>;
     }
@@ -45,9 +59,10 @@ function TodoList({ todos, total, todayKey, selectedIds, onSelect, onToggleTodo,
     }
     return (
         <ul className="todo-list">
-            {todos.map((todo) => (
+            {todos.map((todo, i) => (
                 <TodoItem key={todo.id} todo={todo} todayKey={todayKey}
                     manual={manual} dragging={dragId === todo.id} onRestore={onRestore}
+                    canUp={i > 0} canDown={i < todos.length - 1} onStep={step}
                     dropHint={over?.id === todo.id ? (over.after ? 'after' : 'before') : null} {...drag}
                     selected={selectedIds.has(todo.id)} onSelect={onSelect}
                     onToggleTodo={onToggleTodo} onRemoveTodo={onRemoveTodo}
