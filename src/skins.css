@@ -24,7 +24,7 @@
   --sheet-2: light-dark(#f2ebda, #332d23);
   --ink: light-dark(#2a241c, #ece3cf);
   --ink-2: light-dark(#6b6050, #b3a48a);
-  --ink-3: light-dark(#9a8f7c, #82765e);
+  --ink-3: light-dark(#6a604e, #a2957d);
   --line: light-dark(#ded3ba, #3d362a);
   --line-2: light-dark(#c5b699, #554b3a);
   --accent: light-dark(#2d5b8e, #85b2df);
@@ -152,7 +152,7 @@
   --sheet-2: light-dark(#efe9db, #2a2620);
   --ink: light-dark(#1d1a16, #e9e2d3);
   --ink-2: light-dark(#5e574c, #aea48f);
-  --ink-3: light-dark(#948b7b, #7a7160);
+  --ink-3: light-dark(#6d6556, #988f7d);
   --line: light-dark(#d9d0be, #383329);
   --line-2: light-dark(#b8ad95, #52493a);
   --accent: light-dark(#2f4a6b, #8fb0d6);
@@ -287,7 +287,7 @@
   --sheet-2: light-dark(#f3f0e9, #272521);
   --ink: light-dark(#1a1a1a, #e8e4db);
   --ink-2: light-dark(#4a4a4a, #b0aca3);
-  --ink-3: light-dark(#8a8782, #7a766e);
+  --ink-3: light-dark(#686561, #928e85);
   --line: light-dark(#e0ddd6, #33312c);
   --line-2: light-dark(#c2beb5, #4a4740);
   /* 강조는 색이 아니라 먹이다 — 진행률·완료 표시·초점이 전부 먹색.
@@ -384,14 +384,14 @@
   --sheet: light-dark(#fdfcff, #272432);
   --sheet-2: light-dark(#f2eff7, #2f2c3d);
   --ink: light-dark(#2b2440, #f1ecff);
-  --ink-2: light-dark(#6a6284, #b8afd2);
-  --ink-3: light-dark(#a199b8, #7c7398);
+  --ink-2: light-dark(#675f81, #b8afd2);
+  --ink-3: light-dark(#6a627f, #9b92b9);
   --line: light-dark(#e7e1f3, #3b3455);
   --line-2: light-dark(#d2c9e6, #4d4468);
-  --accent: light-dark(#6e61cd, #a9a1e7);
+  --accent: light-dark(#6658c3, #a9a1e7);
   --accent-ink: light-dark(#ffffff, #1b1826);
   --accent-soft: light-dark(#eae7f6, #36324d);
-  --high: light-dark(#d06275, #eb98a9);
+  --high: light-dark(#ae4358, #eb98a9);
   --high-soft: light-dark(#f6e6ea, #442a33);
   --chart-1: light-dark(#594eb3, #c2bbed);
   --chart-2: light-dark(#998edb, #897fc7);
@@ -609,13 +609,13 @@
   --sheet-2: #2f3644;
   --ink: #d5dae6;
   --ink-2: #a3acbd;
-  --ink-3: #6f7889;
+  --ink-3: #97a1b3;
   --line: #353c4a;
   --line-2: #465063;
   --accent: #8fb3e0;
   --accent-ink: #1a1f2a;
   --accent-soft: #2b3a52;
-  --high: #d08a90;
+  --high: #d58f95;
   --high-soft: #4a3038;
   /* 우선순위 램프 — 한 색상(파랑) 밝음 → 어두움. 검증기 ordinal 통과 (#272d3a 위) */
   --chart-1: #c6d6ee;
@@ -688,13 +688,13 @@
   --sheet-2: #2c3342;
   --ink: #d5dae6;
   --ink-2: #a3acbd;
-  --ink-3: #6f7889;
+  --ink-3: #949eaf;
   --line: #333a49;
   --line-2: #46506a;
   --accent: #9db8e3;
   --accent-ink: #161b28;
   --accent-soft: #2b3a55;
-  --high: #d08a90;
+  --high: #d58f95;
   --high-soft: #4a3038;
   --chart-1: #c6d6ee;
   --chart-2: #8fb3e0;
@@ -761,7 +761,7 @@
   --sheet-2: #1a1e1a;
   --ink: #c2dcc2;
   --ink-2: #869f86;
-  --ink-3: #506050;
+  --ink-3: #7b8c7b;
   --line: #222a22;
   --line-2: #364536;
   --accent: #62c072;
@@ -911,13 +911,13 @@
   --sheet-2: #395072;
   --ink: #e3e7ee;
   --ink-2: #b8c1d0;
-  --ink-3: #8390a5;
+  --ink-3: #b6c3da;
   --line: rgba(255, 255, 255, 0.14);
   --line-2: rgba(255, 255, 255, 0.32);
-  --accent: #e5cb91;
+  --accent: #ead096;
   --accent-ink: #1e2a3d;
   --accent-soft: rgba(229, 203, 145, 0.16);
-  --high: #d9968f;
+  --high: #ffbcb4;
   --high-soft: rgba(217, 150, 143, 0.18);
   /* 우선순위 램프 — 한 색상(파랑)으로 밝음 → 어두움. 검증기 ordinal 통과 (#304565 위) */
   --chart-1: #e6edf9;

@@ -1420,9 +1420,10 @@ button.todo-item-text:hover {
   mask-image: linear-gradient(to right, #000 calc(100% - 18px), transparent);
 }
 
+/* 다른 달은 흐린 글자색으로 — opacity 로 흐리면 대비가 기준 아래로 떨어진다 */
 .cal-cell.out .cal-date,
 .cal-cell.out .cal-chip {
-  opacity: 0.4;
+  color: var(--ink-3);
 }
 
 .cal-date {
