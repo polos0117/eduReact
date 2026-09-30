@@ -139,6 +139,32 @@ button:disabled {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important; /* 무한 반복(커서 깜빡임)이 0.01ms 로 빨라지지 않게 */
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
+}
+
+/* 키보드로 Tab 을 처음 누르면 나타나는 "본문으로 건너뛰기" */
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--sheet);
+  font-size: var(--t-small);
+  text-decoration: none;
+  translate: 0 calc(-100% - 16px);
+}
+
+.skip-link:focus-visible {
+  translate: none;
+}
+
+/* 건너뛴 뒤 본문 전체에 링이 뜨지 않게 — 다음 Tab 이 첫 컨트롤로 간다 */
+#main:focus {
+  outline: none;
 }

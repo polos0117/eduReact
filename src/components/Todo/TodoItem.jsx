@@ -39,10 +39,12 @@ function TodoItem({ todo, todayKey, selected, onSelect, onToggleTodo, onRemoveTo
                 <DoneButton completed={todo.completed} label={todo.text} onToggle={() => onToggleTodo(todo.id)} />
                 <button type="button" className="todo-item-text" onClick={() => onOpenTodo(todo.id)} title="상세 보기">
                     {todo.text}
-                    {noteCount > 0 && <span className="note-count" aria-label={`노트 ${noteCount}개`}>≡ {noteCount}</span>}
+                    {noteCount > 0 && <span className="note-count"><span aria-hidden="true">≡ {noteCount}</span><span className="sr-only">, 노트 {noteCount}개</span></span>}
                     {sub.total > 0 && (
-                        <span className={`note-count sub-count${sub.done === sub.total ? ' all-done' : ''}`}
-                            aria-label={`하위 항목 ${sub.total}개 중 ${sub.done}개 완료`}>☑ {sub.done}/{sub.total}</span>
+                        <span className={`note-count sub-count${sub.done === sub.total ? ' all-done' : ''}`}>
+                            <span aria-hidden="true">☑ {sub.done}/{sub.total}</span>
+                            <span className="sr-only">, 하위 항목 {sub.total}개 중 {sub.done}개 완료</span>
+                        </span>
                     )}
                 </button>
             </div>

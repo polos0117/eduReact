@@ -184,6 +184,8 @@ function App() {
     return (
         <TagColorProvider value={tagColors}>
             <div className="app">
+                {/* 해시는 탭 주소라 href 로 이동하면 탭이 바뀐다 — 초점만 옮긴다 */}
+                <a className="skip-link" href="#main" onClick={(e) => { e.preventDefault(); document.getElementById('main').focus(); }}>본문으로 건너뛰기</a>
                 <header className="app-header">
                     <div className="brand">
                         <h1>할 일</h1>
@@ -204,12 +206,12 @@ function App() {
                         <a key={key} href={`#${key}`} className={`tab${tab === key ? ' active' : ''}`}
                             aria-current={tab === key ? 'page' : undefined}>
                             {label}
-                            {key === 'todos' && leftCount > 0 && <span className="tab-badge" aria-label={`남은 할 일 ${leftCount}개`}>{leftCount}</span>}
+                            {key === 'todos' && leftCount > 0 && <span className="tab-badge"><span aria-hidden="true">{leftCount}</span><span className="sr-only">, 남은 할 일 {leftCount}개</span></span>}
                         </a>
                     ))}
                 </nav>
 
-                <main className="sheet">
+                <main className="sheet" id="main" tabIndex={-1}>
                     {/* key=hash: 조건이 바뀌면 목록 페이지를 새로 그려 필터 상태를 해시에서 다시 읽는다 */}
                     {tab === 'todos' && <TodoPage key={hash} todos={todos} dispatch={dispatch} params={params}
                         onRemoveTodo={removeTodo} onRemoveMany={removeManyTodos} onArchiveCompleted={archiveCompleted} onOpenTodo={setDetailId} />}

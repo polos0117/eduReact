@@ -203,6 +203,11 @@
   padding-block: 6px;
 }
 
+/* 입력칸은 테두리가 없어서 초점이 어디 있는지 줄 아래 선으로 알린다 */
+.todo-form:focus-within {
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
 .todo-input {
   flex: 1 1 200px;
   min-width: 0;
@@ -2114,6 +2119,12 @@ a.tag-chip:hover {
   opacity: 1;
 }
 
+@media (hover: none) {
+  .subtask .todo-item-btn {
+    opacity: 1; /* 터치 화면에는 hover 가 없다 */
+  }
+}
+
 .subtask-form {
   padding: 4px 0 8px 28px;
 }
@@ -2597,5 +2608,21 @@ a.tag-chip:hover {
 
   .todo-item-actions {
     margin-left: auto;
+  }
+}
+
+.report-text:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+/* 손가락으로 누르는 화면에선 누를 자리를 44px 로 — 보이는 모양은 그대로 두고 높이만 */
+@media (pointer: coarse) {
+  :is(.ghost-btn, .todo-item-btn) {
+    min-height: 44px;
+  }
+
+  .icon-btn {
+    width: 44px;
+    height: 44px;
   }
 }
