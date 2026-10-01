@@ -2631,3 +2631,33 @@ a.tag-chip:hover {
     height: 44px;
   }
 }
+
+/* ===== 더미 (물리 엔진 할 일) ===== */
+.pile { display: grid; gap: 12px; padding: var(--s4) var(--s5) var(--s5); } /* 대시보드 .section 과 같은 여백 */
+.pile-stage {
+  position: relative;
+  height: max(360px, calc(100dvh - 260px));
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  touch-action: none; /* 끌기가 스크롤과 싸우지 않게 */
+}
+.pile-canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+.pile-canvas:active { cursor: grabbing; }
+/* 색 읽기용. 동작 줄이기의 "* { transition-duration: 0.01ms }" 가 색을 전환 중으로 만들면 바꾼 직후 옛 색이 읽힌다 */
+.pile-probe { position: absolute; width: 0; height: 0; overflow: hidden; transition: none !important; }
+.pile-empty { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; }
+.pile-more { position: absolute; top: 8px; right: 12px; margin: 0; font-size: 0.8125rem; color: var(--ink-2); }
+.pile-card {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px;
+  padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--sheet-2);
+}
+.pile-card span { color: var(--ink-2); font-size: 0.875rem; }
+.pile-card button { margin-left: auto; }
+.pile-hint { margin: 0; font-size: 0.8125rem; color: var(--ink-2); }
+.pile-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.pile-list li { display: flex; flex-wrap: wrap; gap: 8px; }
+/* 키보드로 들어오기 전엔 숨김(화면 낭독기는 읽는다). 초점이 들어오면 보인다 */
+.pile-list:not(:focus-within) {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}

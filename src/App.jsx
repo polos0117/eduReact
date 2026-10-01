@@ -12,11 +12,12 @@ import Calendar from './components/Calendar';
 import TodoDetail from './components/TodoDetail';
 import Settings from './components/Settings';
 import Report from './components/Report';
+import Pile from './components/Pile';
 import './App.css';
 import './skin-neo.css';
 import './skins.css';
 
-const TABS = [['todos', '할 일'], ['dashboard', '대시보드'], ['calendar', '캘린더']];
+const TABS = [['todos', '할 일'], ['dashboard', '대시보드'], ['calendar', '캘린더'], ['pile', '더미']];
 const DATE_FORMAT = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' });
 
 // localStorage에서 읽은 값은 믿지 않는다 — 가져오기와 같은 검증을 거친다
@@ -91,6 +92,7 @@ function App() {
                 case '1': go('todos'); break;
                 case '2': go('dashboard'); break;
                 case '3': go('calendar'); break;
+                case '4': go('pile'); break;
                 case 'j': case 'ArrowDown': if (rows.length) { rows[Math.min(index + 1, rows.length - 1)].focus(); e.preventDefault(); } break;
                 case 'k': case 'ArrowUp': if (rows.length) { rows[Math.max(index - 1, 0)].focus(); e.preventDefault(); } break;
                 case 'x': row?.querySelector('.done-btn')?.click(); break;
@@ -218,6 +220,7 @@ function App() {
                     {tab === 'dashboard' && <Dashboard todos={todos} params={params} colorBy={colorBy} onColorByChange={setColorBy} />}
                     {tab === 'calendar' && <Calendar todos={todos} dispatch={dispatch} onOpenTodo={setDetailId}
                         colorBy={colorBy} onColorByChange={setColorBy} />}
+                    {tab === 'pile' && <Pile todos={todos} dispatch={dispatch} onOpenTodo={setDetailId} onToast={setToast} />}
                 </main>
 
                 {reportOpen && <Report todos={todos} onClose={() => setReportOpen(false)} onToast={(text) => setToast({ text })} />}
