@@ -9,15 +9,29 @@ export const SCALE = { high: 1, normal: 0.78, low: 0.6 };
 // 화면이 좁으면 공도 작게
 export const baseRadius = (width) => Math.min(44, Math.max(18, width / 11));
 
-// 무거운(우선순위 높은) 공부터 떨어져 바닥에 깔린다
-export function ballsFromTodos(todos, todayKey) {
+// 공 면적 합이 무대의 이만큼을 넘지 않게 — 넘치면 위로 쌓여 안 보이고 누를 수도 없고, 더미가 멈추지 않는다
+const STAGE_FILL = 0.5;
+
+// 무거운(우선순위 높은) 공부터 떨어져 바닥에 깔린다.
+// stage({ width, height })를 주면 무대에 들어갈 만큼만, 나머지는 hidden 에 센다
+export function ballsFromTodos(todos, todayKey, stage) {
     const open = todos
         .map((todo, index) => ({ todo, index }))
         .filter(({ todo }) => !todo.completed && !todo.archived)
         .sort((a, b) => PRIORITIES.indexOf(priorityOf(a.todo)) - PRIORITIES.indexOf(priorityOf(b.todo))
             || (a.todo.dueDate ?? '9999').localeCompare(b.todo.dueDate ?? '9999')
             || a.index - b.index);
-    const items = open.slice(0, MAX_BALLS).map(({ todo }) => ({
+    let limit = MAX_BALLS;
+    if (stage) {
+        const base = baseRadius(stage.width);
+        let area = 0;
+        limit = open.slice(0, MAX_BALLS).findIndex(({ todo }) => {
+            area += Math.PI * (base * SCALE[priorityOf(todo)]) ** 2;
+            return area > STAGE_FILL * stage.width * stage.height;
+        });
+        if (limit === -1) limit = Math.min(open.length, MAX_BALLS);
+    }
+    const items = open.slice(0, limit).map(({ todo }) => ({
         id: todo.id,
         text: todo.text,
         priority: priorityOf(todo),

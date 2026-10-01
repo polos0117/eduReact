@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { addBall, createWorld, isResting, step } from './physics';
 import { ballsFromTodos, baseRadius, contrast, dropX, dueText, fitLabel, isDoubleTap, MAX_BALLS, readableOn } from './pile';
 
 const today = '2026-10-01';
@@ -85,5 +86,31 @@ describe('dueText', () => {
         expect(dueText(today, today)).toBe('오늘');
         expect(dueText('2026-10-02', today)).toBe('내일');
         expect(dueText('2026-09-28', today)).toBe('9/28');
+    });
+});
+
+describe('ballsFromTodos — 무대 크기에 맞춰 덜어 낸다', () => {
+    const highs = Array.from({ length: 150 }, (_, i) => T(i + 1, { priority: 'high' }));
+    it('공 면적 합이 무대의 절반을 넘지 않게, 덜어 낸 수는 hidden 에', () => {
+        const stage = { width: 350, height: 500 };
+        const { items, hidden } = ballsFromTodos(highs, today, stage);
+        const r = baseRadius(350);
+        expect(items.length * Math.PI * r * r).toBeLessThanOrEqual(0.5 * 350 * 500);
+        expect(items.length + hidden).toBe(150);
+        expect(items.length).toBeGreaterThan(0);
+    });
+    it('덜어 낸 더미는 실제로 떨어뜨려도 무대 위로 넘치지 않고 멈춘다', () => {
+        const stage = { width: 350, height: 500 };
+        const { items } = ballsFromTodos(highs, today, stage);
+        const world = createWorld(stage);
+        const r = baseRadius(stage.width);
+        items.forEach((item, i) => addBall(world, { id: item.id, x: r + dropX(item.id) * (stage.width - 2 * r), y: -r - i * 2 * r, r: r * item.scale }));
+        let steps = 0;
+        while (!isResting(world) && steps < 3000) { step(world); steps++; }
+        expect(steps).toBeLessThan(3000);
+        expect(Math.min(...world.balls.map(b => b.y - b.r))).toBeGreaterThanOrEqual(0);
+    });
+    it('무대를 모르면(아직 안 쟀으면) 150개 제한만', () => {
+        expect(ballsFromTodos(highs, today).items).toHaveLength(150);
     });
 });

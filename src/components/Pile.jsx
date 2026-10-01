@@ -44,7 +44,8 @@ function readColors(probe) {
 
 export default function Pile({ todos, dispatch, onOpenTodo, onToast }) {
     const today = dayKey(useNow());
-    const { items, hidden } = ballsFromTodos(todos, today);
+    const [stage, setStage] = useState(null); // 무대 크기 — 들어갈 만큼만 공으로
+    const { items, hidden } = ballsFromTodos(todos, today, stage ?? undefined);
     const [selectedId, setSelectedId] = useState(null);
     const stageRef = useRef(null);
     const canvasRef = useRef(null);
@@ -202,6 +203,8 @@ export default function Pile({ todos, dispatch, onOpenTodo, onToast }) {
         // 화면 크기 변화 → 캔버스 해상도, 공 크기, 벽
         const resizer = new ResizeObserver(([entry]) => {
             const { width, height } = entry.contentRect;
+            const size = { width: Math.round(width), height: Math.round(height) };
+            setStage((s) => (s && s.width === size.width && s.height === size.height ? s : size));
             dpr = window.devicePixelRatio || 1;
             canvas.width = Math.round(width * dpr);
             canvas.height = Math.round(height * dpr);
@@ -221,15 +224,18 @@ export default function Pile({ todos, dispatch, onOpenTodo, onToast }) {
         // 포인터: 끌어 던지기 · 한 번 누르기(카드) · 두 번 누르기(터뜨리기)
         const at = (e) => { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
         const ballAt = (p) => [...world.balls].reverse().find((b) => Math.hypot(b.x - p.x, b.y - p.y) <= b.r);
+        // 한 번에 포인터 하나만 — 두 번째 손가락·오른쪽 버튼이 끌던 공을 가로채 얼려 두거나 다른 공을 터뜨리지 않게
+        const mine = (e) => drag && e.pointerId === drag.pointerId;
         function onDown(e) {
+            if (drag || e.button !== 0) return;
             const p = at(e);
             const ball = ballAt(p);
             if (!ball) { setSelectedId(null); return; }
             canvas.setPointerCapture(e.pointerId);
-            drag = { ball, start: p, moved: false, samples: [{ ...p, t: e.timeStamp }] };
+            drag = { pointerId: e.pointerId, ball, start: p, moved: false, samples: [{ ...p, t: e.timeStamp }] };
         }
         function onMove(e) {
-            if (!drag) return;
+            if (!mine(e)) return;
             const p = at(e);
             if (!drag.moved && Math.hypot(p.x - drag.start.x, p.y - drag.start.y) > DRAG_START) { drag.moved = true; drag.ball.held = true; }
             if (!drag.moved) return;
@@ -240,7 +246,7 @@ export default function Pile({ todos, dispatch, onOpenTodo, onToast }) {
             wake();
         }
         function onUp(e) {
-            if (!drag) return;
+            if (!mine(e)) return;
             const d = drag;
             drag = null;
             const p = at(e);
@@ -259,8 +265,9 @@ export default function Pile({ todos, dispatch, onOpenTodo, onToast }) {
             const tap = { id: d.ball.id, t: e.timeStamp, x: p.x, y: p.y };
             if (isDoubleTap(lastTap, tap)) { lastTap = null; pop(d.ball.id); } else { lastTap = tap; setSelectedId(d.ball.id); }
         }
-        function onCancel() {
-            if (drag) drag.ball.held = false;
+        function onCancel(e) {
+            if (!mine(e)) return;
+            drag.ball.held = false;
             drag = null;
             wake();
         }
@@ -286,7 +293,15 @@ export default function Pile({ todos, dispatch, onOpenTodo, onToast }) {
 
     // 공에 영향을 주는 것이 바뀔 때만 맞춘다 (items 는 렌더마다 새 배열)
     const itemsKey = items.map((i) => `${i.id}:${i.priority}:${i.overdue}:${i.text}`).join('\n');
-    useEffect(() => { engine.current?.sync(latest.current.items); }, [itemsKey]);
+    useEffect(() => { if (stage) engine.current?.sync(latest.current.items); }, [itemsKey, stage]);
+
+    // 키보드로 끝내면 그 줄이 사라진다 — 초점을 이웃 줄로 옮겨 목록에 남긴다
+    function popFromList(e, id) {
+        const row = e.currentTarget.closest('li');
+        const next = row.nextElementSibling ?? row.previousElementSibling;
+        engine.current?.pop(id);
+        next?.querySelector('button')?.focus();
+    }
 
     useEffect(() => {
         if (selectedId === null) return;
@@ -317,7 +332,7 @@ export default function Pile({ todos, dispatch, onOpenTodo, onToast }) {
                 {items.map((item) => (
                     <li key={item.id}>
                         <button type="button" className="ghost-btn" onFocus={() => engine.current?.focus(item.id)} onBlur={() => engine.current?.focus(null)}
-                            onClick={() => engine.current?.pop(item.id)}>{item.text} 끝내기</button>
+                            onClick={(e) => popFromList(e, item.id)}>{item.text} 끝내기</button>
                         <button type="button" className="ghost-btn" onFocus={() => engine.current?.focus(item.id)} onBlur={() => engine.current?.focus(null)}
                             onClick={() => onOpenTodo(item.id)}>자세히</button>
                     </li>
