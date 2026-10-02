@@ -1,3 +1,4 @@
+import { mergeTodos } from '../lib/merge';
 // 우선순위: 정렬 순서와 라벨을 여기서 한 번만 정의한다
 export const PRIORITIES = ['high', 'normal', 'low'];
 export const PRIORITY_LABEL = { high: '높음', normal: '보통', low: '낮음' };
@@ -219,6 +220,12 @@ export function todoReducer(state, action) {
         case 'IMPORT': {
             const known = new Set(state.map(todo => todo.id));
             return [...state, ...action.todos.filter(todo => !known.has(todo.id))];
+        }
+        // 동기화 결과 넣기. 동기화가 본 목록(from) 그대로면 결과(to)로, 그 사이 이 기기에서 바뀌었으면 덮지 않고 한 번 더 합친다
+        case 'SYNC': {
+            if (state === action.from) return action.to;
+            const merged = mergeTodos(action.from, state, action.to);
+            return merged.changedRemote ? merged.todos : action.to;
         }
         default: return state;
     }

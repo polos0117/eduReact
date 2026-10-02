@@ -47,7 +47,11 @@ export function createClient({ repo, path, token, fetch = globalThis.fetch.bind(
         },
         async read() {
             const res = await call(fileUrl);
-            if (res.status === 404) return { todos: null, sha: null }; // 아직 파일이 없다
+            if (res.status === 404) {
+                // 파일이 없거나, 저장소가 없거나 권한이 빠졌거나(GitHub 는 그때도 404). 뒤의 경우를 "빈 목록"으로 보면 할 일이 다 지워진다
+                await this.checkRepo();
+                return { todos: null, sha: null };
+            }
             if (!res.ok) throw failure(res.status);
             const json = await res.json();
             let data;

@@ -10,7 +10,7 @@ function setup({ remote = null, local = [], base = null, conflicts = 0 } = {}) {
     const client = {
         read: async () => ({ todos: state.remote, sha: state.sha }),
         write: async (todos, sha, message) => {
-            if (state.conflicts > 0) { state.conflicts--; state.remote = [...(state.remote ?? []), T(99)]; state.sha = `${state.sha}x`; throw new SyncError('conflict', 'x'); }
+            if (state.conflicts > 0) { state.conflicts--; state.remote = [...(state.remote ?? []), T(99 - state.conflicts)]; state.sha = `${state.sha}x`; throw new SyncError('conflict', 'x'); }
             if (sha !== state.sha) throw new Error(`sha mismatch ${sha} vs ${state.sha}`);
             state.writes.push({ todos, message });
             state.remote = todos;
@@ -65,6 +65,39 @@ describe('syncOnce', () => {
         deps.normalize = (list) => list.map(t => ({ ...t, text: t.text.trim() }));
         await syncOnce(deps);
         expect(state.local).toEqual([{ id: 1, text: '가' }]);
+    });
+});
+
+describe('syncOnce — 데이터를 잃지 않게', () => {
+    it('기준이 있는데 원격 파일이 사라졌으면(누가 지움) 이 기기 할 일은 그대로, 파일을 다시 만든다', async () => {
+        const { state, deps } = setup({ local: [T(1), T(2)], base: [T(1), T(2)] });
+        await syncOnce(deps);
+        expect(state.local).toEqual([T(1), T(2)]);
+        expect(state.remote).toEqual([T(1), T(2)]);
+    });
+    it('모양만 다른 기준(정규화 전 빈 배열)이 다른 기기의 완료를 덮지 않는다', async () => {
+        const strip = (list) => list.map(({ notes, ...t }) => (notes?.length ? { ...t, notes } : t));
+        const { state, deps } = setup({ remote: [T(1, { completed: true })], local: [T(1)], base: [T(1, { notes: [] })] });
+        deps.normalize = strip;
+        await syncOnce(deps);
+        expect(state.local).toEqual([T(1, { completed: true })]);
+    });
+    it('같은 번호의 할 일이 있으면 아무것도 바꾸지 않고 멈춘다', async () => {
+        const { state, deps } = setup({ remote: [T(1)], local: [T(1), T(1, { text: '겹침' })], base: [T(1)] });
+        await expect(syncOnce(deps)).rejects.toMatchObject({ kind: 'bad' });
+        expect(state.writes).toHaveLength(0);
+        expect(state.local).toEqual([T(1), T(1, { text: '겹침' })]);
+    });
+    it('도는 중에 연결이 바뀌면(isCurrent false) 아무것도 쓰지 않는다', async () => {
+        const { state, deps } = setup({ remote: [T(1, { completed: true })], local: [T(1), T(2)], base: [T(1)] });
+        let current = true;
+        const read = deps.client.read;
+        deps.client.read = async () => { const r = await read(); current = false; return r; };
+        deps.isCurrent = () => current;
+        await expect(syncOnce(deps)).rejects.toMatchObject({ kind: 'stale' });
+        expect(state.writes).toHaveLength(0);
+        expect(state.local).toEqual([T(1), T(2)]);
+        expect(state.base).toEqual([T(1)]);
     });
 });
 

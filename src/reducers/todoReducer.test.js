@@ -1,4 +1,4 @@
-import {test, expect} from 'vitest';
+import {describe, it, test, expect} from 'vitest';
 import {todoReducer, sortByPriority, sortTodos, normalizeTodo, parseTags, subtaskProgress} from './todoReducer';
 
     test('addTest', () => {
@@ -253,4 +253,18 @@ test('보관은 끝낸 것만 담고, 완료를 풀면 보관에서 나온다', 
     expect(todoReducer(state, { type: 'SET_ARCHIVED', id: 3, archived: false })[2].archived).toBeUndefined();
     expect(normalizeTodo({ text: 'x', completed: false, archived: true }).archived).toBeUndefined();
     expect(normalizeTodo({ text: 'x', completed: true, archived: true }).archived).toBe(true);
+});
+
+describe('SYNC (동기화 결과 넣기)', () => {
+    const T = (id, extra = {}) => ({ id, text: `할 일 ${id}`, completed: false, createdAt: id, ...extra });
+    it('동기화가 본 그대로면 결과로 바꾼다 (같은 배열)', () => {
+        const from = [T(1)], to = [T(1, { completed: true }), T(2)];
+        expect(todoReducer(from, { type: 'SYNC', from, to })).toBe(to);
+    });
+    it('그 사이에 이 기기에서 바뀌었으면 덮어쓰지 않고 한 번 더 합친다', () => {
+        const from = [T(1)];
+        const state = [T(1), T(3)];              // 동기화가 도는 사이 할 일 3 을 가져옴
+        const to = [T(1, { completed: true })];   // 동기화 결과
+        expect(todoReducer(state, { type: 'SYNC', from, to })).toEqual([T(1, { completed: true }), T(3)]);
+    });
 });

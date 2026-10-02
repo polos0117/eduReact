@@ -31,7 +31,7 @@ describe('createClient', () => {
         expect(c.headers).toMatchObject({ Authorization: 'Bearer tok', Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' });
     });
     it('read: 파일이 없으면(404) 빈 상태', async () => {
-        expect(await client(fakeFetch([{ status: 404, body: {} }])).read()).toEqual({ todos: null, sha: null });
+        expect(await client(fakeFetch([{ status: 404, body: {} }, { status: 200, body: {} }])).read()).toEqual({ todos: null, sha: null });
     });
     it('read: 배열만 있는 파일도 받는다, 깨진 파일은 bad', async () => {
         const arr = fakeFetch([{ status: 200, body: { sha: 's', content: toBase64('[{"id":2,"text":"나"}]') } }]);
@@ -55,6 +55,10 @@ describe('createClient', () => {
     });
     it.each([[401, 'auth'], [403, 'auth'], [409, 'conflict'], [422, 'conflict'], [500, 'other']])('HTTP %i → %s', async (status, kind) => {
         await expect(client(fakeFetch([{ status, body: {} }])).write([], 's', 'm')).rejects.toMatchObject({ kind });
+    });
+    it('read: 파일이 없을 때 저장소도 없으면(권한을 뺐거나 지움) notfound — 빈 목록으로 보지 않는다', async () => {
+        await expect(client(fakeFetch([{ status: 404, body: {} }, { status: 404, body: {} }])).read()).rejects.toMatchObject({ kind: 'notfound' });
+        expect(await client(fakeFetch([{ status: 404, body: {} }, { status: 200, body: {} }])).read()).toEqual({ todos: null, sha: null });
     });
     it('네트워크 오류 → network, checkRepo 의 404 → notfound', async () => {
         await expect(client(fakeFetch([new TypeError('Failed to fetch')])).read()).rejects.toBeInstanceOf(SyncError);
