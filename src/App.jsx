@@ -13,6 +13,8 @@ import TodoDetail from './components/TodoDetail';
 import Settings from './components/Settings';
 import Report from './components/Report';
 import Pile from './components/Pile';
+import { useSync } from './hooks/useSync';
+import { statusText } from './lib/syncEngine';
 import './App.css';
 import './skin-neo.css';
 import './skins.css';
@@ -46,7 +48,10 @@ function useHash() {
 
 function App() {
     const [todos, dispatch] = usePersistedReducer(todoReducer, 'todos', [], sanitizeTodos);
-    const today = DATE_FORMAT.format(useNow());
+    const sync = useSync(todos, dispatch, sanitizeTodos);
+    const [settingsFocus, setSettingsFocus] = useState(null); // 'sync' 면 설정을 동기화 칸으로 열기
+    const now = useNow();
+    const today = DATE_FORMAT.format(now);
     const [theme, setTheme] = useTheme();
     const [skin, setSkin] = useSkin();
     const { tab, params, hash } = useHash();
@@ -192,6 +197,12 @@ function App() {
                     <div className="brand">
                         <h1>할 일</h1>
                         <p className="subline" aria-live="polite">{today}, {summary}</p>
+                        {sync.status.kind !== 'off' && (
+                            <button type="button" className={`sync-status sync-${sync.status.kind}`}
+                                onClick={() => { setSettingsFocus('sync'); setSettingsOpen(true); }}>
+                                {statusText(sync.status, now)}
+                            </button>
+                        )}
                     </div>
                     <div className="header-actions">
                         <button type="button" className="ghost-btn" onClick={exportJson} disabled={todos.length === 0}>내보내기</button>
@@ -229,7 +240,8 @@ function App() {
                     <Settings revTemplate={revTemplate} onChangeRevTemplate={setRevTemplate}
                         skin={skin} onChangeSkin={setSkin} theme={theme} onChangeTheme={setTheme}
                         allTags={allTags} tagColors={tagColors} onChangeTagColors={setTagColors}
-                        onClose={() => setSettingsOpen(false)} />
+                        sync={sync} focus={settingsFocus}
+                        onClose={() => { setSettingsOpen(false); setSettingsFocus(null); }} />
                 )}
 
                 {toast && (

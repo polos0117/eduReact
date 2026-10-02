@@ -2663,3 +2663,15 @@ a.tag-chip:hover {
 .pile-list:not(:focus-within) {
   position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
 }
+
+/* ===== 동기화 ===== */
+.sync-status {
+  margin-top: 2px; padding: 0; border: 0; background: none; cursor: pointer;
+  font-size: 0.8125rem; color: var(--ink-2); text-decoration: underline dotted; text-underline-offset: 3px;
+}
+.sync-status.sync-error { color: var(--high); }
+.sync-form { display: grid; gap: 8px; }
+.sync-row { display: grid; grid-template-columns: 5.5em 1fr; align-items: center; gap: 8px; font-size: 0.875rem; color: var(--ink-2); }
+.sync-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.sync-help { padding-left: 1.2em; }
+.sync-help li + li { margin-top: 2px; }

@@ -1,6 +1,6 @@
 import { useReducer, useEffect } from "react";
 
-const REPLACE = '@persisted/replace';
+export const REPLACE = '@persisted/replace';
 
 // useReducer + localStorage.
 // sanitize(raw)는 저장소에서 읽은 값(신뢰 불가)을 올바른 모양의 상태로 바꾼다.
